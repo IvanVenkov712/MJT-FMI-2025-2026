@@ -1,4 +1,12 @@
 package bg.sofia.uni.fmi.mjt.jobmatch.matching;
 
-public class JaccardSimilarity {
+import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Skill;
+
+import java.util.Set;
+
+public class JaccardSimilarity implements SimilarityStrategy {
+    @Override
+    public double calculateSimilarity(Set<Skill> candidateSkills, Set<Skill> jobSkills) {
+        return 0;
+    }
 }
