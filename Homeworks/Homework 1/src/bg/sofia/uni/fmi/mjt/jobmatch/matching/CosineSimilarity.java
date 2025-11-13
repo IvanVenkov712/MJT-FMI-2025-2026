@@ -16,8 +16,8 @@ public class CosineSimilarity extends AbstractSimilarityStrategy {
             return 0;
         }
         Pair<Set<Skill>, Set<Skill>> normalized = normalizeSets(candidateSkills, jobSkills);
-        Pair<MathVector, MathVector> toVectors = transformToVectors(normalized);
-        return toVectors.first().getSimilarity(toVectors.first());
+        Pair<MathVector, MathVector> vectors = transformToVectors(normalized);
+        return vectors.first().getSimilarity(vectors.second());
     }
 
     private record Pair<T1, T2>(T1 first, T2 second) {
