@@ -31,6 +31,7 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.verifiers.CandidateSimilarityVe
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.verifiers.SkillRecommendationVerifier;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -62,6 +63,8 @@ public class JobMatch implements JobMatchAPI {
             throw new UserAlreadyExistsException("User with this email is already registered in the system!");
         }
         candidates.put(candidate.getEmail(), candidate);
+        updateMostCommonSkillName(candidate.getSkills());
+        /*
         for (Skill skill : candidate.getSkills()) {
 
             skillFrequency.putIfAbsent(skill.name(), 0);
@@ -75,6 +78,7 @@ public class JobMatch implements JobMatchAPI {
                 mostCommonSkillName = skill.name();
             }
         }
+         */
         return candidate;
     }
 
@@ -263,6 +267,22 @@ public class JobMatch implements JobMatchAPI {
                 new SkillRecommendationByNameComparator().reversed()),
             new SkillRecommendationVerifier()
         );
+    }
+
+    private void updateMostCommonSkillName(Collection<Skill> newSkills) {
+        int freqOld = skillFrequency.getOrDefault(mostCommonSkillName, 0);
+        String nameOld = mostCommonSkillName;
+
+        for (Skill skill : newSkills) {
+            skillFrequency.putIfAbsent(skill.name(), 0);
+            skillFrequency.put(skill.name(), skillFrequency.get(skill.name()) + 1);
+
+            int freqNew = skillFrequency.get(skill.name());
+            String nameNew = skill.name();
+            if (freqNew > freqOld || (freqNew == freqOld && nameNew.compareTo(nameOld) < 0)) {
+                mostCommonSkillName = nameNew;
+            }
+        }
     }
 
     private static <T> List<T> selectTopNLargest(Iterable<T> items, int limit, Comparator<? super T> comparator,
