@@ -17,8 +17,11 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.SkillRecommendation;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchByCandidateNameComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchByJobTitleComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchByScoreComparator;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateSimilarityMatchByCandidateNameComparator;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateSimilarityMatchByScoreComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.iterables.CandidateJobMatchSameCandidate;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.iterables.CandidateJobMatchSameJobPosting;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.iterables.CandidateSimilarityMatchSameCandidate;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -75,6 +78,95 @@ public class JobMatch implements JobMatchAPI {
         return jobPosting;
     }
 
+    @Override
+    public List<CandidateJobMatch> findTopNCandidatesForJob(String jobPostingId, int limit,
+                                                            SimilarityStrategy strategy) {
+        validateFindTopNParams(jobPostingId, limit, strategy);
+
+        if (!jobPostings.containsKey(jobPostingId)) {
+            throw new JobPostingNotFoundException("Job Posting with this id was not found!");
+        }
+
+        return findTopN(
+            new CandidateJobMatchSameJobPosting(candidates.values(), jobPostings.get(jobPostingId), strategy),
+            new CandidateJobMatchByScoreComparator()
+                .thenComparing(new CandidateJobMatchByCandidateNameComparator().reversed()),
+            limit
+        );
+    }
+
+    @Override
+    public List<CandidateJobMatch> findTopNJobsForCandidate(String candidateEmail, int limit,
+                                                            SimilarityStrategy strategy) {
+
+        validateFindTopNParams(candidateEmail, limit, strategy);
+
+        if (!candidates.containsKey(candidateEmail)) {
+            throw new CandidateNotFoundException("The candidate was not found!");
+        }
+
+        return findTopN(
+            new CandidateJobMatchSameCandidate(jobPostings.values(), candidates.get(candidateEmail), strategy),
+            new CandidateJobMatchByScoreComparator()
+                .thenComparing(new CandidateJobMatchByJobTitleComparator().reversed()),
+            limit
+        );
+    }
+
+    @Override
+    public List<CandidateSimilarityMatch> findSimilarCandidates(String candidateEmail, int limit,
+                                                                SimilarityStrategy strategy) {
+        validateFindTopNParams(candidateEmail, limit, strategy);
+        if (!candidates.containsKey(candidateEmail)) {
+            throw new CandidateNotFoundException("The candidate was not found!");
+        }
+        Candidate target = candidates.get(candidateEmail);
+        Iterable<CandidateSimilarityMatch> matches = new CandidateSimilarityMatchSameCandidate(
+            candidates.values(), target, strategy
+        );
+
+        Queue<CandidateSimilarityMatch> topMatches = new PriorityQueue<>(
+            new CandidateSimilarityMatchByScoreComparator()
+                .thenComparing(new CandidateSimilarityMatchByCandidateNameComparator().reversed())
+        );
+        for (CandidateSimilarityMatch match : matches) {
+            if (!match.getSimilarCandidate().equals(target) &&
+                !MathUtils.equalsDouble(match.getSimilarityScore(), 0)) {
+                topMatches.add(match);
+                if (topMatches.size() > limit) {
+                    topMatches.poll();
+                }
+            }
+        }
+        List<CandidateSimilarityMatch> res = new ArrayList<>();
+        while (!topMatches.isEmpty()) {
+            res.add(topMatches.poll());
+        }
+        return List.copyOf(res.reversed());
+    }
+
+    @Override
+    public List<SkillRecommendation> getSkillRecommendationsForCandidate(String candidateEmail, int limit) {
+        return List.of();
+    }
+
+    @Override
+    public PlatformStatistics getPlatformStatistics() {
+        return null;
+    }
+
+    private void validateFindTopNParams(String name, int limit, SimilarityStrategy strategy) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Invalid jobPostingId");
+        }
+        if (limit < 0) {
+            throw new IllegalArgumentException("limit must be non-negative!");
+        }
+        if (strategy == null) {
+            throw new IllegalArgumentException("strategy is null!");
+        }
+    }
+
     private List<CandidateJobMatch> findTopN(Iterable<CandidateJobMatch> matches,
                                              Comparator<CandidateJobMatch> criterion, int limit) {
 
@@ -96,68 +188,5 @@ public class JobMatch implements JobMatchAPI {
         }
 
         return List.copyOf(res.reversed());
-    }
-
-    @Override
-    public List<CandidateJobMatch> findTopNCandidatesForJob(String jobPostingId, int limit,
-                                                            SimilarityStrategy strategy) {
-        if (jobPostingId == null || jobPostingId.isBlank()) {
-            throw new IllegalArgumentException("Invalid jobPostingId");
-        }
-        if (limit < 0) {
-            throw new IllegalArgumentException("limit must be non-negative!");
-        }
-        if (strategy == null) {
-            throw new IllegalArgumentException("strategy is null!");
-        }
-        if (!jobPostings.containsKey(jobPostingId)) {
-            throw new JobPostingNotFoundException("Job Posting with this id was not found!");
-        }
-        return findTopN(
-            new CandidateJobMatchSameJobPosting(candidates.values(), jobPostings.get(jobPostingId), strategy),
-            new CandidateJobMatchByScoreComparator()
-                .thenComparing(new CandidateJobMatchByCandidateNameComparator().reversed()),
-            limit
-        );
-    }
-
-    @Override
-    public List<CandidateJobMatch> findTopNJobsForCandidate(String candidateEmail, int limit,
-                                                            SimilarityStrategy strategy) {
-
-        if (candidateEmail == null || candidateEmail.isBlank()) {
-            throw new IllegalArgumentException("Invalid jobPostingId");
-        }
-        if (limit < 0) {
-            throw new IllegalArgumentException("limit must be non-negative!");
-        }
-        if (strategy == null) {
-            throw new IllegalArgumentException("strategy is null!");
-        }
-        if (!candidates.containsKey(candidateEmail)) {
-            throw new CandidateNotFoundException("The candidate was not found!");
-        }
-        return findTopN(
-            new CandidateJobMatchSameCandidate(jobPostings.values(), candidates.get(candidateEmail), strategy),
-            new CandidateJobMatchByScoreComparator()
-                .thenComparing(new CandidateJobMatchByJobTitleComparator().reversed()),
-            limit
-        );
-    }
-
-    @Override
-    public List<CandidateSimilarityMatch> findSimilarCandidates(String candidateEmail, int limit,
-                                                                SimilarityStrategy strategy) {
-
-    }
-
-    @Override
-    public List<SkillRecommendation> getSkillRecommendationsForCandidate(String candidateEmail, int limit) {
-        return List.of();
-    }
-
-    @Override
-    public PlatformStatistics getPlatformStatistics() {
-        return null;
     }
 }

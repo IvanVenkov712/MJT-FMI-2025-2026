@@ -19,4 +19,16 @@ public class CandidateSimilarityMatch {
         this.similarCandidate = similarCandidate;
         this.similarityScore = similarityScore;
     }
+
+    public Candidate getTargetCandidate() {
+        return targetCandidate;
+    }
+
+    public Candidate getSimilarCandidate() {
+        return similarCandidate;
+    }
+
+    public double getSimilarityScore() {
+        return similarityScore;
+    }
 }
