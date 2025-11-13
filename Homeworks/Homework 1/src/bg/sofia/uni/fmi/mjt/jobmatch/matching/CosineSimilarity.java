@@ -1,80 +1,61 @@
 package bg.sofia.uni.fmi.mjt.jobmatch.matching;
 
+import bg.sofia.uni.fmi.mjt.jobmatch.math.MathVector;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Skill;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class CosineSimilarity extends AbstractSimilarityStrategy {
-
-    private record SkillsSetPair(Set<Skill> candidateSkills, Set<Skill> jobSkills) {
-
-    }
-
-    private record VectorPair(MathVector candidateVector, MathVector jobVector) {
-
-    }
-
-    private class MathVector {
-        private static final double EPSILON = 0.000000000001;
-        private final List<Double> arr;
-        private final double norm;
-
-        public MathVector(Collection<Double> arr) {
-            if (arr == null) {
-                throw new IllegalArgumentException("arr was null");
-            }
-            this.arr = new ArrayList<>(arr);
-            double normTmp = 0;
-            for (double x : this.arr) {
-                normTmp += x * x;
-            }
-            norm = Math.sqrt(normTmp);
-        }
-
-        public int length() {
-            return arr.size();
-        }
-
-        public double getNorm() {
-            return norm;
-        }
-
-        public double dotProduct(MathVector other) {
-            if (other == null || other.length() != length()) {
-                throw new IllegalArgumentException("other is not a valid vector for a dot product");
-            }
-            double res = 0;
-            for (int i = 0; i < length(); ++i) {
-                res += arr.get(i) * other.arr.get(i);
-            }
-            return res;
-        }
-
-        public double getSimilarity(MathVector other) {
-            if (other == null || other.length() != length()) {
-                throw new IllegalArgumentException("other is not a valid vector for a similarity");
-            }
-            double norm1 = getNorm();
-            double norm2 = other.getNorm();
-            if (Math.abs(norm1) < EPSILON || Math.abs(norm2) < EPSILON) {
-                return 0;
-            }
-            double dot = dotProduct(other);
-            return dot / (norm1 * norm2);
-        }
-    }
-
-
     @Override
     public double calculateSimilarity(Set<Skill> candidateSkills, Set<Skill> jobSkills) {
         validateParameters(candidateSkills, jobSkills);
         if (candidateSkills.isEmpty() && jobSkills.isEmpty()) {
             return 0;
         }
+        Pair<Set<Skill>, Set<Skill>> normalized = normalizeSets(candidateSkills, jobSkills);
+        Pair<MathVector, MathVector> toVectors = transformToVectors(normalized);
+        return toVectors.first().getSimilarity(toVectors.first());
+    }
 
-        return 0;
+    private record Pair<T1, T2>(T1 first, T2 second) {
+        public Pair {
+            if (first == null || second == null) {
+                throw new IllegalArgumentException("Null elements are not allowed in the pair!");
+            }
+        }
+    }
+
+    private Pair<Set<Skill>, Set<Skill>> normalizeSets(Set<Skill> candidateSkills, Set<Skill> jobSkills) {
+        Set<Skill> candidateSkillsNormal = new TreeSet<>(candidateSkills);
+        Set<Skill> jobSkillsNormal = new TreeSet<>(jobSkills);
+        for (Skill skill : jobSkills) {
+            if (!candidateSkillsNormal.contains(skill)) {
+                candidateSkillsNormal.add(new Skill(skill.name(), 0));
+            }
+        }
+        for (Skill skill : candidateSkills) {
+            if (!jobSkillsNormal.contains(skill)) {
+                jobSkillsNormal.add(new Skill(skill.name(), 0));
+            }
+        }
+        return new Pair<>(candidateSkillsNormal, jobSkillsNormal);
+    }
+
+    private List<Double> transformToVector(Set<Skill> skills) {
+        List<Double> vector = new ArrayList<>();
+        for (Skill skill : skills) {
+            vector.add((double) skill.level());
+        }
+        return vector;
+    }
+
+    private Pair<MathVector, MathVector> transformToVectors(Pair<Set<Skill>, Set<Skill>> normalizedSets) {
+        return new Pair<>(
+            new MathVector(transformToVector(normalizedSets.first())),
+            new MathVector(transformToVector(normalizedSets.second()))
+        );
     }
 }
