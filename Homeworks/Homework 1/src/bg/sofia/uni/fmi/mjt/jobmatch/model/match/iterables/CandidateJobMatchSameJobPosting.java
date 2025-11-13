@@ -50,11 +50,6 @@ public class CandidateJobMatchSameJobPosting implements Iterable<CandidateJobMat
                 strategy.calculateSimilarity(candidate.getSkills(), jobPosting.getRequiredSkills())
             );
         }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException("Cannot remove elements!");
-        }
     }
 }
 

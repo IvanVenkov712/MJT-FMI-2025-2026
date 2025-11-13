@@ -5,12 +5,14 @@ import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.CandidateNotFoundException;
 import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.JobPostingNotFoundException;
 import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.UserAlreadyExistsException;
 import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.UserNotFoundException;
+import bg.sofia.uni.fmi.mjt.jobmatch.matching.CosineSimilarity;
 import bg.sofia.uni.fmi.mjt.jobmatch.matching.SimilarityStrategy;
 import bg.sofia.uni.fmi.mjt.jobmatch.math.MathUtils;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.PlatformStatistics;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Candidate;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Employer;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.JobPosting;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Skill;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateJobMatch;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateSimilarityMatch;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.SkillRecommendation;
@@ -19,9 +21,15 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchBy
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchByScoreComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateSimilarityMatchByCandidateNameComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateSimilarityMatchByScoreComparator;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.SkillRecommendationByImprovementComparator;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.SkillRecommendationByNameComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.iterables.CandidateJobMatchSameCandidate;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.iterables.CandidateJobMatchSameJobPosting;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.iterables.CandidateSimilarityMatchSameCandidate;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.iterables.SkillRecommendationIterable;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.verifiers.CandidateJobVerifier;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.verifiers.CandidateSimilarityVerifier;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.verifiers.SkillRecommendationVerifier;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -87,11 +95,11 @@ public class JobMatch implements JobMatchAPI {
             throw new JobPostingNotFoundException("Job Posting with this id was not found!");
         }
 
-        return findTopN(
-            new CandidateJobMatchSameJobPosting(candidates.values(), jobPostings.get(jobPostingId), strategy),
+        return selectTopNLargest(
+            new CandidateJobMatchSameJobPosting(candidates.values(), jobPostings.get(jobPostingId), strategy), limit,
             new CandidateJobMatchByScoreComparator()
                 .thenComparing(new CandidateJobMatchByCandidateNameComparator().reversed()),
-            limit
+            new CandidateJobVerifier()
         );
     }
 
@@ -105,11 +113,12 @@ public class JobMatch implements JobMatchAPI {
             throw new CandidateNotFoundException("The candidate was not found!");
         }
 
-        return findTopN(
-            new CandidateJobMatchSameCandidate(jobPostings.values(), candidates.get(candidateEmail), strategy),
+        return selectTopNLargest(
+            new CandidateJobMatchSameCandidate(jobPostings.values(), candidates.get(candidateEmail), strategy), limit,
             new CandidateJobMatchByScoreComparator()
                 .thenComparing(new CandidateJobMatchByJobTitleComparator().reversed()),
-            limit
+            new CandidateJobVerifier()
+
         );
     }
 
@@ -125,6 +134,12 @@ public class JobMatch implements JobMatchAPI {
             candidates.values(), target, strategy
         );
 
+        return selectTopNLargest(matches, limit,
+            new CandidateSimilarityMatchByScoreComparator()
+                .thenComparing(new CandidateSimilarityMatchByCandidateNameComparator().reversed()),
+            new CandidateSimilarityVerifier()
+        );
+        /*
         Queue<CandidateSimilarityMatch> topMatches = new PriorityQueue<>(
             new CandidateSimilarityMatchByScoreComparator()
                 .thenComparing(new CandidateSimilarityMatchByCandidateNameComparator().reversed())
@@ -143,11 +158,12 @@ public class JobMatch implements JobMatchAPI {
             res.add(topMatches.poll());
         }
         return List.copyOf(res.reversed());
+         */
     }
 
     @Override
     public List<SkillRecommendation> getSkillRecommendationsForCandidate(String candidateEmail, int limit) {
-        return List.of();
+        return getSkillRecommendationsForCandidate(candidateEmail, limit, new CosineSimilarity());
     }
 
     @Override
@@ -167,8 +183,9 @@ public class JobMatch implements JobMatchAPI {
         }
     }
 
-    private List<CandidateJobMatch> findTopN(Iterable<CandidateJobMatch> matches,
-                                             Comparator<CandidateJobMatch> criterion, int limit) {
+    /*
+    private List<CandidateJobMatch> findTopNCandidateJobMatch(Iterable<CandidateJobMatch> matches,
+                                                              Comparator<CandidateJobMatch> criterion, int limit) {
 
         Queue<CandidateJobMatch> topCandidates = new PriorityQueue<>(criterion);
 
@@ -185,6 +202,63 @@ public class JobMatch implements JobMatchAPI {
 
         while (!topCandidates.isEmpty()) {
             res.add(topCandidates.poll());
+        }
+
+        return List.copyOf(res.reversed());
+    }
+     */
+
+    private List<SkillRecommendation> getSkillRecommendationsForCandidate(String candidateEmail, int limit,
+                                                                          SimilarityStrategy strategy) {
+        validateFindTopNParams(candidateEmail, limit, strategy);
+        if (!candidates.containsKey(candidateEmail)) {
+            throw new CandidateNotFoundException("The candidate was not found!");
+        }
+        Candidate candidate = candidates.get(candidateEmail);
+        Map<Skill, Double> recommendations = new HashMap<>();
+        for (JobPosting posting : jobPostings.values()) {
+            double currentSimilarity = strategy.calculateSimilarity(candidate.getSkills(), posting.getRequiredSkills());
+            for (Skill skill : posting.getRequiredSkills()) {
+                if (!candidate.getSkills().contains(skill)) {
+
+                    candidate.getSkills().add(skill);
+                    double improvement =
+                        strategy.calculateSimilarity(candidate.getSkills(), posting.getRequiredSkills()) -
+                            currentSimilarity;
+                    candidate.getSkills().remove(skill);
+
+                    recommendations.putIfAbsent(skill, 0.0);
+                    recommendations.put(skill, recommendations.get(skill) + improvement);
+                }
+            }
+        }
+        return selectTopNLargest(
+            new SkillRecommendationIterable(recommendations), limit,
+            new SkillRecommendationByImprovementComparator().thenComparing(
+                new SkillRecommendationByNameComparator().reversed()),
+            new SkillRecommendationVerifier()
+        );
+    }
+
+    private static <T> List<T> selectTopNLargest(Iterable<T> items, int limit, Comparator<? super T> comparator,
+                                                 ItemVerifier<T> verifier) {
+        if (limit <= 0) {
+            return List.of();
+        }
+
+        Queue<T> topItems = new PriorityQueue<>(comparator);
+        for (T item : items) {
+            if (verifier.isValid(item)) {
+                topItems.add(item);
+                if (topItems.size() > limit) {
+                    topItems.poll();
+                }
+            }
+        }
+
+        List<T> res = new ArrayList<>();
+        while (!topItems.isEmpty()) {
+            res.add(topItems.poll());
         }
 
         return List.copyOf(res.reversed());

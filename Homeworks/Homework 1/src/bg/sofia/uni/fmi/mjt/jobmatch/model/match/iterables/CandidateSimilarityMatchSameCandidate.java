@@ -50,10 +50,5 @@ public class CandidateSimilarityMatchSameCandidate implements Iterable<Candidate
                 strategy.calculateSimilarity(target.getSkills(), similar.getSkills())
             );
         }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException("This iterator cannot be used for element removal!");
-        }
     }
 }
