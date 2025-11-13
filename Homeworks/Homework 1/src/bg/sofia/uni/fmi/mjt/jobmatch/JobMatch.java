@@ -7,7 +7,6 @@ import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.UserAlreadyExistsException;
 import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.UserNotFoundException;
 import bg.sofia.uni.fmi.mjt.jobmatch.matching.CosineSimilarity;
 import bg.sofia.uni.fmi.mjt.jobmatch.matching.SimilarityStrategy;
-import bg.sofia.uni.fmi.mjt.jobmatch.math.MathUtils;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.PlatformStatistics;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Candidate;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Employer;
@@ -43,11 +42,15 @@ public class JobMatch implements JobMatchAPI {
     private final Map<String, Candidate> candidates;
     private final Map<String, Employer> employers;
     private final Map<String, JobPosting> jobPostings;
+    private final Map<String, Integer> skillFrequency;
+    private String mostCommonSkillName;
+    private JobPosting highestPaidJob;
 
     public JobMatch() {
         candidates = new HashMap<>();
         employers = new HashMap<>();
         jobPostings = new HashMap<>();
+        skillFrequency = new HashMap<>();
     }
 
     @Override
@@ -59,6 +62,19 @@ public class JobMatch implements JobMatchAPI {
             throw new UserAlreadyExistsException("User with this email is already registered in the system!");
         }
         candidates.put(candidate.getEmail(), candidate);
+        for (Skill skill : candidate.getSkills()) {
+
+            skillFrequency.putIfAbsent(skill.name(), 0);
+            skillFrequency.put(skill.name(), skillFrequency.get(skill.name()) + 1);
+
+            int freqOld = skillFrequency.get(mostCommonSkillName);
+            int freqNew = skillFrequency.get(skill.name());
+            String nameOld = mostCommonSkillName;
+            String nameNew = skill.name();
+            if (freqNew > freqOld || (freqNew == freqOld && nameNew.compareTo(nameOld) > 0)) {
+                mostCommonSkillName = skill.name();
+            }
+        }
         return candidate;
     }
 
@@ -83,6 +99,9 @@ public class JobMatch implements JobMatchAPI {
             throw new UserNotFoundException("The employer is not registered!");
         }
         jobPostings.put(jobPosting.getId(), jobPosting);
+        if (jobPosting.getSalary() > highestPaidJob.getSalary()) {
+            highestPaidJob = jobPosting;
+        }
         return jobPosting;
     }
 
@@ -168,7 +187,13 @@ public class JobMatch implements JobMatchAPI {
 
     @Override
     public PlatformStatistics getPlatformStatistics() {
-        return null;
+        return new PlatformStatistics(
+            candidates.size(),
+            employers.size(),
+            jobPostings.size(),
+            mostCommonSkillName,
+            highestPaidJob.getTitle()
+        );
     }
 
     private void validateFindTopNParams(String name, int limit, SimilarityStrategy strategy) {

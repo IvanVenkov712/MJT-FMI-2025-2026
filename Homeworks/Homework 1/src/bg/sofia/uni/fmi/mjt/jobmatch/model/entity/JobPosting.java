@@ -61,4 +61,8 @@ public class JobPosting {
     public String getTitle() {
         return title;
     }
+
+    public double getSalary() {
+        return salary;
+    }
 }
