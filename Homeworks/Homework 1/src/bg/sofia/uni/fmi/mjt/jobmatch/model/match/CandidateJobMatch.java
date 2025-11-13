@@ -7,9 +7,9 @@ import static bg.sofia.uni.fmi.mjt.jobmatch.model.Validation.validate;
 import static bg.sofia.uni.fmi.mjt.jobmatch.model.Validation.validateSimilarityScore;
 
 public class CandidateJobMatch {
-    private Candidate candidate;
-    private JobPosting jobPosting;
-    private double similarityScore;
+    private final Candidate candidate;
+    private final JobPosting jobPosting;
+    private final double similarityScore;
 
     public CandidateJobMatch(Candidate candidate, JobPosting jobPosting,  double similarityScore) {
         validate(candidate, "candidate");
@@ -19,5 +19,17 @@ public class CandidateJobMatch {
         this.jobPosting = jobPosting;
         this.candidate = candidate;
         this.similarityScore = similarityScore;
+    }
+
+    public double getSimilarityScore() {
+        return similarityScore;
+    }
+
+    public Candidate getCandidate() {
+        return candidate;
+    }
+
+    public JobPosting getJobPosting() {
+        return jobPosting;
     }
 }

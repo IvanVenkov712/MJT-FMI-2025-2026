@@ -2,6 +2,7 @@ package bg.sofia.uni.fmi.mjt.jobmatch.model.entity;
 
 import bg.sofia.uni.fmi.mjt.jobmatch.model.Validation;
 
+import java.util.Objects;
 import java.util.Set;
 
 import static bg.sofia.uni.fmi.mjt.jobmatch.model.Validation.validate;
@@ -25,5 +26,30 @@ public class Candidate {
         this.skills = skills;
         this.education = education;
         this.yearsOfExperience = yearsOfExperience;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Candidate candidate = (Candidate) o;
+        return Objects.equals(email, candidate.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(email);
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Set<Skill> getSkills() {
+        return skills;
     }
 }

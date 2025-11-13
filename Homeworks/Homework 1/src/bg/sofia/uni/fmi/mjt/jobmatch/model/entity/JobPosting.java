@@ -1,5 +1,6 @@
 package bg.sofia.uni.fmi.mjt.jobmatch.model.entity;
 
+import java.util.Objects;
 import java.util.Set;
 
 import static bg.sofia.uni.fmi.mjt.jobmatch.model.Validation.validate;
@@ -30,5 +31,34 @@ public class JobPosting {
         this.requiredEducation = requiredEducation;
         this.requiredYearsOfExperience = requiredYearsOfExperience;
         this.salary = salary;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+
+        JobPosting that = (JobPosting) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    public String getEmployerEmail() {
+        return employerEmail;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public Set<Skill> getRequiredSkills() {
+        return requiredSkills;
+    }
+
+    public String getTitle() {
+        return title;
     }
 }
