@@ -22,10 +22,10 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateSimilarity
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateSimilarityMatchByScoreComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.SkillRecommendationByImprovementComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.SkillRecommendationByNameComparator;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.iterables.CandidateJobMatchSameCandidate;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.iterables.CandidateJobMatchSameJobPosting;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.iterables.CandidateSimilarityMatchSameCandidate;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.iterables.SkillRecommendationIterable;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.CandidateJobMatchSameCandidate;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.CandidateJobMatchSameJobPosting;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.CandidateSimilarityMatchSameCandidate;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.SkillRecommendationIterable;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.verifiers.CandidateJobVerifier;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.verifiers.CandidateSimilarityVerifier;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.verifiers.SkillRecommendationVerifier;
@@ -228,6 +228,18 @@ public class JobMatch implements JobMatchAPI {
         if (!candidates.containsKey(candidateEmail)) {
             throw new CandidateNotFoundException("The candidate was not found!");
         }
+
+        Map<Skill, Double> recommendations = getSkillRecommendationsAll(candidateEmail, strategy);
+
+        return selectTopNLargest(
+            new SkillRecommendationIterable(recommendations), limit,
+            new SkillRecommendationByImprovementComparator().thenComparing(
+                new SkillRecommendationByNameComparator().reversed()),
+            new SkillRecommendationVerifier()
+        );
+    }
+
+    private Map<Skill, Double> getSkillRecommendationsAll(String candidateEmail, SimilarityStrategy strategy) {
         Candidate candidate = candidates.get(candidateEmail);
         Map<Skill, Double> recommendations = new HashMap<>();
         Set<Skill> candidateSkills = new HashSet<>(candidate.getSkills());
@@ -248,12 +260,7 @@ public class JobMatch implements JobMatchAPI {
                 }
             }
         }
-        return selectTopNLargest(
-            new SkillRecommendationIterable(recommendations), limit,
-            new SkillRecommendationByImprovementComparator().thenComparing(
-                new SkillRecommendationByNameComparator().reversed()),
-            new SkillRecommendationVerifier()
-        );
+        return recommendations;
     }
 
     private void updateMostCommonSkillName(Collection<Skill> newSkills) {
