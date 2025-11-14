@@ -1,5 +1,5 @@
 package bg.sofia.uni.fmi.mjt.jobmatch;
 
-public interface Predicate<T> {
+public interface MyPredicate<T> {
     boolean test(T t);
 }

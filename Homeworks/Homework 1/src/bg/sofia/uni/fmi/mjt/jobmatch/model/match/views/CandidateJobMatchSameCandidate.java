@@ -1,17 +1,25 @@
 package bg.sofia.uni.fmi.mjt.jobmatch.model.match.views;
 
-import bg.sofia.uni.fmi.mjt.jobmatch.generics.AbstractIterableView;
+import bg.sofia.uni.fmi.mjt.jobmatch.generics.IterableViewImpl;
 import bg.sofia.uni.fmi.mjt.jobmatch.matching.SimilarityStrategy;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Candidate;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.JobPosting;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateJobMatch;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchByJobTitleComparator;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchByScoreComparator;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.predicates.CandidateJobPredicate;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.convertors.CandidateJobMatchSameCandidateConvertor;
 
-public class CandidateJobMatchSameCandidate extends AbstractIterableView<JobPosting, CandidateJobMatch> {
+public class CandidateJobMatchSameCandidate extends IterableViewImpl<JobPosting, CandidateJobMatch> {
 
     public CandidateJobMatchSameCandidate(Iterable<JobPosting> original, Candidate candidate,
                                           SimilarityStrategy strategy) {
 
-        super(original, new CandidateJobMatchSameCandidateConvertor(candidate, strategy));
+        super(
+            original, new CandidateJobMatchSameCandidateConvertor(candidate, strategy),
+            new CandidateJobMatchByScoreComparator().thenComparing(
+                new CandidateJobMatchByJobTitleComparator().reversed()
+            ), new CandidateJobPredicate()
+        );
     }
 }

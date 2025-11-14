@@ -5,7 +5,6 @@ import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.CandidateNotFoundException;
 import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.JobPostingNotFoundException;
 import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.UserAlreadyExistsException;
 import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.UserNotFoundException;
-import bg.sofia.uni.fmi.mjt.jobmatch.generics.IterableView;
 import bg.sofia.uni.fmi.mjt.jobmatch.matching.CosineSimilarity;
 import bg.sofia.uni.fmi.mjt.jobmatch.matching.SimilarityStrategy;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.PlatformStatistics;
@@ -16,23 +15,12 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Skill;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateJobMatch;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateSimilarityMatch;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.SkillRecommendation;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchByCandidateNameComparator;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchByJobTitleComparator;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchByScoreComparator;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateSimilarityMatchByCandidateNameComparator;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateSimilarityMatchByScoreComparator;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.SkillRecommendationByImprovementComparator;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.SkillRecommendationByNameComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.CandidateJobMatchSameCandidate;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.CandidateJobMatchSameJobPosting;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.CandidateSimilarityMatchSameCandidate;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.SkillRecommendationIterable;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.predicates.CandidateJobPredicate;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.predicates.CandidateSimilarityPredicate;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.predicates.SkillRecommendationPredicate;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -101,14 +89,8 @@ public class JobMatch implements JobMatchAPI {
             throw new JobPostingNotFoundException("Job Posting with this id was not found!");
         }
 
-        IterableView<Candidate, CandidateJobMatch> matches =
-            new CandidateJobMatchSameJobPosting(candidates.values(), jobPostings.get(jobPostingId), strategy);
-
-        Comparator<CandidateJobMatch> comparator = new CandidateJobMatchByScoreComparator().thenComparing(
-            new CandidateJobMatchByCandidateNameComparator().reversed()
-        );
-
-        return matches.findTopN(comparator, new CandidateJobPredicate(), limit);
+        return new CandidateJobMatchSameJobPosting(candidates.values(), jobPostings.get(jobPostingId), strategy)
+            .findTopN(limit);
     }
 
     @Override
@@ -121,14 +103,8 @@ public class JobMatch implements JobMatchAPI {
             throw new CandidateNotFoundException("The candidate was not found!");
         }
 
-        IterableView<JobPosting, CandidateJobMatch> matches = new CandidateJobMatchSameCandidate(
-            jobPostings.values(), candidates.get(candidateEmail), strategy
-        );
-        Comparator<CandidateJobMatch> comparator = new CandidateJobMatchByScoreComparator().thenComparing(
-            new CandidateJobMatchByJobTitleComparator().reversed()
-        );
-
-        return matches.findTopN(comparator, new CandidateJobPredicate(), limit);
+        return new CandidateJobMatchSameCandidate(jobPostings.values(), candidates.get(candidateEmail), strategy)
+            .findTopN(limit);
     }
 
     @Override
@@ -140,15 +116,8 @@ public class JobMatch implements JobMatchAPI {
         }
 
         Candidate target = candidates.get(candidateEmail);
-
-        IterableView<Candidate, CandidateSimilarityMatch> matches =
-            new CandidateSimilarityMatchSameCandidate(candidates.values(), target, strategy);
-
-        Comparator<CandidateSimilarityMatch> comparator = new CandidateSimilarityMatchByScoreComparator().thenComparing(
-            new CandidateSimilarityMatchByCandidateNameComparator().reversed()
-        );
-
-        return matches.findTopN(comparator, new CandidateSimilarityPredicate(), limit);
+        return new CandidateSimilarityMatchSameCandidate(candidates.values(), target, strategy)
+            .findTopN(limit);
     }
 
     @Override
@@ -183,14 +152,8 @@ public class JobMatch implements JobMatchAPI {
 
         Map<Skill, Double> recommendationsMap = getSkillRecommendationsAll(candidateEmail, strategy);
 
-        IterableView<Map.Entry<Skill, Double>, SkillRecommendation> recommendationsView =
-            new SkillRecommendationIterable(recommendationsMap);
+        return new SkillRecommendationIterable(recommendationsMap.entrySet()).findTopN(limit);
 
-        Comparator<SkillRecommendation> comparator = new SkillRecommendationByImprovementComparator().thenComparing(
-            new SkillRecommendationByNameComparator().reversed()
-        );
-
-        return recommendationsView.findTopN(comparator, new SkillRecommendationPredicate(), limit);
     }
 
     private Map<Skill, Double> getSkillRecommendationsAll(String candidateEmail, SimilarityStrategy strategy) {
