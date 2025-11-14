@@ -2,7 +2,7 @@ import java.util.Arrays;
 
 public class UniqueSubstringFinder {
     public static void main() {
-        String[] strs = {"abcabcbb", "bbbbb", "pwwkew", "abcdefg", "x", ""};
+        String[] strs = {"abc", "bbbbb", "pwwkew", "abcdefg", "x", ""};
         for(int i = 0; i < strs.length; ++i){
             System.out.println('"' + longestUniqueSubstring(strs[i]) + '"');
         }
@@ -20,7 +20,8 @@ public class UniqueSubstringFinder {
         lastOccurred[s.charAt(start)] = 0;
         for(; end < s.length(); ++end){
             if(lastOccurred[s.charAt(end)] >= 0){
-               start = lastOccurred[s.charAt(end)] + 1;
+               //start = lastOccurred[s.charAt(end)] + 1;
+                start = Math.max(start, lastOccurred[s.charAt(end)] + 1);
             }
             lastOccurred[s.charAt(end)] = end;
             if(end - start > longestEnd - longestStart){
