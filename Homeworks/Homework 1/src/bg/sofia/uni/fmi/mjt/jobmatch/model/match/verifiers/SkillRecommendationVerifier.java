@@ -7,6 +7,6 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.SkillRecommendation;
 public class SkillRecommendationVerifier implements ItemVerifier<SkillRecommendation> {
     @Override
     public boolean isValid(SkillRecommendation skillRecommendation) {
-        return MathUtils.equalsDouble(skillRecommendation.improvementScore(), 0);
+        return !MathUtils.equalsDouble(skillRecommendation.improvementScore(), 0);
     }
 }

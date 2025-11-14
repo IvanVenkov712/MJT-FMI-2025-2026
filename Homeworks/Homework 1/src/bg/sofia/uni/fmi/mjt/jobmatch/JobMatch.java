@@ -34,10 +34,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Set;
 
 public class JobMatch implements JobMatchAPI {
     private final Map<String, Candidate> candidates;
@@ -228,16 +230,18 @@ public class JobMatch implements JobMatchAPI {
         }
         Candidate candidate = candidates.get(candidateEmail);
         Map<Skill, Double> recommendations = new HashMap<>();
-        for (JobPosting posting : jobPostings.values()) {
-            double currentSimilarity = strategy.calculateSimilarity(candidate.getSkills(), posting.getRequiredSkills());
-            for (Skill skill : posting.getRequiredSkills()) {
-                if (!candidate.getSkills().contains(skill)) {
+        Set<Skill> candidateSkills = new HashSet<>(candidate.getSkills());
 
-                    candidate.getSkills().add(skill);
+        for (JobPosting posting : jobPostings.values()) {
+            double currentSimilarity = strategy.calculateSimilarity(candidateSkills, posting.getRequiredSkills());
+            for (Skill skill : posting.getRequiredSkills()) {
+                if (!candidateSkills.contains(skill)) {
+
+                    candidateSkills.add(skill);
                     double improvement =
-                        strategy.calculateSimilarity(candidate.getSkills(), posting.getRequiredSkills()) -
+                        strategy.calculateSimilarity(candidateSkills, posting.getRequiredSkills()) -
                             currentSimilarity;
-                    candidate.getSkills().remove(skill);
+                    candidateSkills.remove(skill);
 
                     recommendations.putIfAbsent(skill, 0.0);
                     recommendations.put(skill, recommendations.get(skill) + improvement);

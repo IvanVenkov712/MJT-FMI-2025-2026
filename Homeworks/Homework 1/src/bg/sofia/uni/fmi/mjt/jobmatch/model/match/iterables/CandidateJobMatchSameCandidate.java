@@ -4,6 +4,7 @@ import bg.sofia.uni.fmi.mjt.jobmatch.matching.SimilarityStrategy;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Candidate;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.JobPosting;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateJobMatch;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -21,6 +22,7 @@ public class CandidateJobMatchSameCandidate implements Iterable<CandidateJobMatc
     }
 
     @Override
+    @NotNull
     public Iterator<CandidateJobMatch> iterator() {
         return new InternalIterator(jobPostings.iterator(), candidate, strategy);
     }
