@@ -64,21 +64,6 @@ public class JobMatch implements JobMatchAPI {
         }
         candidates.put(candidate.getEmail(), candidate);
         updateMostCommonSkillName(candidate.getSkills());
-        /*
-        for (Skill skill : candidate.getSkills()) {
-
-            skillFrequency.putIfAbsent(skill.name(), 0);
-            skillFrequency.put(skill.name(), skillFrequency.get(skill.name()) + 1);
-
-            int freqOld = skillFrequency.get(mostCommonSkillName);
-            int freqNew = skillFrequency.get(skill.name());
-            String nameOld = mostCommonSkillName;
-            String nameNew = skill.name();
-            if (freqNew > freqOld || (freqNew == freqOld && nameNew.compareTo(nameOld) > 0)) {
-                mostCommonSkillName = skill.name();
-            }
-        }
-         */
         return candidate;
     }
 
@@ -103,9 +88,7 @@ public class JobMatch implements JobMatchAPI {
             throw new UserNotFoundException("The employer is not registered!");
         }
         jobPostings.put(jobPosting.getId(), jobPosting);
-        if (jobPosting.getSalary() > highestPaidJob.getSalary()) {
-            highestPaidJob = jobPosting;
-        }
+        updateHighestPaidJob(jobPosting);
         return jobPosting;
     }
 
@@ -270,8 +253,8 @@ public class JobMatch implements JobMatchAPI {
     }
 
     private void updateMostCommonSkillName(Collection<Skill> newSkills) {
-        int freqOld = skillFrequency.getOrDefault(mostCommonSkillName, 0);
         String nameOld = mostCommonSkillName;
+        int freqOld = nameOld == null ? 0 : skillFrequency.getOrDefault(mostCommonSkillName, 0);
 
         for (Skill skill : newSkills) {
             skillFrequency.putIfAbsent(skill.name(), 0);
@@ -279,9 +262,15 @@ public class JobMatch implements JobMatchAPI {
 
             int freqNew = skillFrequency.get(skill.name());
             String nameNew = skill.name();
-            if (freqNew > freqOld || (freqNew == freqOld && nameNew.compareTo(nameOld) < 0)) {
+            if (nameOld == null || freqNew > freqOld || (freqNew == freqOld && nameNew.compareTo(nameOld) < 0)) {
                 mostCommonSkillName = nameNew;
             }
+        }
+    }
+
+    private void updateHighestPaidJob(JobPosting jobPosting) {
+        if (highestPaidJob == null || jobPosting.getSalary() > highestPaidJob.getSalary()) {
+            highestPaidJob = jobPosting;
         }
     }
 
