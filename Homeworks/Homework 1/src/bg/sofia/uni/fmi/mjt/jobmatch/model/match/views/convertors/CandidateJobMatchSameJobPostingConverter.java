@@ -1,12 +1,12 @@
 package bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.convertors;
 
-import bg.sofia.uni.fmi.mjt.jobmatch.generics.ElementConverter;
+import bg.sofia.uni.fmi.mjt.jobmatch.generics.Converter;
 import bg.sofia.uni.fmi.mjt.jobmatch.matching.SimilarityStrategy;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Candidate;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.JobPosting;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateJobMatch;
 
-public class CandidateJobMatchSameJobPostingConverter implements ElementConverter<Candidate, CandidateJobMatch> {
+public class CandidateJobMatchSameJobPostingConverter implements Converter<Candidate, CandidateJobMatch> {
     private final JobPosting posting;
     private final SimilarityStrategy strategy;
 

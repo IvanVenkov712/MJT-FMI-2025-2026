@@ -1,12 +1,12 @@
 package bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.convertors;
 
-import bg.sofia.uni.fmi.mjt.jobmatch.generics.ElementConverter;
+import bg.sofia.uni.fmi.mjt.jobmatch.generics.Converter;
 import bg.sofia.uni.fmi.mjt.jobmatch.matching.SimilarityStrategy;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Candidate;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateSimilarityMatch;
 
 public class CandidateSimilarityMatchSameCandidateConvertor implements
-    ElementConverter<Candidate, CandidateSimilarityMatch> {
+    Converter<Candidate, CandidateSimilarityMatch> {
     private final Candidate target;
     private final SimilarityStrategy strategy;
 
