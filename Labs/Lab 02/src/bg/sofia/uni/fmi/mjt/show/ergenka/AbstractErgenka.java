@@ -41,6 +41,10 @@ public abstract class AbstractErgenka implements Ergenka{
         this.rating = rating;
     }
 
+    protected void addToRating(int points) {
+        this.rating += points;
+    }
+
     private String name;
     private short age;
     private int romanceLevel;

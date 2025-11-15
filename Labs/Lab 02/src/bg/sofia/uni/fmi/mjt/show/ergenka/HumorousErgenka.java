@@ -21,7 +21,7 @@ public class HumorousErgenka extends AbstractErgenka{
             bonuses = -3;
         }
         int y = dateEvent.getTensionLevel();
-        setRating(
+        addToRating(
             (getHumorLevel() * 5) / Math.max(y, 1) + Math.floorDiv(getRomanceLevel(), 3) + bonuses
         );
     }

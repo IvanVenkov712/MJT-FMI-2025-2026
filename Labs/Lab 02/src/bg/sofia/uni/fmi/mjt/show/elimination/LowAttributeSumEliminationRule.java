@@ -12,7 +12,7 @@ public class LowAttributeSumEliminationRule implements EliminationRule{
 
     @Override
     public Ergenka[] eliminateErgenkas(Ergenka[] ergenkas) {
-        if(ergenkas == null || ergenkas.length < 1){
+        if(ergenkas == null || ergenkas.length == 0){
             return new Ergenka[0];
         }
         int count = 0;

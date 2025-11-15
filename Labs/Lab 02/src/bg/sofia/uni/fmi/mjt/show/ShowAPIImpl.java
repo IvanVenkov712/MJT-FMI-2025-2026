@@ -24,7 +24,7 @@ public class ShowAPIImpl implements ShowAPI {
     @Override
     public void playRound(DateEvent dateEvent) {
         if (dateEvent == null) {
-            dateEvent = new DateEvent("", 0, 0);
+            dateEvent = new DateEvent("", 5, 30);
         }
         for (Ergenka ergenka : ergenkas) {
             if (ergenka != null) {
@@ -39,7 +39,9 @@ public class ShowAPIImpl implements ShowAPI {
             eliminationRules = defaultEliminationRules;
         }
         for (EliminationRule rule : eliminationRules) {
-            ergenkas = rule.eliminateErgenkas(ergenkas);
+            if(rule != null) {
+                ergenkas = rule.eliminateErgenkas(ergenkas);
+            }
         }
     }
 
