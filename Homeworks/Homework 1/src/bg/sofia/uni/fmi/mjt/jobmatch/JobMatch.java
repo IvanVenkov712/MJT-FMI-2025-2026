@@ -36,10 +36,20 @@ public class JobMatch implements JobMatchAPI {
     private JobPosting highestPaidJob;
 
     public JobMatch() {
-        candidates = new HashMap<>();
-        employers = new HashMap<>();
-        jobPostings = new HashMap<>();
-        skillFrequency = new HashMap<>();
+        this(new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
+    }
+
+    // To allow Dependency Injection
+    public JobMatch(Map<String, Candidate> candidates, Map<String, Employer> employers,
+                    Map<String, JobPosting> jobPostings,
+                    Map<String, Integer> skillFrequency) {
+        if (candidates == null || employers == null || jobPostings == null || skillFrequency == null) {
+            throw new IllegalArgumentException("Null initialization if illegal!");
+        }
+        this.candidates = candidates;
+        this.employers = employers;
+        this.jobPostings = jobPostings;
+        this.skillFrequency = skillFrequency;
     }
 
     @Override
