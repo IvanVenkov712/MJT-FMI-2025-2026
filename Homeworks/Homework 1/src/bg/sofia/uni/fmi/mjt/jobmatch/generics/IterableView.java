@@ -1,14 +1,23 @@
 package bg.sofia.uni.fmi.mjt.jobmatch.generics;
 
-import bg.sofia.uni.fmi.mjt.jobmatch.MyPredicate;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.Iterator;
 
-public interface IterableView<T1, T2> extends Iterable<T2> {
-    List<T2> findTopN(Comparator<? super T2> comparator, MyPredicate<? super T2> predicate, int limit);
+public class IterableView<T1, T2> implements Iterable<T2> {
+    private final Iterable<T1> original;
+    private final Converter<? super T1, ? extends T2> converter;
 
-    List<T2> findTopN(int limit);
+    public IterableView(Iterable<T1> original, Converter<? super T1, ? extends T2> converter) {
+        if (original == null || converter == null) {
+            throw new IllegalArgumentException("Null arguments are illegal!");
+        }
+        this.original = original;
+        this.converter = converter;
+    }
 
-    Iterable<T1> getOriginal();
+    @Override
+    public @NotNull Iterator<T2> iterator() {
+        return new IterableViewIterator<>(original.iterator(), converter);
+    }
 }
