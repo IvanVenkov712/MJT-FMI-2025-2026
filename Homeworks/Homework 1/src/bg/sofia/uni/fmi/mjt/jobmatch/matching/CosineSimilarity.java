@@ -1,5 +1,6 @@
 package bg.sofia.uni.fmi.mjt.jobmatch.matching;
 
+import bg.sofia.uni.fmi.mjt.jobmatch.generics.Pair;
 import bg.sofia.uni.fmi.mjt.jobmatch.math.MathVector;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Skill;
 
@@ -18,14 +19,6 @@ public class CosineSimilarity extends AbstractSimilarityStrategy {
         Pair<Set<Skill>, Set<Skill>> normalized = normalizeSets(candidateSkills, jobSkills);
         Pair<MathVector, MathVector> vectors = transformToVectors(normalized);
         return vectors.first().getSimilarity(vectors.second());
-    }
-
-    private record Pair<T1, T2>(T1 first, T2 second) {
-        public Pair {
-            if (first == null || second == null) {
-                throw new IllegalArgumentException("Null elements are not allowed in the pair!");
-            }
-        }
     }
 
     private Pair<Set<Skill>, Set<Skill>> normalizeSets(Set<Skill> candidateSkills, Set<Skill> jobSkills) {
