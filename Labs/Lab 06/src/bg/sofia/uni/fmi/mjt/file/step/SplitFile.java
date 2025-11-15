@@ -28,6 +28,14 @@ public class SplitFile implements Step<File, Set<File>> {
      */
     @Override
     public Set<File> process(File input) {
+        if(input == null || input.getContent() == null) {
+            throw new IllegalArgumentException("Null input is illegal!");
+        }
+
+        if(input.getContent().isBlank()) {
+            return Set.of();
+        }
+
         Set<File> result = new HashSet<>();
         String[] parts = input.getContent().split(whitespace_regex);
 

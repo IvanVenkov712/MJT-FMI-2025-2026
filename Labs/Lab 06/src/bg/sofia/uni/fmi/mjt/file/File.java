@@ -1,5 +1,7 @@
 package bg.sofia.uni.fmi.mjt.file;
 
+import java.util.Objects;
+
 /**
  * A simple in-memory representation of a file containing textual content.
  */
@@ -25,4 +27,24 @@ public class File {
         this.content = content;
     }
 
+    // Necessary because it is being used in Set<File>
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+
+        File file = (File) o;
+        return Objects.equals(content, file.content);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(content);
+    }
+
+    @Override
+    public String toString() {
+        return "File{" +
+            "content='" + content + '\'' +
+            '}';
+    }
 }

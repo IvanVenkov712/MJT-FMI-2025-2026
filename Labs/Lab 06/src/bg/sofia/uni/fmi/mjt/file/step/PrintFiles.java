@@ -23,6 +23,9 @@ public class PrintFiles implements Step<Collection<File>, Collection<File>> {
      */
     @Override
     public Collection<File> process(Collection<File> input) {
+        if (input == null) {
+            throw new IllegalArgumentException("null input is illegal!");
+        }
         for (File f : input) {
             System.out.println(f.getContent());
         }

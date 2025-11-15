@@ -20,8 +20,8 @@ public class CheckEmptyFile implements Step<File, File> {
      */
     @Override
     public File process(File input) {
-        if (input.getContent().isEmpty()) {
-            throw new EmptyFileException("Input file is empty");
+        if (input == null || input.getContent() == null || input.getContent().isEmpty()) {
+            throw new EmptyFileException("Input file or its content is empty or null");
         }
 
         return input;

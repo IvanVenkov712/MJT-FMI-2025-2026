@@ -21,7 +21,10 @@ public class UpperCaseFile implements Step<File, File> {
      */
     @Override
     public File process(File input) {
-        input.getContent().toUpperCase();
+        if(input == null || input.getContent() == null) {
+            throw new IllegalArgumentException("null input not permitted");
+        }
+        input.setContent(input.getContent().toUpperCase());
         return input;
     }
 
