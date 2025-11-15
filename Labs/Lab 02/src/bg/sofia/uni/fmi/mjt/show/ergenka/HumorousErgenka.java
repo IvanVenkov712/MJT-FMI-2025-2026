@@ -17,12 +17,12 @@ public class HumorousErgenka extends AbstractErgenka{
         else if (dateEvent.getDuration() < 30){
             bonuses = -2;
         }
-        else if(dateEvent.getDuration() > 90){
+        else if(dateEvent.getDuration() > 120){
             bonuses = -3;
         }
         int y = dateEvent.getTensionLevel();
-        if(y != 0){
-            setRating((getHumorLevel() * 5) / y + Math.floorDiv(getRomanceLevel(), 3) + bonuses);
-        }
+        setRating(
+            (getHumorLevel() * 5) / Math.max(y, 1) + Math.floorDiv(getRomanceLevel(), 3) + bonuses
+        );
     }
 }

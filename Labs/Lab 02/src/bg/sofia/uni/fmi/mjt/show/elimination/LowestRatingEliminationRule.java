@@ -20,7 +20,7 @@ public class LowestRatingEliminationRule implements EliminationRule{
         }
         int minCount = 0;
         for(Ergenka ergenka : ergenkas){
-            if(ergenka != null && ergenka.getRating() == minRating){
+            if(ergenka == null || ergenka.getRating() == minRating){
                 ++minCount;
             }
         }
@@ -30,7 +30,7 @@ public class LowestRatingEliminationRule implements EliminationRule{
         Ergenka[] remaining = new Ergenka[ergenkas.length - minCount];
         int at = 0;
         for(Ergenka ergenka : ergenkas) {
-            if (ergenka == null || ergenka.getRating() > minRating) {
+            if (ergenka != null && ergenka.getRating() > minRating) {
                 remaining[at] = ergenka;
                 ++at;
             }

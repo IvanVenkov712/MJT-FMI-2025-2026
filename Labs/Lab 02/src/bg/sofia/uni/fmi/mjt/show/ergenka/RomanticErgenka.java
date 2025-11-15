@@ -12,18 +12,18 @@ public class RomanticErgenka extends AbstractErgenka{
     @Override
     public void reactToDate(DateEvent dateEvent) {
         int bonuses = 0;
-        if(dateEvent.getLocation().equals(favoriteDateLocation)){
-            bonuses += 5;
+        if(dateEvent.getLocation().equalsIgnoreCase(favoriteDateLocation)){
+            bonuses = 5;
         }
-        if(dateEvent.getDuration() < 30){
-            bonuses -= 3;
+        else if(dateEvent.getDuration() < 30){
+            bonuses = -3;
         }
-        if(dateEvent.getDuration() > 120){
-            bonuses -= 2;
+        else if(dateEvent.getDuration() > 120){
+            bonuses = -2;
         }
-        if(dateEvent.getTensionLevel() != 0) {
-            setRating((getRomanceLevel() * 7) / dateEvent.getTensionLevel() + Math.floorDiv(getHumorLevel(), 3) + bonuses);
-        }
+        setRating(
+            (getRomanceLevel() * 7) / Math.max(1, dateEvent.getTensionLevel()) + Math.floorDiv(getHumorLevel(), 3) + bonuses
+        );
     }
 
     private String favoriteDateLocation;

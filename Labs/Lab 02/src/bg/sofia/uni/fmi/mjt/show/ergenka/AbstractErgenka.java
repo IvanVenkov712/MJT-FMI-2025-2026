@@ -14,7 +14,7 @@ public abstract class AbstractErgenka implements Ergenka{
 
     @Override
     public String getName() {
-        return name;
+        return name == null? "" : name;
     }
 
     @Override
