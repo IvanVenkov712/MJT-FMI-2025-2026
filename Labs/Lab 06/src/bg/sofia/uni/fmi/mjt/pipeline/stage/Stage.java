@@ -37,8 +37,7 @@ public final class Stage<I, O> {
      *
      * @param steps the list of steps to include in the stage
      */
-    private Stage(List<Step<?, ?>> steps)
-    {
+    private Stage(List<Step<?, ?>> steps)  {
         this.steps = new ArrayList<>(steps);
     }
 
