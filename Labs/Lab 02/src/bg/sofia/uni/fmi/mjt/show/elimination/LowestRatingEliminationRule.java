@@ -14,11 +14,13 @@ public class LowestRatingEliminationRule implements EliminationRule{
         }
         int minRating = Integer.MAX_VALUE;
         for(Ergenka ergenka : ergenkas){
-            minRating = Math.min(minRating, ergenka.getRating());
+            if(ergenka != null) {
+                minRating = Math.min(minRating, ergenka.getRating());
+            }
         }
         int minCount = 0;
         for(Ergenka ergenka : ergenkas){
-            if(ergenka.getRating() == minRating){
+            if(ergenka != null && ergenka.getRating() == minRating){
                 ++minCount;
             }
         }
@@ -28,7 +30,7 @@ public class LowestRatingEliminationRule implements EliminationRule{
         Ergenka[] remaining = new Ergenka[ergenkas.length - minCount];
         int at = 0;
         for(Ergenka ergenka : ergenkas) {
-            if (ergenka.getRating() > minRating) {
+            if (ergenka == null || ergenka.getRating() > minRating) {
                 remaining[at] = ergenka;
                 ++at;
             }

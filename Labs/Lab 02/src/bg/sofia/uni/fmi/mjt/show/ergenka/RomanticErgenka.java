@@ -21,7 +21,9 @@ public class RomanticErgenka extends AbstractErgenka{
         if(dateEvent.getDuration() > 120){
             bonuses -= 2;
         }
-        setRating((getRomanceLevel() * 7) / dateEvent.getTensionLevel() + Math.floorDiv(getHumorLevel(), 3) + bonuses);
+        if(dateEvent.getTensionLevel() != 0) {
+            setRating((getRomanceLevel() * 7) / dateEvent.getTensionLevel() + Math.floorDiv(getHumorLevel(), 3) + bonuses);
+        }
     }
 
     private String favoriteDateLocation;

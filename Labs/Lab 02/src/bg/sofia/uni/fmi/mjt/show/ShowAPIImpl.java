@@ -2,40 +2,52 @@ package bg.sofia.uni.fmi.mjt.show;
 
 import bg.sofia.uni.fmi.mjt.show.date.DateEvent;
 import bg.sofia.uni.fmi.mjt.show.elimination.EliminationRule;
+import bg.sofia.uni.fmi.mjt.show.elimination.LowestRatingEliminationRule;
 import bg.sofia.uni.fmi.mjt.show.ergenka.Ergenka;
 
 import java.util.Arrays;
 
-public class ShowAPIImpl implements ShowAPI{
-    public ShowAPIImpl(Ergenka[] ergenkas, EliminationRule[] defaultEliminationRules){
-        this.ergenkas = Arrays.copyOf(ergenkas, ergenkas.length);
-        this.defaultEliminationRules = Arrays.copyOf(defaultEliminationRules, defaultEliminationRules.length);
+public class ShowAPIImpl implements ShowAPI {
+    public ShowAPIImpl(Ergenka[] ergenkas, EliminationRule[] defaultEliminationRules) {
+        if (defaultEliminationRules == null) {
+            defaultEliminationRules = new EliminationRule[] {new LowestRatingEliminationRule() };
+        }
+        this.ergenkas = ergenkas;
+        this.defaultEliminationRules = defaultEliminationRules;
     }
 
     @Override
     public Ergenka[] getErgenkas() {
-        return Arrays.copyOf(ergenkas, ergenkas.length);
+        return ergenkas;
     }
 
     @Override
     public void playRound(DateEvent dateEvent) {
-        for(Ergenka ergenka : ergenkas){
-            organizeDate(ergenka, dateEvent);
+        if (dateEvent == null) {
+            dateEvent = new DateEvent("", 0, 0);
+        }
+        for (Ergenka ergenka : ergenkas) {
+            if (ergenka != null) {
+                organizeDate(ergenka, dateEvent);
+            }
         }
     }
 
     @Override
     public void eliminateErgenkas(EliminationRule[] eliminationRules) {
-        if(eliminationRules == null || eliminationRules.length == 0){
+        if (eliminationRules == null || eliminationRules.length == 0) {
             eliminationRules = defaultEliminationRules;
         }
-        for(EliminationRule rule : eliminationRules){
+        for (EliminationRule rule : eliminationRules) {
             ergenkas = rule.eliminateErgenkas(ergenkas);
         }
     }
 
     @Override
     public void organizeDate(Ergenka ergenka, DateEvent dateEvent) {
+        if (ergenka == null || dateEvent == null) {
+            return;
+        }
         ergenka.reactToDate(dateEvent);
     }
 

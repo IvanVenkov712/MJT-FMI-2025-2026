@@ -20,6 +20,9 @@ public class HumorousErgenka extends AbstractErgenka{
         else if(dateEvent.getDuration() > 90){
             bonuses = -3;
         }
-        setRating((getHumorLevel() * 5) / dateEvent.getTensionLevel() + Math.floorDiv(getRomanceLevel(), 3) + bonuses);
+        int y = dateEvent.getTensionLevel();
+        if(y != 0){
+            setRating((getHumorLevel() * 5) / y + Math.floorDiv(getRomanceLevel(), 3) + bonuses);
+        }
     }
 }
