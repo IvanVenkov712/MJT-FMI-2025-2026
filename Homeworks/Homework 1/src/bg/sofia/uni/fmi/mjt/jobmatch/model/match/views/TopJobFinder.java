@@ -11,10 +11,10 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchBy
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.predicates.CandidateJobPredicate;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.convertors.CandidateJobMatchSameCandidateConvertor;
 
-public class CandidateJobMatchSameCandidate extends TopElementFinderImpl<CandidateJobMatch> {
+public class TopJobFinder extends TopElementFinderImpl<CandidateJobMatch> {
 
-    public CandidateJobMatchSameCandidate(Iterable<JobPosting> original, Candidate candidate,
-                                          SimilarityStrategy strategy) {
+    public TopJobFinder(Iterable<JobPosting> original, Candidate candidate,
+                        SimilarityStrategy strategy) {
 
         super(
             new IterableView<>(original, new CandidateJobMatchSameCandidateConvertor(candidate, strategy)),

@@ -11,9 +11,9 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.convertors.EntryToSkillRe
 
 import java.util.Map;
 
-public class SkillRecommendationIterable extends TopElementFinderImpl<SkillRecommendation> {
+public class TopSkillRecommendationFinder extends TopElementFinderImpl<SkillRecommendation> {
 
-    public SkillRecommendationIterable(Iterable<Map.Entry<Skill, Double>> recommendationPairs) {
+    public TopSkillRecommendationFinder(Iterable<Map.Entry<Skill, Double>> recommendationPairs) {
         super(
             new IterableView<>(recommendationPairs, new EntryToSkillRecommendationConvertor()),
             new SkillRecommendationByImprovementComparator().thenComparing(

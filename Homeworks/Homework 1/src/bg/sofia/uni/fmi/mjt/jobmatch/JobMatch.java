@@ -15,10 +15,10 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Skill;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateJobMatch;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateSimilarityMatch;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.SkillRecommendation;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.CandidateJobMatchSameCandidate;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.CandidateJobMatchSameJobPosting;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.CandidateSimilarityMatchSameCandidate;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.SkillRecommendationIterable;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.TopJobFinder;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.TopCandidateFinder;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.TopSimilarCandidatesFinder;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.TopSkillRecommendationFinder;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -89,7 +89,7 @@ public class JobMatch implements JobMatchAPI {
             throw new JobPostingNotFoundException("Job Posting with this id was not found!");
         }
 
-        return new CandidateJobMatchSameJobPosting(candidates.values(), jobPostings.get(jobPostingId), strategy)
+        return new TopCandidateFinder(candidates.values(), jobPostings.get(jobPostingId), strategy)
             .findTopN(limit);
     }
 
@@ -103,7 +103,7 @@ public class JobMatch implements JobMatchAPI {
             throw new CandidateNotFoundException("The candidate was not found!");
         }
 
-        return new CandidateJobMatchSameCandidate(jobPostings.values(), candidates.get(candidateEmail), strategy)
+        return new TopJobFinder(jobPostings.values(), candidates.get(candidateEmail), strategy)
             .findTopN(limit);
     }
 
@@ -116,7 +116,7 @@ public class JobMatch implements JobMatchAPI {
         }
 
         Candidate target = candidates.get(candidateEmail);
-        return new CandidateSimilarityMatchSameCandidate(candidates.values(), target, strategy)
+        return new TopSimilarCandidatesFinder(candidates.values(), target, strategy)
             .findTopN(limit);
     }
 
@@ -152,7 +152,7 @@ public class JobMatch implements JobMatchAPI {
 
         Map<Skill, Double> recommendationsMap = getSkillRecommendationsAll(candidateEmail, strategy);
 
-        return new SkillRecommendationIterable(recommendationsMap.entrySet()).findTopN(limit);
+        return new TopSkillRecommendationFinder(recommendationsMap.entrySet()).findTopN(limit);
 
     }
 

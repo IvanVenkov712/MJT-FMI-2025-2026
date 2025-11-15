@@ -13,10 +13,10 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.convertors.CandidateJobMa
 
 import java.util.Collection;
 
-public class CandidateJobMatchSameJobPosting extends TopElementFinderImpl<CandidateJobMatch> {
+public class TopCandidateFinder extends TopElementFinderImpl<CandidateJobMatch> {
 
-    public CandidateJobMatchSameJobPosting(Collection<Candidate> candidates, JobPosting posting,
-                                           SimilarityStrategy strategy) {
+    public TopCandidateFinder(Collection<Candidate> candidates, JobPosting posting,
+                              SimilarityStrategy strategy) {
         super(
             new IterableView<>(candidates, new CandidateJobMatchSameJobPostingConverter(posting, strategy)),
             new CandidateJobMatchByScoreComparator().thenComparing(

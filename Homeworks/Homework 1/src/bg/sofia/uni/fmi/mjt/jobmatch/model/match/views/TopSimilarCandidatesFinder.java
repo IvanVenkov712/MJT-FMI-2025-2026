@@ -12,10 +12,10 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.convertors.CandidateSimil
 
 import java.util.Collection;
 
-public class CandidateSimilarityMatchSameCandidate extends TopElementFinderImpl<CandidateSimilarityMatch> {
+public class TopSimilarCandidatesFinder extends TopElementFinderImpl<CandidateSimilarityMatch> {
 
-    public CandidateSimilarityMatchSameCandidate(Collection<Candidate> candidates, Candidate target,
-                                                 SimilarityStrategy strategy) {
+    public TopSimilarCandidatesFinder(Collection<Candidate> candidates, Candidate target,
+                                      SimilarityStrategy strategy) {
         super(
             new IterableView<>(candidates, new CandidateSimilarityMatchSameCandidateConvertor(target, strategy)),
             new CandidateSimilarityMatchByScoreComparator().thenComparing(
