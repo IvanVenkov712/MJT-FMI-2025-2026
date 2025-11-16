@@ -1,6 +1,7 @@
 package bg.sofia.uni.fmi.mjt.pipeline;
 
 import java.util.List;
+
 import bg.sofia.uni.fmi.mjt.pipeline.stage.Stage;
 
 /**
@@ -27,10 +28,12 @@ public final class Pipeline<I, O> {
      * @param <I>          the type of input data for the pipeline
      * @param <O>          the type of output produced by the initial stage
      * @return a new pipeline starting with the given stage
-     *
      * @throws IllegalArgumentException if initialStage is null
      */
     public static <I, O> Pipeline<I, O> start(Stage<I, O> initialStage) {
+        if (initialStage == null) {
+            throw new IllegalArgumentException("initialStage was null");
+        }
         return new Pipeline<>(List.of(initialStage));
     }
 
@@ -59,11 +62,14 @@ public final class Pipeline<I, O> {
      * the current pipeline. The returned pipeline is updated to reflect the new
      * output type {@code NEW_O}.
      *
-     * @param stage the stage to add
+     * @param stage  the stage to add
      * @param <NewO> the output type of the new stage
      * @return this pipeline instance cast to a pipeline producing {@code NEW_O}
      */
     public <NewO> Pipeline<I, NewO> addStage(Stage<? super O, NewO> stage) {
+        if (stage == null) {
+            throw new IllegalArgumentException("stage was null!");
+        }
         stages.add(stage);
         return (Pipeline<I, NewO>) this;
     }
@@ -80,8 +86,9 @@ public final class Pipeline<I, O> {
      */
     public O execute(I input) {
         Object current = input;
-        if (cache.containsKey(input))
+        if (cache.containsKey(input)) {
             return (O) cache.getCachedValue(input);
+        }
 
         for (Stage<?, ?> stage : stages) {
             Stage<Object, Object> typed = (Stage<Object, Object>) stage;
