@@ -13,6 +13,17 @@ public abstract class AbstractErgenka implements Ergenka{
     }
 
     @Override
+    public String toString() {
+        return "AbstractErgenka{" +
+            "name='" + name + '\'' +
+            ", age=" + age +
+            ", romanceLevel=" + romanceLevel +
+            ", humorLevel=" + humorLevel +
+            ", rating=" + rating +
+            '}';
+    }
+
+    @Override
     public String getName() {
         return name == null? "" : name;
     }

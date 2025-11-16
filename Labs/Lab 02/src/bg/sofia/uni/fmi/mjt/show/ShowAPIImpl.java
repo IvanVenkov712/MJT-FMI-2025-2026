@@ -23,9 +23,6 @@ public class ShowAPIImpl implements ShowAPI {
 
     @Override
     public void playRound(DateEvent dateEvent) {
-        if (dateEvent == null) {
-            dateEvent = new DateEvent("", 5, 30);
-        }
         for (Ergenka ergenka : ergenkas) {
             if (ergenka != null) {
                 organizeDate(ergenka, dateEvent);

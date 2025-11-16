@@ -7,31 +7,6 @@ import java.util.Arrays;
 public class PublicVoteEliminationRule implements EliminationRule {
     public PublicVoteEliminationRule(String[] votes) {
         majority = findErgenka(votes);
-        /*
-        if(votes == null || votes.length < 1){
-            majority = null;
-            return;
-        }
-        int c = 0;
-        for(String vote : votes){
-            if(c == 0){
-                majority = vote;
-            } else if(majority.equals(vote)){
-                ++c;
-            } else{
-                --c;
-            }
-        }
-        int nOccurs = 0;
-        for(String vote : votes){
-            if(majority.equals(vote)){
-                ++nOccurs;
-            }
-        }
-        if(nOccurs < votes.length / 2 + 1){
-            majority = null;
-        }
-        */
     }
 
     private String findErgenka(String[] votes) {

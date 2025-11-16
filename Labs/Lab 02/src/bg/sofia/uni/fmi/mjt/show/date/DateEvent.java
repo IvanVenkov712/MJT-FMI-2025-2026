@@ -1,6 +1,7 @@
 package bg.sofia.uni.fmi.mjt.show.date;
 
 public class DateEvent {
+    public static DateEvent defaultDateEvent = new DateEvent("", 4, 0);
     private static final int TENSION_LEVEL_MIN = 0;
     private static final int TENSION_LEVEL_MAX = 10;
 
