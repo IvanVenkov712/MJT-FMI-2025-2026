@@ -7,6 +7,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class StageTest {
@@ -41,5 +43,39 @@ class StageTest {
         assertThrows(IllegalArgumentException.class, () -> stage.addStep(null),
             "IllegalArgumentException should be thrown for null step added!"
         );
+    }
+
+    @Test
+    void testExecuteWorksOneStep() {
+        Step<Integer, Integer> step1 = mock();
+        when(step1.process(0)).thenReturn(5);
+        Stage<Integer, Integer> stage = Stage.start(step1);
+        assertEquals(5, stage.execute(0),
+            "5 expected"
+        );
+        verify(step1).process(0);
+    }
+
+    @Test
+    void testExecuteThreeStepsSameType() {
+        Step<Integer, Integer> step1 = mock();
+        when(step1.process(0)).thenReturn(5);
+
+        Step<Integer, Integer> step2 = mock();
+        when(step2.process(5)).thenReturn(-463);
+
+        Step<Integer, Integer> step3 = mock();
+        when(step3.process(-463)).thenReturn(18);
+
+        Stage<Integer, Integer> stage = Stage.start(step1).addStep(step2).addStep(step3);
+
+        assertEquals(18, stage.execute(0),
+            "18 expected"
+        );
+
+        verify(step1).process(0);
+        verify(step2).process(5);
+        verify(step3).process(-463);
+
     }
 }
