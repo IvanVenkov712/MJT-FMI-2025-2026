@@ -16,16 +16,14 @@ public class UpperCaseFile implements Step<File, File> {
      *
      * @param input the file whose content will be transformed
      * @return the same {@link File} object with updated content
-     *
      * @throws IllegalArgumentException if the input file or its content is null
      */
     @Override
     public File process(File input) {
-        if(input == null || input.getContent() == null) {
+        if (input == null || input.getContent() == null) {
             throw new IllegalArgumentException("null input not permitted");
         }
-        input.setContent(input.getContent().toUpperCase());
-        return input;
+        return new File(input.getContent().toUpperCase());
     }
 
 }

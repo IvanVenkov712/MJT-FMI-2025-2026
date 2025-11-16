@@ -2,6 +2,7 @@ package bg.sofia.uni.fmi.mjt.pipeline.stage;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import bg.sofia.uni.fmi.mjt.pipeline.step.Step;
 
 /**
@@ -22,13 +23,15 @@ public final class Stage<I, O> {
      * Creates a new stage starting with the given initial step.
      *
      * @param initialStep the first step of this stage
-     * @param <I> the input type of the stage
-     * @param <O> the output type of the initial step
+     * @param <I>         the input type of the stage
+     * @param <O>         the output type of the initial step
      * @return a new stage instance containing the initial step
-     *
      * @throws IllegalArgumentException if initialStep is null
      */
     public static <I, O> Stage<I, O> start(Step<I, O> initialStep) {
+        if (initialStep == null) {
+            throw new IllegalArgumentException("null step not permitted");
+        }
         return new Stage<>(List.of(initialStep));
     }
 
@@ -37,7 +40,7 @@ public final class Stage<I, O> {
      *
      * @param steps the list of steps to include in the stage
      */
-    private Stage(List<Step<?, ?>> steps)  {
+    private Stage(List<Step<?, ?>> steps) {
         this.steps = new ArrayList<>(steps);
     }
 
@@ -47,15 +50,18 @@ public final class Stage<I, O> {
      * The input type of the new step must be compatible with the current output type {@code O}.
      * The returned stage updates the output type to {@code NEW_O}.
      *
-     * @param step the step to add
-     * @param <NEW_O> the output type of the new step
+     * @param step   the step to add
+     * @param <NewO> the output type of the new step
      * @return this stage instance cast to have output type {@code NEW_O}
-     *
      * @throws IllegalArgumentException if step is null
      */
-    public <NEW_O> Stage<I, NEW_O> addStep(Step<? super O, NEW_O> step) {
+    public <NewO> Stage<I, NewO> addStep(Step<? super O, NewO> step) {
+        if (step == null) {
+            throw new IllegalArgumentException("null step cannot be added!");
+        }
         steps.add(step);
-        return (Stage<I, NEW_O>) this;
+        // Casts here are inevitable!
+        return (Stage<I, NewO>) this;
     }
 
     /**

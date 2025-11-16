@@ -2,6 +2,7 @@ package bg.sofia.uni.fmi.mjt.file.step;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import bg.sofia.uni.fmi.mjt.file.File;
 import bg.sofia.uni.fmi.mjt.pipeline.step.Step;
 
@@ -14,7 +15,7 @@ import bg.sofia.uni.fmi.mjt.pipeline.step.Step;
  */
 public class SplitFile implements Step<File, Set<File>> {
 
-    private static final String whitespace_regex = "\\s+";
+    private static final String WHITESPACE_REGEX = "\\s+";
 
     /**
      * Splits the content of the input {@link File} by whitespace and returns
@@ -23,21 +24,20 @@ public class SplitFile implements Step<File, Set<File>> {
      * @param input the file whose content will be split
      * @return a set of new {@link File} objects containing the split content.
      * No files with duplicate content are included in the set.
-     *
      * @throws IllegalArgumentException if the input file or its content is null
      */
     @Override
     public Set<File> process(File input) {
-        if(input == null || input.getContent() == null) {
+        if (input == null || input.getContent() == null) {
             throw new IllegalArgumentException("Null input is illegal!");
         }
 
-        if(input.getContent().isBlank()) {
+        if (input.getContent().isBlank()) {
             return Set.of();
         }
 
         Set<File> result = new HashSet<>();
-        String[] parts = input.getContent().split(whitespace_regex);
+        String[] parts = input.getContent().split(WHITESPACE_REGEX);
 
         for (String part : parts) {
             result.add(new File(part));

@@ -35,6 +35,14 @@ public final class Pipeline<I, O> {
     }
 
     /**
+     * Package-private constructor used for testing purposes.
+     */
+    Pipeline(List<Stage<?, ?>> stages, Cache cache) {
+        this.stages = stages;
+        this.cache = cache;
+    }
+
+    /**
      * Private constructor used to initialize the pipeline with a list of stages.
      *
      * @param stages the initial list of stages
