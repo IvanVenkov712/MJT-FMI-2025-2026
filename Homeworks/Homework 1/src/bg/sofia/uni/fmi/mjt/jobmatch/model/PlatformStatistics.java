@@ -8,7 +8,6 @@ public record PlatformStatistics(int totalCandidates, int totalEmployers, int to
         validate(totalCandidates, "totalCandidates");
         validate(totalEmployers, "totalEmployees");
         validate(totalJobPostings, "totalJobPostings");
-        validate(mostCommonSkillName, "mostCommonSkillName");
-        validate(highestPaidJobTitle, "highestPaidJobTitle");
+        // mostCommonSkillName and highestPaidJobTitle are nullable.
     }
 }

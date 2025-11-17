@@ -2,8 +2,8 @@ package bg.sofia.uni.fmi.mjt.burnout.subject.builder;
 
 import bg.sofia.uni.fmi.mjt.burnout.exception.CryToStudentsDepartmentException;
 import bg.sofia.uni.fmi.mjt.burnout.plan.SemesterPlan;
+import bg.sofia.uni.fmi.mjt.burnout.subject.comparators.RatingComparator;
 import bg.sofia.uni.fmi.mjt.burnout.subject.UniversitySubject;
-import bg.sofia.uni.fmi.mjt.burnout.subject.comparator.RatingComparator;
 
 import java.util.Arrays;
 

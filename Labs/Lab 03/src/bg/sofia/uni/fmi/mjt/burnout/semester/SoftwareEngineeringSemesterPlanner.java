@@ -8,7 +8,8 @@ public final class SoftwareEngineeringSemesterPlanner extends AbstractSemesterPl
     }
     /*
     @Override
-    public UniversitySubject[] calculateSubjectList(SemesterPlan semesterPlan) throws InvalidSubjectRequirementsException {
+    public UniversitySubject[] calculateSubjectList(SemesterPlan semesterPlan)
+    throws InvalidSubjectRequirementsException {
         validatePlan(semesterPlan);
 
         UniversitySubject[] sortedSubjs = SubjectHelper.sortSubjectsByCreditsDesc(semesterPlan.subjects());
@@ -60,7 +61,8 @@ public final class SoftwareEngineeringSemesterPlanner extends AbstractSemesterPl
         return creditsTotal;
     }
 
-    private static void fillForCredits(int currCredits, UniversitySubject[] sortedSubjs, int minCredits, boolean[] included){
+    private static void fillForCredits(int currCredits, UniversitySubject[] sortedSubjs,
+    int minCredits, boolean[] included){
         for(int i = 0; i < sortedSubjs.length; ++i){
             if(currCredits >= minCredits){
                 break;

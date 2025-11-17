@@ -26,7 +26,8 @@ public sealed interface SemesterPlannerAPI permits AbstractSemesterPlanner {
      * @param maximumSlackTime the rest days grandma gave as limit before stopping the jar food deliveries
      * @param semesterDuration the duration of the semester in days
      * @return number of procrastination days available
-     * @throws IllegalArgumentException if the subjects are missing or null, or maximumSlackTime/semesterDuration are not positive integers
+     * @throws IllegalArgumentException if the subjects are missing or null,
+     * or maximumSlackTime/semesterDuration are not positive integers
      * @throws DisappointmentException  if you cannot make grandma happy.
      */
     int calculateJarCount(UniversitySubject[] subjects, int maximumSlackTime, int semesterDuration);

@@ -13,6 +13,9 @@ package bg.sofia.uni.fmi.mjt.burnout.subject;
  * @throws IllegalArgumentException if the neededStudy time is not positive
  */
 public record UniversitySubject(String name, int credits, int rating, Category category, int neededStudyTime) {
+    private static final int MIN_RATING = 1;
+    private static final int MAX_RATING = 5;
+
     public UniversitySubject {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Null or empty name");
@@ -20,7 +23,7 @@ public record UniversitySubject(String name, int credits, int rating, Category c
         if (credits <= 0) {
             throw new IllegalArgumentException("not positive credits");
         }
-        if (rating < 1 || rating > 5) {
+        if (rating < MIN_RATING || rating > MAX_RATING) {
             throw new IllegalArgumentException("rating is not in bounds");
         }
         if (category == null) {

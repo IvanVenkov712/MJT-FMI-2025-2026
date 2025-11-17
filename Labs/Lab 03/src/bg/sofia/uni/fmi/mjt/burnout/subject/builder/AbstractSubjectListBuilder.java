@@ -1,9 +1,9 @@
 package bg.sofia.uni.fmi.mjt.burnout.subject.builder;
 
 import bg.sofia.uni.fmi.mjt.burnout.plan.SemesterPlan;
+import bg.sofia.uni.fmi.mjt.burnout.subject.comparators.SubjectComparator;
 import bg.sofia.uni.fmi.mjt.burnout.subject.Subjects;
 import bg.sofia.uni.fmi.mjt.burnout.subject.UniversitySubject;
-import bg.sofia.uni.fmi.mjt.burnout.subject.comparator.SubjectComparator;
 
 import java.util.Arrays;
 

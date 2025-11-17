@@ -1,6 +1,6 @@
 package bg.sofia.uni.fmi.mjt.burnout.subject;
 
-import bg.sofia.uni.fmi.mjt.burnout.subject.comparator.SubjectComparator;
+import bg.sofia.uni.fmi.mjt.burnout.subject.comparators.SubjectComparator;
 
 import java.util.Arrays;
 

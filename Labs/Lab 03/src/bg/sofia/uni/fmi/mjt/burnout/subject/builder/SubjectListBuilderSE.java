@@ -2,9 +2,9 @@ package bg.sofia.uni.fmi.mjt.burnout.subject.builder;
 
 import bg.sofia.uni.fmi.mjt.burnout.exception.CryToStudentsDepartmentException;
 import bg.sofia.uni.fmi.mjt.burnout.plan.SemesterPlan;
+import bg.sofia.uni.fmi.mjt.burnout.subject.comparators.CreditsComparator;
 import bg.sofia.uni.fmi.mjt.burnout.subject.SubjectRequirement;
 import bg.sofia.uni.fmi.mjt.burnout.subject.UniversitySubject;
-import bg.sofia.uni.fmi.mjt.burnout.subject.comparator.CreditsComparator;
 
 public class SubjectListBuilderSE extends AbstractSubjectListBuilder {
     public SubjectListBuilderSE(SemesterPlan semesterPlan) {
