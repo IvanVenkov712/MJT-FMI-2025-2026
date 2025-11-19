@@ -13,7 +13,7 @@ public class TypeWorkoutFilter implements WorkoutFilter {
 
     @Override
     public boolean matches(Workout workout) {
-        return false;
+        return workout.getType() == type;
     }
 
     WorkoutType type;

@@ -6,7 +6,6 @@ import bg.sofia.uni.fmi.mjt.fittrack.workout.comparator.ByDifficultyWorkoutCompa
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class OptimalPlanGenerator {
@@ -34,10 +33,8 @@ public class OptimalPlanGenerator {
             }
         }
 
-        Collections.sort(res,
-            new ByCalloryWorkoutComparator().reversed()
-                .thenComparing(new ByDifficultyWorkoutComparator().reversed())
-        );
+        res.sort(new ByCalloryWorkoutComparator().reversed()
+            .thenComparing(new ByDifficultyWorkoutComparator().reversed()));
         return res;
     }
 

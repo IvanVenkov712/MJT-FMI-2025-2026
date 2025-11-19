@@ -43,6 +43,9 @@ public class FitPlanner implements FitPlannerAPI {
         if (totalMinutes < 0) {
             throw new IllegalArgumentException("totalMinutes is negative");
         }
+        if (totalMinutes == 0 || workouts.isEmpty()) {
+            return List.of();
+        }
         if (!optimalPlanPossible(totalMinutes)) {
             throw new OptimalPlanImpossibleException("All workouts exceed the limit");
         }

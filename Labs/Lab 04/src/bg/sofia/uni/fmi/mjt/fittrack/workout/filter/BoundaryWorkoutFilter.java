@@ -2,7 +2,7 @@ package bg.sofia.uni.fmi.mjt.fittrack.workout.filter;
 
 public abstract class BoundaryWorkoutFilter implements WorkoutFilter {
     public BoundaryWorkoutFilter(int min, int max) {
-        if (min > max || min < 0 || max < 0) {
+        if (min > max || min < 0) {
             throw new IllegalArgumentException("Invalid bounds");
         }
         this.min = min;

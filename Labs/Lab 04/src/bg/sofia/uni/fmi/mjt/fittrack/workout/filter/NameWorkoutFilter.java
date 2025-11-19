@@ -2,11 +2,9 @@ package bg.sofia.uni.fmi.mjt.fittrack.workout.filter;
 
 import bg.sofia.uni.fmi.mjt.fittrack.workout.Workout;
 
-import java.awt.datatransfer.StringSelection;
-
 public class NameWorkoutFilter implements WorkoutFilter {
     public NameWorkoutFilter(String keyword, boolean caseSensitive) {
-        if (keyword == null) {
+        if (keyword == null || keyword.isBlank()) {
             throw new IllegalArgumentException("keyword was null");
         }
         this.keyword = keyword;
@@ -16,9 +14,9 @@ public class NameWorkoutFilter implements WorkoutFilter {
     @Override
     public boolean matches(Workout workout) {
         if (caseSensitive) {
-            return workout.getName().equals(keyword);
+            return workout.getName().contains(keyword);
         } else {
-            return workout.getName().equalsIgnoreCase(keyword);
+            return workout.getName().toLowerCase().contains(keyword.toLowerCase());
         }
     }
 
