@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+// TODO:
+// - Add more getters
+// - Fix findSimilarCandidates to not include the original candidate
 public class JobMatch implements JobMatchAPI {
     private final Map<String, Candidate> candidates;
     private final Map<String, Employer> employers;
