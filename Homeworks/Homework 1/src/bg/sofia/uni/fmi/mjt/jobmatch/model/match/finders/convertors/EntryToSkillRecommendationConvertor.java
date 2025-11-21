@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.convertors;
+package bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.convertors;
 
 import bg.sofia.uni.fmi.mjt.jobmatch.generics.Converter;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Skill;

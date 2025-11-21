@@ -23,14 +23,14 @@ public class TopElementFinderImpl<T> implements TopElementFinder<T> {
     }
 
     @Override
-    public List<T> findTopN(Comparator<? super T> comparator, Filter<? super T> predicate, int limit) {
+    public List<T> findTopN(Comparator<? super T> comparator, Filter<? super T> filter, int limit) {
         if (limit <= 0) {
             return List.of();
         }
 
         Queue<T> topItems = new PriorityQueue<>(comparator);
         for (T item : iterable) {
-            if (predicate.matches(item)) {
+            if (filter.matches(item)) {
                 topItems.add(item);
                 if (topItems.size() > limit) {
                     topItems.poll();

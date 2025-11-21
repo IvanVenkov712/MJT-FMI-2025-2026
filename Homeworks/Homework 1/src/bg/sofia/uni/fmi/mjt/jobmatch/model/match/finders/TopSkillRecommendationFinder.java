@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.mjt.jobmatch.model.match.views;
+package bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders;
 
 import bg.sofia.uni.fmi.mjt.jobmatch.generics.IterableConverter;
 import bg.sofia.uni.fmi.mjt.jobmatch.generics.TopElementFinderImpl;
@@ -7,7 +7,7 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.SkillRecommendation;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.SkillRecommendationByImprovementComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.SkillRecommendationByNameComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.filters.SkillRecommendationFilter;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.convertors.EntryToSkillRecommendationConvertor;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.convertors.EntryToSkillRecommendationConvertor;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.mjt.jobmatch.model.match.views;
+package bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders;
 
 import bg.sofia.uni.fmi.mjt.jobmatch.generics.IterableConverter;
 import bg.sofia.uni.fmi.mjt.jobmatch.generics.TopElementFinderImpl;
@@ -8,7 +8,7 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateSimilarityMatch;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateSimilarityMatchByCandidateNameComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateSimilarityMatchByScoreComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.filters.CandidateSimilarityFilter;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.convertors.CandidateSimilarityMatchSameCandidateConvertor;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.convertors.CandidateSimilarityMatchSameCandidateConvertor;
 
 import java.util.Collection;
 

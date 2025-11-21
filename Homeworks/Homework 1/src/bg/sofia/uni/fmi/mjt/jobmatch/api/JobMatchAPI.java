@@ -1,5 +1,9 @@
 package bg.sofia.uni.fmi.mjt.jobmatch.api;
 
+import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.CandidateNotFoundException;
+import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.JobPostingNotFoundException;
+import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.UserAlreadyExistsException;
+import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.UserNotFoundException;
 import bg.sofia.uni.fmi.mjt.jobmatch.matching.SimilarityStrategy;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Candidate;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateJobMatch;
@@ -59,7 +63,8 @@ public interface JobMatchAPI {
      * @return An unmodifiable list of CandidateJobMatch objects, sorted as described above.
      * If there are fewer than 'limit' candidates, return all of them.
      * If there are no candidates with non-zero similarity, return an empty list.
-     * @throws IllegalArgumentException    if jobPostingId is null, empty or blank, limit is non-positive, or strategy is null
+     * @throws IllegalArgumentException    if jobPostingId is null, empty or blank, limit is non-positive,
+     * or strategy is null
      * @throws JobPostingNotFoundException if no job posting with this ID exists
      */
     List<CandidateJobMatch> findTopNCandidatesForJob(String jobPostingId, int limit, SimilarityStrategy strategy);

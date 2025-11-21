@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.mjt.jobmatch.model.match.views;
+package bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders;
 
 import bg.sofia.uni.fmi.mjt.jobmatch.generics.IterableConverter;
 import bg.sofia.uni.fmi.mjt.jobmatch.generics.TopElementFinderImpl;
@@ -9,7 +9,7 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateJobMatch;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchByJobTitleComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchByScoreComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.filters.CandidateJobFilter;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.convertors.CandidateJobMatchSameCandidateConvertor;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.convertors.CandidateJobMatchSameCandidateConvertor;
 
 public class TopJobFinder extends TopElementFinderImpl<CandidateJobMatch> {
 

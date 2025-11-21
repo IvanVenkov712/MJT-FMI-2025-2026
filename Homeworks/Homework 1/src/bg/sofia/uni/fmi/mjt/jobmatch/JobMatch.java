@@ -15,10 +15,10 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Skill;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateJobMatch;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateSimilarityMatch;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.SkillRecommendation;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.TopJobFinder;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.TopCandidateFinder;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.TopSimilarCandidatesFinder;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.views.TopSkillRecommendationFinder;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.TopJobFinder;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.TopCandidateFinder;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.TopSimilarCandidatesFinder;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.TopSkillRecommendationFinder;
 
 import java.util.Collection;
 import java.util.HashMap;
