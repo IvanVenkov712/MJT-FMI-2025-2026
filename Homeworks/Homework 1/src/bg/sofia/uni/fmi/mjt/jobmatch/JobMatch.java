@@ -27,9 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// TODO:
-// - Add more getters
-// - Fix findSimilarCandidates to not include the original candidate
 public class JobMatch implements JobMatchAPI {
     private final Map<String, Candidate> candidates;
     private final Map<String, Employer> employers;
@@ -87,6 +84,9 @@ public class JobMatch implements JobMatchAPI {
         }
         if (!employers.containsKey(jobPosting.getEmployerEmail())) {
             throw new UserNotFoundException("The employer is not registered!");
+        }
+        if (jobPostings.containsKey(jobPosting.getId())) {
+            return jobPosting;
         }
         jobPostings.put(jobPosting.getId(), jobPosting);
         updateHighestPaidJob(jobPosting);
@@ -209,7 +209,9 @@ public class JobMatch implements JobMatchAPI {
     }
 
     private void updateHighestPaidJob(JobPosting jobPosting) {
-        if (highestPaidJob == null || jobPosting.getSalary() > highestPaidJob.getSalary()) {
+        if (highestPaidJob == null || jobPosting.getSalary() > highestPaidJob.getSalary() ||
+            (jobPosting.getSalary() == highestPaidJob.getSalary() &&
+                jobPosting.getTitle().compareTo(highestPaidJob.getTitle()) < 0)) {
             highestPaidJob = jobPosting;
         }
     }

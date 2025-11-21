@@ -1,18 +1,16 @@
 package bg.sofia.uni.fmi.mjt.jobmatch.model.entity;
 
-import bg.sofia.uni.fmi.mjt.jobmatch.model.Validation;
-
 import java.util.Objects;
 import java.util.Set;
 
 import static bg.sofia.uni.fmi.mjt.jobmatch.model.Validation.validate;
 
 public class Candidate {
-    private String name;
-    private String email;
-    private Set<Skill> skills;
-    private Education education;
-    private int yearsOfExperience;
+    private final String name;
+    private final String email;
+    private final Set<Skill> skills;
+    private final Education education;
+    private final int yearsOfExperience;
 
     public Candidate(String name, String email, Set<Skill> skills, Education education, int yearsOfExperience) {
         validate(name, "name");
@@ -51,5 +49,13 @@ public class Candidate {
 
     public Set<Skill> getSkills() {
         return skills;
+    }
+
+    public Education getEducation() {
+        return education;
+    }
+
+    public int getYearsOfExperience() {
+        return yearsOfExperience;
     }
 }

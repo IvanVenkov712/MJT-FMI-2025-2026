@@ -6,13 +6,13 @@ import java.util.Set;
 import static bg.sofia.uni.fmi.mjt.jobmatch.model.Validation.validate;
 
 public class JobPosting {
-    private String id;
-    private String title;
-    private String employerEmail;
-    private Set<Skill> requiredSkills;
-    private Education requiredEducation;
-    private int requiredYearsOfExperience;
-    private double salary;
+    private final String id;
+    private final String title;
+    private final String employerEmail;
+    private final Set<Skill> requiredSkills;
+    private final Education requiredEducation;
+    private final int requiredYearsOfExperience;
+    private final double salary;
 
     public JobPosting(String id, String title, String employerEmail, Set<Skill> requiredSkills,
                       Education requiredEducation, int requiredYearsOfExperience, double salary) {
@@ -64,5 +64,13 @@ public class JobPosting {
 
     public double getSalary() {
         return salary;
+    }
+
+    public Education getRequiredEducation() {
+        return requiredEducation;
+    }
+
+    public int getRequiredYearsOfExperience() {
+        return requiredYearsOfExperience;
     }
 }
