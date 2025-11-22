@@ -31,19 +31,15 @@ public class LuminosityGrayscale implements GrayscaleAlgorithm {
         }
         // BufferedImageOp op = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
         // return op.filter(image, null);
-        int x = image.getMinX();
-        int y = image.getMinY();
+
         int w = image.getWidth();
         int h = image.getHeight();
         ColorModel model = ColorModel.getRGBdefault();
+
         BufferedImage res = new BufferedImage(w, h, image.getType());
-        for (; x < w; ++x) {
-            for (; y < h; ++y) {
-                int pixel = image.getRGB(x, y);
-                int r = model.getRed(pixel);
-                int g = model.getGreen(pixel);
-                int b = model.getBlue(pixel);
-                int gray = getGray(r, g, b);
+        for (int x = image.getMinX(); x < w; ++x) {
+            for (int y = image.getMinY(); y < h; ++y) {
+                int gray = getGray(image.getRGB(x, y));
                 Color c = new Color(gray, gray, gray);
                 res.setRGB(x, y, c.getRGB());
             }

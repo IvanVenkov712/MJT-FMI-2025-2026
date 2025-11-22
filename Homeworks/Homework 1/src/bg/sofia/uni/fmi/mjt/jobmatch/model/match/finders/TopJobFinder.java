@@ -9,7 +9,7 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateJobMatch;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchByJobTitleComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchByScoreComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.filters.CandidateJobFilter;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.convertors.CandidateJobMatchSameCandidateConvertor;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.converters.CandidateJobMatchSameCandidateConverter;
 
 public class TopJobFinder extends TopElementFinderImpl<CandidateJobMatch> {
 
@@ -17,7 +17,7 @@ public class TopJobFinder extends TopElementFinderImpl<CandidateJobMatch> {
                         SimilarityStrategy strategy) {
 
         super(
-            new IterableConverter<>(original, new CandidateJobMatchSameCandidateConvertor(candidate, strategy)),
+            new IterableConverter<>(original, new CandidateJobMatchSameCandidateConverter(candidate, strategy)),
             new CandidateJobMatchByScoreComparator().thenComparing(
                 new CandidateJobMatchByJobTitleComparator().reversed()
             ), new CandidateJobFilter()

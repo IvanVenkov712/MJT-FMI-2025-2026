@@ -1,5 +1,6 @@
 package bg.sofia.uni.fmi.mjt.imagekit.algorithm.detection;
 
+import bg.sofia.uni.fmi.mjt.imagekit.algorithm.ImageAlgorithm;
 import bg.sofia.uni.fmi.mjt.imagekit.algorithm.grayscale.LuminosityGrayscale;
 
 import java.awt.Color;
@@ -22,12 +23,22 @@ public class SobelEdgeDetection implements EdgeDetectionAlgorithm {
         {1, 2, 1}
     };
 
+    private final ImageAlgorithm grayscaleAlgorithm;
+
+    public SobelEdgeDetection(ImageAlgorithm grayscaleAlgorithm) {
+        if (grayscaleAlgorithm == null) {
+            throw new IllegalArgumentException("grayscaleAlgorithm is null");
+        }
+        this.grayscaleAlgorithm = grayscaleAlgorithm;
+    }
+
     // TODO: Decide what to do in the edges and the corners
     @Override
     public BufferedImage process(BufferedImage image) {
         if (image == null) {
             throw new IllegalArgumentException("image is null");
         }
+        image = grayscaleAlgorithm.process(image);
         if (image.getWidth() < MIN_WIDTH || image.getHeight() < MIN_HEIGHT) {
             return image.getSubimage(0, 0, image.getWidth(), image.getHeight());
         }
@@ -54,7 +65,7 @@ public class SobelEdgeDetection implements EdgeDetectionAlgorithm {
             for (int j = -1; j <= 1; j++) {
 
                 int rgb = image.getRGB(x + j, y + i);
-                int gray = LuminosityGrayscale.getGray(rgb);
+                int gray = new Color(rgb).getRed();
 
                 pixelX += gray * GX[i + 1][j + 1];
                 pixelY += gray * GY[i + 1][j + 1];

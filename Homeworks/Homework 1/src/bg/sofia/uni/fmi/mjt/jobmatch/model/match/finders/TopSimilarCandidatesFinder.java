@@ -8,7 +8,7 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateSimilarityMatch;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateSimilarityMatchByCandidateNameComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateSimilarityMatchByScoreComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.filters.CandidateSimilarityFilter;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.convertors.CandidateSimilarityMatchSameCandidateConvertor;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.converters.CandidateSimilarityMatchSameCandidateConverter;
 
 import java.util.Collection;
 
@@ -17,7 +17,7 @@ public class TopSimilarCandidatesFinder extends TopElementFinderImpl<CandidateSi
     public TopSimilarCandidatesFinder(Collection<Candidate> candidates, Candidate target,
                                       SimilarityStrategy strategy) {
         super(
-            new IterableConverter<>(candidates, new CandidateSimilarityMatchSameCandidateConvertor(target, strategy)),
+            new IterableConverter<>(candidates, new CandidateSimilarityMatchSameCandidateConverter(target, strategy)),
             new CandidateSimilarityMatchByScoreComparator().thenComparing(
                 new CandidateSimilarityMatchByCandidateNameComparator().reversed()
             ), new CandidateSimilarityFilter()

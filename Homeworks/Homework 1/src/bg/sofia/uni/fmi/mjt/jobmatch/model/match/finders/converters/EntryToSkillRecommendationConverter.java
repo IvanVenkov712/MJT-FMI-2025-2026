@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.convertors;
+package bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.converters;
 
 import bg.sofia.uni.fmi.mjt.jobmatch.generics.Converter;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Skill;
@@ -6,7 +6,7 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.SkillRecommendation;
 
 import java.util.Map;
 
-public class EntryToSkillRecommendationConvertor implements
+public class EntryToSkillRecommendationConverter implements
     Converter<Map.Entry<Skill, Double>, SkillRecommendation> {
 
     @Override

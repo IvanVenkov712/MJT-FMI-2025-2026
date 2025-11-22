@@ -9,7 +9,7 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateJobMatch;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchByCandidateNameComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.CandidateJobMatchByScoreComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.filters.CandidateJobFilter;
-import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.convertors.CandidateJobMatchSameJobPostingConverter;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.converters.CandidateJobMatchSameJobPostingConverter;
 
 import java.util.Collection;
 

@@ -5,6 +5,7 @@ import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.CandidateNotFoundException;
 import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.JobPostingNotFoundException;
 import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.UserAlreadyExistsException;
 import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.UserNotFoundException;
+import bg.sofia.uni.fmi.mjt.jobmatch.generics.IterableConverter;
 import bg.sofia.uni.fmi.mjt.jobmatch.matching.CosineSimilarity;
 import bg.sofia.uni.fmi.mjt.jobmatch.matching.SimilarityStrategy;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.PlatformStatistics;
@@ -19,6 +20,7 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.TopJobFinder;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.TopCandidateFinder;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.TopSimilarCandidatesFinder;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.TopSkillRecommendationFinder;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.converters.CandidateJobMatchSameCandidateConverter;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,28 +30,37 @@ import java.util.Map;
 import java.util.Set;
 
 public class JobMatch implements JobMatchAPI {
+    private static final SimilarityStrategy DEFAULT_STRATEGY = new CosineSimilarity();
     private final Map<String, Candidate> candidates;
     private final Map<String, Employer> employers;
     private final Map<String, JobPosting> jobPostings;
     private final Map<String, Integer> skillFrequency;
+    private final Map<String, Integer> allRequiredSkills;
     private String mostCommonSkillName;
     private JobPosting highestPaidJob;
 
     public JobMatch() {
-        this(new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
+        this(new HashMap<>(), new HashMap<>(), new HashMap<>());
     }
 
     // To allow Dependency Injection
-    public JobMatch(Map<String, Candidate> candidates, Map<String, Employer> employers,
-                    Map<String, JobPosting> jobPostings,
-                    Map<String, Integer> skillFrequency) {
-        if (candidates == null || employers == null || jobPostings == null || skillFrequency == null) {
+    JobMatch(Map<String, Candidate> candidates, Map<String, Employer> employers,
+             Map<String, JobPosting> jobPostings) {
+        if (candidates == null || employers == null || jobPostings == null) {
             throw new IllegalArgumentException("Null initialization if illegal!");
         }
         this.candidates = candidates;
         this.employers = employers;
         this.jobPostings = jobPostings;
-        this.skillFrequency = skillFrequency;
+        this.skillFrequency = new HashMap<>();
+        this.allRequiredSkills = new HashMap<>();
+        for (JobPosting posting : jobPostings.values()) {
+            updateHighestPaidJob(posting);
+            updateAllRequiredSkills(posting.getRequiredSkills());
+        }
+        for (Candidate candidate : candidates.values()) {
+            updateMostCommonSkillName(candidate.getSkills());
+        }
     }
 
     @Override
@@ -90,6 +101,7 @@ public class JobMatch implements JobMatchAPI {
         }
         jobPostings.put(jobPosting.getId(), jobPosting);
         updateHighestPaidJob(jobPosting);
+        updateAllRequiredSkills(jobPosting.getRequiredSkills());
         return jobPosting;
     }
 
@@ -135,7 +147,7 @@ public class JobMatch implements JobMatchAPI {
 
     @Override
     public List<SkillRecommendation> getSkillRecommendationsForCandidate(String candidateEmail, int limit) {
-        return getSkillRecommendationsForCandidate(candidateEmail, limit, new CosineSimilarity());
+        return getSkillRecommendationsForCandidate(candidateEmail, limit, DEFAULT_STRATEGY);
     }
 
     @Override
@@ -148,7 +160,7 @@ public class JobMatch implements JobMatchAPI {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Invalid jobPostingId");
         }
-        if (limit < 0) {
+        if (limit <= 0) {
             throw new IllegalArgumentException("limit must be non-negative!");
         }
         if (strategy == null) {
@@ -173,21 +185,23 @@ public class JobMatch implements JobMatchAPI {
         Candidate candidate = candidates.get(candidateEmail);
         Map<Skill, Double> recommendations = new HashMap<>();
         Set<Skill> candidateSkills = new HashSet<>(candidate.getSkills());
+        Iterable<CandidateJobMatch> candidateJobMatches = new IterableConverter<>(
+            jobPostings.values(), new CandidateJobMatchSameCandidateConverter(candidate, strategy));
 
-        for (JobPosting posting : jobPostings.values()) {
-            double currentSimilarity = strategy.calculateSimilarity(candidateSkills, posting.getRequiredSkills());
-            for (Skill skill : posting.getRequiredSkills()) {
-                if (!candidateSkills.contains(skill)) {
+        Set<Skill> allMissing = getMissingSkills(candidate);
+        for (Skill skill : allMissing) {
+            candidateSkills.add(skill);
 
-                    candidateSkills.add(skill);
-                    double improvement =
-                        strategy.calculateSimilarity(candidateSkills, posting.getRequiredSkills()) - currentSimilarity;
-                    candidateSkills.remove(skill);
-
-                    recommendations.putIfAbsent(skill, 0.0);
-                    recommendations.put(skill, recommendations.get(skill) + improvement);
-                }
+            double totalImprovement = 0;
+            for (CandidateJobMatch candidateJobMatch : candidateJobMatches) {
+                double newSimilarity = strategy.calculateSimilarity(candidateSkills, candidateJobMatch.getJobPosting()
+                    .getRequiredSkills());
+                double improvement = newSimilarity - candidateJobMatch.getSimilarityScore();
+                totalImprovement += improvement;
             }
+            candidateSkills.remove(skill);
+
+            recommendations.put(skill, totalImprovement);
         }
         return recommendations;
     }
@@ -214,5 +228,24 @@ public class JobMatch implements JobMatchAPI {
                 jobPosting.getTitle().compareTo(highestPaidJob.getTitle()) < 0)) {
             highestPaidJob = jobPosting;
         }
+    }
+
+    private void updateAllRequiredSkills(Set<Skill> skills) {
+        for (Skill skill : skills) {
+            allRequiredSkills.putIfAbsent(skill.name(), skill.level());
+            int prevLevel = allRequiredSkills.get(skill.name());
+            allRequiredSkills.put(skill.name(), Math.max(skill.level(), prevLevel));
+        }
+    }
+
+    private Set<Skill> getMissingSkills(Candidate candidate) {
+        Set<Skill> res = new HashSet<>();
+        for (Map.Entry<String, Integer> entry : allRequiredSkills.entrySet()) {
+            Skill currMaxSkill = new Skill(entry.getKey(), entry.getValue());
+            if (!candidate.getSkills().contains(currMaxSkill)) {
+                res.add(currMaxSkill);
+            }
+        }
+        return res;
     }
 }

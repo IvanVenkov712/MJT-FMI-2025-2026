@@ -2,6 +2,8 @@ package bg.sofia.uni.fmi.mjt.jobmatch.model.match;
 
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Candidate;
 
+import java.util.Objects;
+
 import static bg.sofia.uni.fmi.mjt.jobmatch.model.Validation.validate;
 import static bg.sofia.uni.fmi.mjt.jobmatch.model.Validation.validateSimilarityScore;
 
@@ -30,5 +32,23 @@ public class CandidateSimilarityMatch {
 
     public double getSimilarityScore() {
         return similarityScore;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CandidateSimilarityMatch that = (CandidateSimilarityMatch) o;
+        return Double.compare(similarityScore, that.similarityScore) == 0 &&
+            Objects.equals(targetCandidate, that.targetCandidate) &&
+            Objects.equals(similarCandidate, that.similarCandidate);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(targetCandidate);
+        result = 31 * result + Objects.hashCode(similarCandidate);
+        result = 31 * result + Double.hashCode(similarityScore);
+        return result;
     }
 }
