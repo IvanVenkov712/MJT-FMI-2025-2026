@@ -2,6 +2,7 @@ package bg.sofia.uni.fmi.mjt.eventbus;
 
 import bg.sofia.uni.fmi.mjt.eventbus.events.Event;
 import bg.sofia.uni.fmi.mjt.eventbus.exception.MissingSubscriptionException;
+import bg.sofia.uni.fmi.mjt.eventbus.subscribers.DeferredEventSubscriber;
 import bg.sofia.uni.fmi.mjt.eventbus.subscribers.Subscriber;
 
 import java.time.Instant;
@@ -42,6 +43,9 @@ public class EventBusImpl implements EventBus {
         if (subscriber == null) {
             throw new IllegalArgumentException("subscriber was null");
         }
+        if (!subs.containsKey(eventType)) {
+            throw new MissingSubscriptionException("subscriber is not subscribed for eventType");
+        }
         if (!subs.get(eventType).contains(subscriber)) {
             throw new MissingSubscriptionException("subscriber is not subscribed for eventType");
         }
@@ -58,7 +62,7 @@ public class EventBusImpl implements EventBus {
         // According to javadoc of getClass(), event.getClass() is of Class<? extends Event>
         // which is compatible with Class<? extends Event<?>>
         // type, so the cast will be successful and safe
-        eventLogs.putIfAbsent((Class<? extends Event<?>>)event.getClass(), new ArrayList<>());
+        eventLogs.putIfAbsent((Class<? extends Event<?>>) event.getClass(), new ArrayList<>());
         eventLogs.get(event.getClass()).add(event);
 
         if (!subs.containsKey(event.getClass())) {
@@ -67,7 +71,7 @@ public class EventBusImpl implements EventBus {
         for (Subscriber<? extends Event<?>> sub : subs.get(event.getClass())) {
             // The cast is necessary and safe because we know that the subscriber's type is
             // a parent of T due to the way we insert the subscribers.
-            ((Subscriber<? super T>)sub).onEvent(event);
+            ((Subscriber<? super T>) sub).onEvent(event);
         }
     }
 
@@ -97,6 +101,7 @@ public class EventBusImpl implements EventBus {
                 res.add(event);
             }
         }
+        res.sort(DeferredEventSubscriber.DEFAULT_COMPARATOR);
         return Collections.unmodifiableList(res);
     }
 

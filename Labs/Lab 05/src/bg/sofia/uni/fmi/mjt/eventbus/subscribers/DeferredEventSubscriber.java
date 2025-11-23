@@ -1,15 +1,24 @@
 package bg.sofia.uni.fmi.mjt.eventbus.subscribers;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.List;
 
 import bg.sofia.uni.fmi.mjt.eventbus.events.Event;
+import bg.sofia.uni.fmi.mjt.eventbus.events.comparator.EventByPriorityComparator;
+import bg.sofia.uni.fmi.mjt.eventbus.events.comparator.EventByTimestampComparator;
 
 public class DeferredEventSubscriber<T extends Event<?>> implements Subscriber<T>, Iterable<T> {
 
+    public static final Comparator<? super Event<?>> DEFAULT_COMPARATOR =
+        new EventByPriorityComparator<>().thenComparing(new EventByTimestampComparator<>());
+
+    private final List<T> events;
+    boolean eventsIsSorted = false;
+
     public DeferredEventSubscriber() {
-        events = new TreeSet<>();
+        events = new ArrayList<>();
     }
 
     /**
@@ -20,7 +29,11 @@ public class DeferredEventSubscriber<T extends Event<?>> implements Subscriber<T
      */
     @Override
     public void onEvent(T event) {
-        events.add(new EventWrapper<>(event));
+        if (event == null) {
+            throw new IllegalArgumentException("Event is null");
+        }
+        events.add(event);
+        eventsIsSorted = false;
     }
 
     /**
@@ -32,7 +45,11 @@ public class DeferredEventSubscriber<T extends Event<?>> implements Subscriber<T
      */
     @Override
     public Iterator<T> iterator() {
-        return new DeferredEventSubscriberIterator<>(events.iterator());
+        if (!eventsIsSorted) {
+            events.sort(DEFAULT_COMPARATOR);
+            eventsIsSorted = true;
+        }
+        return events.iterator();
     }
 
     /**
@@ -43,6 +60,4 @@ public class DeferredEventSubscriber<T extends Event<?>> implements Subscriber<T
     public boolean isEmpty() {
         return events.isEmpty();
     }
-
-    private final Set<EventWrapper<T>> events;
 }
