@@ -5,7 +5,7 @@ import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.CandidateNotFoundException;
 import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.JobPostingNotFoundException;
 import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.UserAlreadyExistsException;
 import bg.sofia.uni.fmi.mjt.jobmatch.exceptions.UserNotFoundException;
-import bg.sofia.uni.fmi.mjt.jobmatch.generics.IterableConverter;
+import bg.sofia.uni.fmi.mjt.jobmatch.generics.CollectionConverterImpl;
 import bg.sofia.uni.fmi.mjt.jobmatch.matching.CosineSimilarity;
 import bg.sofia.uni.fmi.mjt.jobmatch.matching.SimilarityStrategy;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.PlatformStatistics;
@@ -34,6 +34,7 @@ public class JobMatch implements JobMatchAPI {
     private final Map<String, Candidate> candidates;
     private final Map<String, Employer> employers;
     private final Map<String, JobPosting> jobPostings;
+
     private final Map<String, Integer> skillFrequency;
     private final Map<String, Integer> allRequiredSkills;
     private String mostCommonSkillName;
@@ -185,23 +186,18 @@ public class JobMatch implements JobMatchAPI {
         Candidate candidate = candidates.get(candidateEmail);
         Map<Skill, Double> recommendations = new HashMap<>();
         Set<Skill> candidateSkills = new HashSet<>(candidate.getSkills());
-        Iterable<CandidateJobMatch> candidateJobMatches = new IterableConverter<>(
-            jobPostings.values(), new CandidateJobMatchSameCandidateConverter(candidate, strategy));
+        List<CandidateJobMatch> candidateJobMatches =
+            new CollectionConverterImpl<>(new CandidateJobMatchSameCandidateConverter(candidate, strategy)).convert(
+                jobPostings.values());
 
         Set<Skill> allMissing = getMissingSkills(candidate);
         for (Skill skill : allMissing) {
-            candidateSkills.add(skill);
 
-            double totalImprovement = 0;
-            for (CandidateJobMatch candidateJobMatch : candidateJobMatches) {
-                double newSimilarity = strategy.calculateSimilarity(candidateSkills, candidateJobMatch.getJobPosting()
-                    .getRequiredSkills());
-                double improvement = newSimilarity - candidateJobMatch.getSimilarityScore();
-                totalImprovement += improvement;
+            double totalImprovement = getTotalImprovement(candidateSkills, candidateJobMatches, skill, strategy);
+
+            if (totalImprovement > 0) {
+                recommendations.put(skill, totalImprovement);
             }
-            candidateSkills.remove(skill);
-
-            recommendations.put(skill, totalImprovement);
         }
         return recommendations;
     }
@@ -247,5 +243,19 @@ public class JobMatch implements JobMatchAPI {
             }
         }
         return res;
+    }
+
+    private double getTotalImprovement(Set<Skill> candidateSkills, Iterable<CandidateJobMatch> candidateJobMatches,
+                                       Skill skill, SimilarityStrategy strategy) {
+        candidateSkills.add(skill);
+        double totalImprovement = 0;
+        for (CandidateJobMatch candidateJobMatch : candidateJobMatches) {
+            double newSimilarity = strategy.calculateSimilarity(candidateSkills, candidateJobMatch.getJobPosting()
+                .getRequiredSkills());
+            double improvement = newSimilarity - candidateJobMatch.getSimilarityScore();
+            totalImprovement += improvement;
+        }
+        candidateSkills.remove(skill);
+        return totalImprovement;
     }
 }

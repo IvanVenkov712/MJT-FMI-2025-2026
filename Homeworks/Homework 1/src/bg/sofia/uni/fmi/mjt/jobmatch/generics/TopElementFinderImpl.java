@@ -1,23 +1,24 @@
 package bg.sofia.uni.fmi.mjt.jobmatch.generics;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class TopElementFinderImpl<T> implements TopElementFinder<T> {
-    private final Iterable<T> iterable;
+    private final Collection<T> collection;
     private final Comparator<T> defaultComparator;
     private final Filter<T> defaultFilter;
 
-    public TopElementFinderImpl(Iterable<T> iterable, Comparator<T> defaultComparator,
+    public TopElementFinderImpl(Collection<T> collection, Comparator<T> defaultComparator,
                                 Filter<T> defaultFilter) {
 
-        if (iterable == null || defaultComparator == null || defaultFilter == null) {
+        if (collection == null || defaultComparator == null || defaultFilter == null) {
             throw new IllegalArgumentException("Null arguments are illegal!");
         }
-        this.iterable = iterable;
+        this.collection = collection;
         this.defaultComparator = defaultComparator;
         this.defaultFilter = defaultFilter;
     }
@@ -29,7 +30,7 @@ public class TopElementFinderImpl<T> implements TopElementFinder<T> {
         }
 
         Queue<T> topItems = new PriorityQueue<>(comparator);
-        for (T item : iterable) {
+        for (T item : collection) {
             if (filter.matches(item)) {
                 topItems.add(item);
                 if (topItems.size() > limit) {

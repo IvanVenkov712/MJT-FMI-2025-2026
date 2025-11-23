@@ -1,6 +1,6 @@
 package bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders;
 
-import bg.sofia.uni.fmi.mjt.jobmatch.generics.IterableConverter;
+import bg.sofia.uni.fmi.mjt.jobmatch.generics.CollectionConverterImpl;
 import bg.sofia.uni.fmi.mjt.jobmatch.generics.TopElementFinderImpl;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Skill;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.SkillRecommendation;
@@ -9,13 +9,14 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.SkillRecommendation
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.filters.SkillRecommendationFilter;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.converters.EntryToSkillRecommendationConverter;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class TopSkillRecommendationFinder extends TopElementFinderImpl<SkillRecommendation> {
 
-    public TopSkillRecommendationFinder(Iterable<Map.Entry<Skill, Double>> recommendationPairs) {
+    public TopSkillRecommendationFinder(Collection<Map.Entry<Skill, Double>> recommendationPairs) {
         super(
-            new IterableConverter<>(recommendationPairs, new EntryToSkillRecommendationConverter()),
+            new CollectionConverterImpl<>(new EntryToSkillRecommendationConverter()).convert(recommendationPairs) ,
             new SkillRecommendationByImprovementComparator().thenComparing(
                 new SkillRecommendationByNameComparator().reversed()
             ), new SkillRecommendationFilter()

@@ -1,6 +1,6 @@
 package bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders;
 
-import bg.sofia.uni.fmi.mjt.jobmatch.generics.IterableConverter;
+import bg.sofia.uni.fmi.mjt.jobmatch.generics.CollectionConverterImpl;
 import bg.sofia.uni.fmi.mjt.jobmatch.generics.TopElementFinderImpl;
 import bg.sofia.uni.fmi.mjt.jobmatch.matching.SimilarityStrategy;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Candidate;
@@ -18,7 +18,8 @@ public class TopCandidateFinder extends TopElementFinderImpl<CandidateJobMatch> 
     public TopCandidateFinder(Collection<Candidate> candidates, JobPosting posting,
                               SimilarityStrategy strategy) {
         super(
-            new IterableConverter<>(candidates, new CandidateJobMatchSameJobPostingConverter(posting, strategy)),
+            new CollectionConverterImpl<>(new CandidateJobMatchSameJobPostingConverter(posting, strategy)).convert(
+                candidates),
             new CandidateJobMatchByScoreComparator().thenComparing(
                 new CandidateJobMatchByCandidateNameComparator().reversed()
             ), new CandidateJobFilter()
