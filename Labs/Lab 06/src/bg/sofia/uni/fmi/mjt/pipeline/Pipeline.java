@@ -71,6 +71,7 @@ public final class Pipeline<I, O> {
             throw new IllegalArgumentException("stage was null!");
         }
         stages.add(stage);
+        cache.clear();
         return (Pipeline<I, NewO>) this;
     }
 

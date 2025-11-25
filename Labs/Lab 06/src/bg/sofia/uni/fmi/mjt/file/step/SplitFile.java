@@ -37,7 +37,7 @@ public class SplitFile implements Step<File, Set<File>> {
         }
 
         Set<File> result = new HashSet<>();
-        String[] parts = input.getContent().split(WHITESPACE_REGEX);
+        String[] parts = input.getContent().strip().split(WHITESPACE_REGEX);
 
         for (String part : parts) {
             result.add(new File(part));
