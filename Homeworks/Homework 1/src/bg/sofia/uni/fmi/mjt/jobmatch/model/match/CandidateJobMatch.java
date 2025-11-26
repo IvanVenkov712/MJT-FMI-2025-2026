@@ -1,5 +1,6 @@
 package bg.sofia.uni.fmi.mjt.jobmatch.model.match;
 
+import bg.sofia.uni.fmi.mjt.jobmatch.math.MathUtils;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Candidate;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.JobPosting;
 
@@ -40,7 +41,7 @@ public class CandidateJobMatch {
         if (o == null || getClass() != o.getClass()) return false;
 
         CandidateJobMatch that = (CandidateJobMatch) o;
-        return Double.compare(similarityScore, that.similarityScore) == 0 &&
+        return MathUtils.compareDouble(similarityScore, that.similarityScore) == 0 &&
             Objects.equals(candidate, that.candidate) && Objects.equals(jobPosting, that.jobPosting);
     }
 

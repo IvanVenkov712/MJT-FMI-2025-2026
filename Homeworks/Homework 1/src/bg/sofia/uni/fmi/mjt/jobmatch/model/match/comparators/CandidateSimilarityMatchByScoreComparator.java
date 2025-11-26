@@ -1,5 +1,6 @@
 package bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators;
 
+import bg.sofia.uni.fmi.mjt.jobmatch.math.MathUtils;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateSimilarityMatch;
 
 import java.util.Comparator;
@@ -7,6 +8,6 @@ import java.util.Comparator;
 public class CandidateSimilarityMatchByScoreComparator implements Comparator<CandidateSimilarityMatch> {
     @Override
     public int compare(CandidateSimilarityMatch o1, CandidateSimilarityMatch o2) {
-        return Double.compare(o1.getSimilarityScore(), o2.getSimilarityScore());
+        return MathUtils.compareDouble(o1.getSimilarityScore(), o2.getSimilarityScore());
     }
 }

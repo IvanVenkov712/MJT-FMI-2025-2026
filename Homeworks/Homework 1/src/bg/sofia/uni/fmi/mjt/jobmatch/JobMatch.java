@@ -16,6 +16,8 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.entity.Skill;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateJobMatch;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.CandidateSimilarityMatch;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.SkillRecommendation;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.JobPostingBySalaryComparator;
+import bg.sofia.uni.fmi.mjt.jobmatch.model.match.comparators.JobPostingByTitleComparator;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.TopJobFinder;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.TopCandidateFinder;
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.TopSimilarCandidatesFinder;
@@ -23,6 +25,7 @@ import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.TopSkillRecommendationF
 import bg.sofia.uni.fmi.mjt.jobmatch.model.match.finders.converters.CandidateJobMatchSameCandidateConverter;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +33,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class JobMatch implements JobMatchAPI {
+    private static final Comparator<JobPosting> HIGHEST_PAID_JOB_COMPARATOR =
+        new JobPostingBySalaryComparator().reversed().thenComparing(new JobPostingByTitleComparator());
+
     private static final SimilarityStrategy DEFAULT_STRATEGY = new CosineSimilarity();
     private final Map<String, Candidate> candidates;
     private final Map<String, Employer> employers;
@@ -219,9 +225,7 @@ public class JobMatch implements JobMatchAPI {
     }
 
     private void updateHighestPaidJob(JobPosting jobPosting) {
-        if (highestPaidJob == null || jobPosting.getSalary() > highestPaidJob.getSalary() ||
-            (jobPosting.getSalary() == highestPaidJob.getSalary() &&
-                jobPosting.getTitle().compareTo(highestPaidJob.getTitle()) < 0)) {
+        if (highestPaidJob == null || HIGHEST_PAID_JOB_COMPARATOR.compare(highestPaidJob, jobPosting) < 0) {
             highestPaidJob = jobPosting;
         }
     }

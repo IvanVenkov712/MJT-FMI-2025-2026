@@ -16,7 +16,11 @@ public class LocalFileSystemImageManager implements FileSystemImageManager {
         if (imageFile == null) {
             throw new IllegalArgumentException("imageFile is null");
         }
-        return ImageIO.read(imageFile);
+        BufferedImage res = ImageIO.read(imageFile);
+        if (res == null) {
+            throw new IOException("null returned!");
+        }
+        return res;
     }
 
     @Override
