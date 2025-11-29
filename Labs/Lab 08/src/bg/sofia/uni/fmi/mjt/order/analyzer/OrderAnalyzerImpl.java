@@ -14,8 +14,22 @@ import java.util.stream.Collectors;
 
 public class OrderAnalyzerImpl implements OrderAnalyzer {
     private final List<Order> orders;
+    private static final double MIN_PRICE = 100.0;
+    private static final int MAX_ORDERS = 3;
 
-    OrderAnalyzerImpl(List<Order> orders) {
+    private static final Comparator<Map.Entry<PaymentMethod, Long>> PAYMENT_METHOD_COMP =
+        Map.Entry.<PaymentMethod, Long>comparingByValue().thenComparing(
+            Comparator.comparing(
+                (Map.Entry<PaymentMethod, Long> e) -> e.getKey().toString()
+            ).reversed()
+        );
+
+    private static final Comparator<Map.Entry<String, Long>> LOCATION_COMP =
+        Map.Entry.<String, Long>comparingByValue().thenComparing(
+            Map.Entry.<String, Long>comparingByKey().reversed()
+        );
+
+    public OrderAnalyzerImpl(List<Order> orders) {
         this.orders = orders;
     }
 
@@ -40,7 +54,8 @@ public class OrderAnalyzerImpl implements OrderAnalyzer {
             .collect(Collectors.groupingBy(Order::date, Collectors.counting()))
             .entrySet().stream()
             .max(Comparator.<Map.Entry<LocalDate, Long>>comparingLong(Map.Entry::getValue)
-                .thenComparing(Map.Entry::getKey)).orElse(null);
+                .thenComparing(Map.Entry::getKey)
+            ).orElse(null);
     }
 
     @Override
@@ -49,40 +64,63 @@ public class OrderAnalyzerImpl implements OrderAnalyzer {
             throw new IllegalArgumentException("n is negative");
         }
         return orders.stream()
-            .collect(Collectors.groupingBy(Order::product))
-            .entrySet().stream().map(e -> Map.entry(e.getKey(), e.getValue().size()))
-            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed().thenComparing(Map.Entry.comparingByKey()))
+            .collect(Collectors.groupingBy(Order::product, Collectors.counting()))
+            .entrySet().stream()
+            .sorted(Map.Entry.<String, Long>comparingByValue().reversed().thenComparing(Map.Entry.comparingByKey()))
             .limit(n).map(Map.Entry::getKey).collect(Collectors.toUnmodifiableList());
     }
 
     @Override
     public Map<Category, Double> revenueByCategory() {
         return orders.stream()
-            .collect(Collectors.groupingBy(Order::category))
-            .entrySet().stream()
-            .map(e -> Map.<Category, Double>entry(e.getKey(), e.getValue()
-                .stream().mapToDouble(Order::totalSales).sum())
-            ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .collect(Collectors.groupingBy(Order::category, Collectors.summingDouble(Order::totalSales)));
     }
 
     @Override
     public Set<String> suspiciousCustomers() {
-        return orders.stream().collect(Collectors.groupingBy(Order::customerName))
+        return orders.stream()
+            .collect(Collectors.groupingBy(
+                Order::customerName,
+                Collectors.filtering(
+                    o -> o.price() < MIN_PRICE && o.status() == Status.CANCELLED,
+                    Collectors.counting()
+                )))
             .entrySet().stream()
+            .filter(e -> e.getValue() > MAX_ORDERS)
+            .map(Map.Entry::getKey).collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
     public Map<Category, PaymentMethod> mostUsedPaymentMethodForCategory() {
-        return Map.of();
+        return orders.stream().collect(
+            Collectors.groupingBy(
+                Order::category,
+                Collectors.collectingAndThen(
+                    Collectors.groupingBy(Order::paymentMethod, Collectors.counting()),
+                    map -> map.entrySet().stream().max(PAYMENT_METHOD_COMP)
+                        .orElse(Map.entry(PaymentMethod.CREDIT_CARD, 0L)).getKey()
+                )
+            )
+        );
     }
 
     @Override
     public String locationWithMostOrders() {
-        return "";
+        return orders.stream().collect(
+            Collectors.groupingBy(Order::customerLocation, Collectors.counting())
+        ).entrySet().stream().max(LOCATION_COMP).map(Map.Entry::getKey).orElse(null);
     }
 
     @Override
     public Map<Category, Map<Status, Long>> groupByCategoryAndStatus() {
-        return Map.of();
+        return orders.stream().collect(
+            Collectors.groupingBy(
+                Order::category,
+                Collectors.groupingBy(
+                    Order::status,
+                    Collectors.counting()
+                )
+            )
+        );
     }
 }
