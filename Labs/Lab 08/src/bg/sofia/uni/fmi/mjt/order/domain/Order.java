@@ -22,20 +22,23 @@ public record Order(String id, LocalDate date, String product, Category category
     private static final int INDEX_STATUS = 10;
 
     public static Order of(String line) {
-        List<String> tokens = Arrays.stream(line.split(",")).map(String::strip).toList();
+        if (line == null) {
+            throw new IllegalArgumentException("line is null");
+        }
 
+        List<String> tokens = Arrays.stream(line.split(",")).map(String::strip).toList();
         return new Order(
             tokens.get(INDEX_ID),
             LocalDate.parse(tokens.get(INDEX_DATE), DateTimeFormatter.ofPattern("dd-MM-yy")),
             tokens.get(INDEX_PRODUCT),
-            Category.valueOf(tokens.get(INDEX_CATEGORY)),
+            Category.valueOf(tokens.get(INDEX_CATEGORY).toUpperCase().replaceAll("\\s", "_")),
             Double.parseDouble(tokens.get(INDEX_PRICE)),
             Integer.parseInt(tokens.get(INDEX_QUANTITY)),
             Double.parseDouble(tokens.get(INDEX_TOTAL_SALES)),
             tokens.get(INDEX_CUSTOMER_NAME),
             tokens.get(INDEX_CUSTOMER_LOCATION),
-            PaymentMethod.valueOf(tokens.get(INDEX_PAYMENT_METHOD)),
-            Status.valueOf(tokens.get(INDEX_STATUS))
+            PaymentMethod.valueOf(tokens.get(INDEX_PAYMENT_METHOD).toUpperCase().replaceAll("\\s", "_")),
+            Status.valueOf(tokens.get(INDEX_STATUS).toUpperCase().replaceAll("\\s", "_"))
         );
     }
 }

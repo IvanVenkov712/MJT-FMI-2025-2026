@@ -33,7 +33,6 @@ public class SobelEdgeDetection implements EdgeDetectionAlgorithm {
         this.grayscaleAlgorithm = grayscaleAlgorithm;
     }
 
-    // TODO: Decide what to do in the edges and the corners
     @Override
     public BufferedImage process(BufferedImage image) {
         if (image == null) {

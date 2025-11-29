@@ -53,8 +53,11 @@ public class OrderAnalyzerImpl implements OrderAnalyzer {
         return orders.stream()
             .collect(Collectors.groupingBy(Order::date, Collectors.counting()))
             .entrySet().stream()
-            .max(Comparator.<Map.Entry<LocalDate, Long>>comparingLong(Map.Entry::getValue)
-                .thenComparing(Map.Entry::getKey)
+            .max(
+                Comparator.<Map.Entry<LocalDate, Long>>comparingLong(Map.Entry::getValue)
+                .thenComparing(
+                    Map.Entry.<LocalDate, Long>comparingByKey().reversed()
+                )
             ).orElse(null);
     }
 

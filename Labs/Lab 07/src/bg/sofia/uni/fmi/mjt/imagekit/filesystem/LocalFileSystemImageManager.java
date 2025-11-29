@@ -45,6 +45,9 @@ public class LocalFileSystemImageManager implements FileSystemImageManager {
         if (imageFile == null) {
             throw new IllegalArgumentException("imageFile is null");
         }
+        if (imageFile.exists()) {
+            throw new IOException("File already exists");
+        }
         ImageIO.write(image, "png", imageFile);
     }
 }
