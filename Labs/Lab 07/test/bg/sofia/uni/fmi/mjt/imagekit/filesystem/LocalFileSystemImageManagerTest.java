@@ -2,12 +2,15 @@ package bg.sofia.uni.fmi.mjt.imagekit.filesystem;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import javax.imageio.ImageTypeSpecifier;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,7 +40,13 @@ class LocalFileSystemImageManagerTest {
     }
 
     @Test
-    void testLoadImageNotNotSupportedFormat() {
+    void testLoadImageNotNotSupportedFormat(@TempDir Path tempDir) {
+        Path dummyFile = tempDir.resolve("dummy.txt");
+        try{
+            Files.writeString(dummyFile, "hello, World!");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         assertThrows(IOException.class, () -> manager.loadImage(new File("dummy.txt")),
             "should throw IOException when file is not in the supported format.");
     }
@@ -54,11 +63,12 @@ class LocalFileSystemImageManagerTest {
             "should throw IOException with non-existing directory");
     }
     @Test
-    void testFillingTest() {
+    void testFillingTest(@TempDir Path tempDir) {
+        Path imagePath = tempDir.resolve("image.png");
         try {
-            manager.saveImage(new BufferedImage(12, 12, BufferedImage.TYPE_INT_RGB), new File("test/image.png"));
-            manager.loadImage(new File("test/car.jpg"));
-            manager.loadImagesFromDirectory(new File("test"));
+            manager.saveImage(new BufferedImage(12, 12, BufferedImage.TYPE_INT_RGB),imagePath.toFile());
+            manager.loadImage(imagePath.toFile());
+            manager.loadImagesFromDirectory(tempDir.toFile());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
