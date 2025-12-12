@@ -33,8 +33,8 @@ public class Rijndael implements SymmetricBlockCipher {
             Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
-            var cipherStream = new CipherOutputStream(outputStream, cipher);
-            byte[] buffer = new byte[KILOBYTE * 8];
+            var cipherStream = new CipherOutputStream(new BufferedOutputStream(outputStream), cipher);
+            byte[] buffer = new byte[BUFF_SIZE];
             var buffInStream = new BufferedInputStream(inputStream);
             int read;
             while ((read = buffInStream.read(buffer)) != -1) {
@@ -50,15 +50,14 @@ public class Rijndael implements SymmetricBlockCipher {
         try {
             Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
-            InputStream encryptedInputStream = new BufferedInputStream(inputStream);
+            InputStream encryptedInputStream = new BufferedInputStream(new BufferedInputStream(inputStream));
             OutputStream decryptedOutputStream =
                 new CipherOutputStream(new BufferedOutputStream(outputStream), cipher);
 
-            byte[] buffer = new byte[KILOBYTE * 8];
-            int bytesRead;
-
-            while ((bytesRead = encryptedInputStream.read(buffer)) != -1) {
-                decryptedOutputStream.write(buffer, 0, bytesRead);
+            byte[] buffer = new byte[BUFF_SIZE];
+            int read;
+            while ((read = encryptedInputStream.read(buffer)) != -1) {
+                decryptedOutputStream.write(buffer, 0, read);
             }
         } catch (Exception e) {
             throw new CipherException("decrypt failed", e);
@@ -66,6 +65,7 @@ public class Rijndael implements SymmetricBlockCipher {
     }
 
     private static final int KILOBYTE = 1024;
+    private static final int BUFF_SIZE = 8 * KILOBYTE;
     private static final String ENCRYPTION_ALGORITHM = "AES"; // //  Advanced Encryption Standard
     private static final String KEY_FILE_PATH = "secret.key";
     private static final int KEY_SIZE_IN_BITS = 128; // Key sizes like 192 or 256 might not be available on all systems

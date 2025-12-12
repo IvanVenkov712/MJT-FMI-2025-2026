@@ -5,13 +5,18 @@ import bg.sofia.uni.fmi.mjt.space.algorithm.SymmetricBlockCipher;
 import bg.sofia.uni.fmi.mjt.space.exception.CipherException;
 import bg.sofia.uni.fmi.mjt.space.exception.TimeFrameMismatchException;
 import bg.sofia.uni.fmi.mjt.space.mission.Mission;
+import bg.sofia.uni.fmi.mjt.space.mission.MissionLoader;
 import bg.sofia.uni.fmi.mjt.space.mission.MissionStatus;
 import bg.sofia.uni.fmi.mjt.space.rocket.Rocket;
+import bg.sofia.uni.fmi.mjt.space.rocket.RocketLoader;
 import bg.sofia.uni.fmi.mjt.space.rocket.RocketStatus;
 
 import javax.crypto.SecretKey;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,14 +28,24 @@ import java.util.stream.Collectors;
 
 public class MJTSpaceScanner implements SpaceScannerAPI {
 
-    private Collection<Mission> missions;
-    private Collection<Rocket> rockets;
+    private final Collection<Mission> missions;
+    private final Collection<Rocket> rockets;
     private final SymmetricBlockCipher symmetricBlockCipher;
 
+    private static final double RELIABILITY_SUCCESSFUL_MULTIPLIER = 2.0;
+    private static final double RELIABILITY_ALL_MULTIPLIER = 4.0;
+
     public MJTSpaceScanner(Reader missionsReader, Reader rocketsReader, SecretKey secretKey) {
-        // TODO: Initialize collections
-        // Maybe missions need to be sorted by time.
-        this.symmetricBlockCipher = new Rijndael(secretKey);
+        // TODO: Maybe missions need to be sorted by time.
+        if (missionsReader == null) {
+            throw new IllegalArgumentException("missionReader is null");
+        }
+        if (rocketsReader == null) {
+            throw new IllegalArgumentException("rockets is null");
+        }
+        missions = MissionLoader.load(missionsReader);
+        rockets = RocketLoader.load(rocketsReader);
+        symmetricBlockCipher = new Rijndael(secretKey);
 
     }
 
@@ -163,7 +178,13 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         if (outputStream == null) {
             throw new IllegalArgumentException("outputStream is null");
         }
-
+        String rockedName = rockets.stream().map(Rocket::name).max(
+            Comparator.comparingDouble(
+                (String rName) -> getRocketReliability(rName, from, to)
+            )
+        ).orElse("");
+        InputStream rocketNameStream = new ByteArrayInputStream(rockedName.getBytes(StandardCharsets.UTF_8));
+        symmetricBlockCipher.encrypt(rocketNameStream, outputStream);
     }
 
     private static void validateFromTo(LocalDate from, LocalDate to) {
@@ -176,5 +197,25 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         if (to.isBefore(from)) {
             throw new TimeFrameMismatchException("to is before from");
         }
+    }
+
+    private double getRocketReliability(String rocketName, LocalDate from, LocalDate to) {
+        long countSuccessful = missions.stream()
+            .filter(mission -> mission.date().compareTo(to) <= 0 && mission.date().compareTo(from) >= 0)
+            .filter(mission -> mission.detail().rocketName().equals(rocketName))
+            .filter(mission -> mission.missionStatus() == MissionStatus.SUCCESS)
+            .count();
+        long countUnsuccessful = missions.stream()
+            .filter(mission -> mission.date().compareTo(to) <= 0 && mission.date().compareTo(from) >= 0)
+            .filter(mission -> mission.detail().rocketName().equals(rocketName))
+            .filter(mission -> mission.missionStatus() != MissionStatus.SUCCESS)
+            .count();
+
+        long countAll = countSuccessful + countUnsuccessful;
+        if (countAll == 0) {
+            return 0.0;
+        }
+        return (RELIABILITY_SUCCESSFUL_MULTIPLIER * countSuccessful + countUnsuccessful) /
+            (RELIABILITY_ALL_MULTIPLIER * countAll);
     }
 }

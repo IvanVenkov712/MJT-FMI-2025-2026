@@ -3,6 +3,7 @@ package bg.sofia.uni.fmi.mjt.space.mission;
 import bg.sofia.uni.fmi.mjt.space.rocket.RocketStatus;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Optional;
 
 import java.time.format.DateTimeFormatter;
@@ -68,5 +69,18 @@ public record Mission(String id, String company, String location, LocalDate date
             );
         }
         return missionStatus;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Mission mission = (Mission) o;
+        return Objects.equals(id, mission.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }
