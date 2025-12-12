@@ -33,7 +33,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
     private final SymmetricBlockCipher symmetricBlockCipher;
 
     private static final double RELIABILITY_SUCCESSFUL_MULTIPLIER = 2.0;
-    private static final double RELIABILITY_ALL_MULTIPLIER = 4.0;
+    private static final double RELIABILITY_ALL_MULTIPLIER = 2.0;
 
     public MJTSpaceScanner(Reader missionsReader, Reader rocketsReader, SecretKey secretKey) {
         // TODO: Maybe missions need to be sorted by time.
