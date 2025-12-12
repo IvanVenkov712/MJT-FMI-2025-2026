@@ -46,7 +46,7 @@ class JobMatchTest {
     @Mock
     private Map<String, JobPosting> jobPostingsMock;
 
-    private JobMatch jobMatch; // = new JobMatch(candidatesMock, employersMock, jobPostingsMock, skillFrequencyMock);
+    private JobMatch jobMatch; // = new JobMatch(candidatesMock, employersMock, jobPostingsMock);
 
     private static Candidate candidate;
     private static Employer employer;
