@@ -59,7 +59,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
 
     @Override
     public Collection<Mission> getAllMissions() {
-        return missions;
+        return List.copyOf(missions);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
             throw new IllegalArgumentException("missionStatus is null");
         }
         return missions.stream().filter(mission -> mission.missionStatus() == missionStatus)
-            .collect(Collectors.toList());
+            .collect(Collectors.toUnmodifiableList());
     }
 
     @Override
@@ -100,7 +100,8 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         }
         return missions.stream()
             .filter(mission -> mission.missionStatus() == missionStatus && mission.rocketStatus() == rocketStatus)
-            .sorted(Comparator.comparing(mission -> mission.cost().orElse(Double.MAX_VALUE))).limit(n).toList();
+            .sorted(Comparator.comparing(mission -> mission.cost().orElse(Double.MAX_VALUE)))
+            .limit(n).collect(Collectors.toUnmodifiableList());
 
     }
 
@@ -126,7 +127,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
 
     @Override
     public Collection<Rocket> getAllRockets() {
-        return rockets;
+        return List.copyOf(rockets);
     }
 
     @Override
@@ -136,7 +137,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         }
         return rockets.stream()
             .sorted(Comparator.comparingDouble((Rocket rocket) -> rocket.height().orElse(Double.MAX_VALUE)).reversed())
-            .limit(n).toList();
+            .limit(n).collect(Collectors.toUnmodifiableList());
 
     }
 
@@ -168,7 +169,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
                     .filter(rocket -> rocket.name().equals(rocketName))
                     .findFirst().orElse(new Rocket("", "", Optional.of(""), Optional.of(0.0)))
                     .wiki().orElse("")
-            ).toList();
+            ).collect(Collectors.toUnmodifiableList());
 
     }
 
