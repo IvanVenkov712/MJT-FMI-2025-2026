@@ -2,14 +2,44 @@ package bg.sofia.uni.fmi.mjt.space.algorithm;
 
 import bg.sofia.uni.fmi.mjt.space.exception.CipherException;
 
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.SecretKey;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 public class Rijndael implements SymmetricBlockCipher {
+
+    private final SecretKey secretKey;
+
+    /**
+     * Encrypts/decrypts data using AES (Rijndael) algorithm with the provided secret key.
+     *
+     * @param secretKey the encryption/decryption key
+     * @throws IllegalArgumentException if secretKey is null
+     */
+    public Rijndael(SecretKey secretKey) {
+        if (secretKey == null) {
+            throw new IllegalArgumentException("secretKey is null");
+        }
+        this.secretKey = secretKey;
+    }
+
     @Override
     public void encrypt(InputStream inputStream, OutputStream outputStream) throws CipherException {
         try {
+            Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
+            var cipherStream = new CipherOutputStream(outputStream, cipher);
+            byte[] buffer = new byte[KILOBYTE * 8];
+            var buffInStream = new BufferedInputStream(inputStream);
+            int read;
+            while ((read = buffInStream.read(buffer)) != -1) {
+                cipherStream.write(buffer, 0, read);
+            }
         } catch (Exception e) {
             throw new CipherException("encrypt failed", e);
         }
@@ -18,9 +48,25 @@ public class Rijndael implements SymmetricBlockCipher {
     @Override
     public void decrypt(InputStream inputStream, OutputStream outputStream) throws CipherException {
         try {
+            Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            InputStream encryptedInputStream = new BufferedInputStream(inputStream);
+            OutputStream decryptedOutputStream =
+                new CipherOutputStream(new BufferedOutputStream(outputStream), cipher);
 
+            byte[] buffer = new byte[KILOBYTE * 8];
+            int bytesRead;
+
+            while ((bytesRead = encryptedInputStream.read(buffer)) != -1) {
+                decryptedOutputStream.write(buffer, 0, bytesRead);
+            }
         } catch (Exception e) {
             throw new CipherException("decrypt failed", e);
         }
     }
+
+    private static final int KILOBYTE = 1024;
+    private static final String ENCRYPTION_ALGORITHM = "AES"; // //  Advanced Encryption Standard
+    private static final String KEY_FILE_PATH = "secret.key";
+    private static final int KEY_SIZE_IN_BITS = 128; // Key sizes like 192 or 256 might not be available on all systems
 }
