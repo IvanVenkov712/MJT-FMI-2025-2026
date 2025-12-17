@@ -27,6 +27,10 @@ public record Mission(String id, String company, String location, LocalDate date
     private static final int COST_INDEX = 6;
     private static final int MISSION_STATUS_INDEX = 7;
 
+    public String getCountry() {
+        return List.of(location.split(",")).getLast().strip();
+    }
+
     public static Mission of(String line) {
         List<String> fields = parseCsvLine(line);
 
@@ -36,15 +40,15 @@ public record Mission(String id, String company, String location, LocalDate date
         String dateStr = fields.get(DATE_INDEX).strip();
         LocalDate date = dateStr.isEmpty() ? null : LocalDate.parse(dateStr, DATE_FORMATTER);
         Detail detail = Detail.of(fields.get(DETAIL_INDEX).strip());
-        RocketStatus rocketStatus = readRocketStatus(fields.get(ROCKET_STATUS_INDEX));
+        RocketStatus rocketStatus = RocketStatus.of(fields.get(ROCKET_STATUS_INDEX));
         Optional<Double> cost = readCost(fields.get(COST_INDEX));
-        MissionStatus missionStatus = readMissionStatus(fields.get(MISSION_STATUS_INDEX));
+        MissionStatus missionStatus = MissionStatus.of(fields.get(MISSION_STATUS_INDEX));
         return new Mission(id, company, location, date, detail, rocketStatus, cost, missionStatus);
     }
 
     private static RocketStatus readRocketStatus(String str) {
         RocketStatus rocketStatus = null;
-        if (str.isBlank()) {
+        if (!str.isBlank()) {
             rocketStatus = RocketStatus.valueOf(
                 str.strip().toUpperCase().replaceAll("\\s", "_")
             );
@@ -54,7 +58,7 @@ public record Mission(String id, String company, String location, LocalDate date
 
     private static Optional<Double> readCost(String str) {
         Optional<Double> cost = Optional.empty();
-        String rawCost = str.strip().replace("\"", "").strip();
+        String rawCost = str.strip().replace("\"", "").strip().replace(",", "");
         if (!rawCost.isEmpty()) {
             cost = Optional.of(Double.parseDouble(rawCost));
         }
@@ -76,11 +80,22 @@ public record Mission(String id, String company, String location, LocalDate date
         if (o == null || getClass() != o.getClass()) return false;
 
         Mission mission = (Mission) o;
-        return Objects.equals(id, mission.id);
+        return Objects.equals(id, mission.id) && Objects.equals(detail, mission.detail) &&
+            Objects.equals(company, mission.company) && Objects.equals(date, mission.date) &&
+            Objects.equals(location, mission.location) && Objects.equals(cost, mission.cost) &&
+            rocketStatus == mission.rocketStatus && missionStatus == mission.missionStatus;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        int result = Objects.hashCode(id);
+        result = 31 * result + Objects.hashCode(company);
+        result = 31 * result + Objects.hashCode(location);
+        result = 31 * result + Objects.hashCode(date);
+        result = 31 * result + Objects.hashCode(detail);
+        result = 31 * result + Objects.hashCode(rocketStatus);
+        result = 31 * result + Objects.hashCode(cost);
+        result = 31 * result + Objects.hashCode(missionStatus);
+        return result;
     }
 }

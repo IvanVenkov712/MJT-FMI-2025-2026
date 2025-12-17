@@ -15,4 +15,17 @@ public enum MissionStatus {
     public String toString() {
         return value;
     }
+
+    public static MissionStatus of(String word) {
+        if (word == null || word.isBlank()) {
+            return null;
+        }
+        return switch (word) {
+            case "Success" -> SUCCESS;
+            case "Failure" -> FAILURE;
+            case "Partial Failure" -> PARTIAL_FAILURE;
+            case "Prelaunch Failure" -> PRELAUNCH_FAILURE;
+            default -> null;
+        };
+    }
 }

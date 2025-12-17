@@ -26,10 +26,10 @@ public class CSVHelper {
         return result;
     }
 
-    public static String stripSurroundingQuotes(String s) {
-        String t = s.trim();
+    private static String stripSurroundingQuotes(String s) {
+        String t = s.strip();
         if (t.length() >= 2 && t.startsWith("\"") && t.endsWith("\"")) {
-            return t.substring(1, t.length() - 1).trim();
+            return t.substring(1, t.length() - 1).strip();
         }
         return t;
     }

@@ -36,7 +36,6 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
     private static final double RELIABILITY_ALL_MULTIPLIER = 2.0;
 
     public MJTSpaceScanner(Reader missionsReader, Reader rocketsReader, SecretKey secretKey) {
-        // TODO: Maybe missions need to be sorted by time.
         if (missionsReader == null) {
             throw new IllegalArgumentException("missionReader is null");
         }
@@ -49,7 +48,15 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
 
     }
 
-    // For mocking
+    // For tests
+    MJTSpaceScanner(Reader missionsReader, Reader rocketsReader, SymmetricBlockCipher symmetricBlockCipher) {
+        missions = MissionLoader.load(missionsReader);
+        rockets = RocketLoader.load(rocketsReader);
+        this.symmetricBlockCipher = symmetricBlockCipher;
+
+    }
+
+    // For tests
     MJTSpaceScanner(Collection<Mission> missions, Collection<Rocket> rockets,
                     SymmetricBlockCipher symmetricBlockCipher) {
         this.missions = missions;
@@ -84,7 +91,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
     @Override
     public Map<String, Collection<Mission>> getMissionsPerCountry() {
         return missions.stream()
-            .collect(Collectors.groupingBy(Mission::location, Collectors.toCollection(ArrayList::new)));
+            .collect(Collectors.groupingBy(Mission::getCountry, Collectors.toCollection(ArrayList::new)));
     }
 
     @Override
@@ -184,8 +191,11 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
                 (String rName) -> getRocketReliability(rName, from, to)
             )
         ).orElse("");
-        InputStream rocketNameStream = new ByteArrayInputStream(rockedName.getBytes(StandardCharsets.UTF_8));
-        symmetricBlockCipher.encrypt(rocketNameStream, outputStream);
+        try (InputStream rocketNameStream = new ByteArrayInputStream(rockedName.getBytes(StandardCharsets.UTF_8))) {
+            symmetricBlockCipher.encrypt(rocketNameStream, outputStream);
+        } catch (Exception e) {
+            throw new CipherException("saveMostReliableRocket failed", e);
+        }
     }
 
     private static void validateFromTo(LocalDate from, LocalDate to) {
