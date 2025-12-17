@@ -2,10 +2,10 @@ package bg.sofia.uni.fmi.mjt.space.rocket;
 
 import java.io.BufferedReader;
 import java.io.Reader;
-import java.util.Collection;
+import java.util.List;
 
 public class RocketLoader {
-    public static Collection<Rocket> load(Reader reader) {
+    public static List<Rocket> load(Reader reader) {
         if (reader == null) {
             throw new IllegalArgumentException("reader is null");
         }

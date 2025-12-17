@@ -2,10 +2,10 @@ package bg.sofia.uni.fmi.mjt.space.mission;
 
 import java.io.BufferedReader;
 import java.io.Reader;
-import java.util.Collection;
+import java.util.List;
 
 public class MissionLoader {
-    public static Collection<Mission> load(Reader reader) {
+    public static List<Mission> load(Reader reader) {
         if (reader == null) {
             throw new IllegalArgumentException("reader is null");
         }
