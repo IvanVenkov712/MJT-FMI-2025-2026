@@ -1,5 +1,6 @@
 package bg.sofia.uni.fmi.mjt.space;
 
+import bg.sofia.uni.fmi.mjt.space.algorithm.Rijndael;
 import bg.sofia.uni.fmi.mjt.space.algorithm.SymmetricBlockCipher;
 import bg.sofia.uni.fmi.mjt.space.dataset.MissionDatasets;
 import bg.sofia.uni.fmi.mjt.space.dataset.RocketDatasets;
@@ -11,7 +12,9 @@ import bg.sofia.uni.fmi.mjt.space.rocket.Rocket;
 import bg.sofia.uni.fmi.mjt.space.rocket.RocketStatus;
 import org.junit.jupiter.api.Test;
 
-import java.io.FileReader;
+import javax.crypto.SecretKey;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -21,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static bg.sofia.uni.fmi.mjt.space.SecretKeyHelper.generateSecretKey;
 import static bg.sofia.uni.fmi.mjt.space.dataset.MissionDatasets.DATE_FORMATTER;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,6 +37,36 @@ class MJTSpaceScannerTest {
         //    spaceScanner = new MJTSpaceScanner(missions, rockets, (SymmetricBlockCipher) null);
         //}
         //return;
+    }
+
+    @Test
+    void testPublicConstructorNullMissionReader() {
+        assertThrows(IllegalArgumentException.class, () -> new MJTSpaceScanner((Reader)null, null, null), "IllegalArgument expected");
+    }
+
+    @Test
+    void testPublicConstructorNullRocketReader() throws Exception{
+        try (Reader missionReader = new StringReader(MissionDatasets.DATASET1_STRING)) {
+            assertThrows(IllegalArgumentException.class, () -> new MJTSpaceScanner(missionReader, null, null), "IllegalArgument expected");
+        }
+    }
+
+    @Test
+    void testPublicConstructorNullSecretKey() throws Exception{
+        try (Reader missionReader = new StringReader(MissionDatasets.DATASET1_STRING);
+             Reader rocketReader = new StringReader(RocketDatasets.DATASET1_STRING)) {
+            assertThrows(IllegalArgumentException.class, () -> new MJTSpaceScanner(missionReader, rocketReader, null), "IllegalArgument expected");
+        }
+    }
+
+    @Test
+    void testPublicConstructorDatasets_1_1() throws Exception{
+        try (Reader missionReader = new StringReader(MissionDatasets.DATASET1_STRING);
+             Reader rocketReader = new StringReader(RocketDatasets.DATASET1_STRING)) {
+            spaceScanner = new MJTSpaceScanner(missionReader, rocketReader, generateSecretKey());
+            assertEquals(MissionDatasets.DATASET1_PARSED, spaceScanner.getAllMissions(), "Not what was expected");
+            assertEquals(RocketDatasets.DATASET1_PARSED, spaceScanner.getAllRockets(), "Not what was expected");
+        }
     }
 
     @Test
@@ -215,6 +249,24 @@ class MJTSpaceScannerTest {
     }
 
     @Test
+    void testGetWikiPagesForRocketsUsedInMostExpensiveMissionsNegativeN() {
+        spaceScanner = new MJTSpaceScanner(MissionDatasets.DATASET5_PARSED, RocketDatasets.DATASET4_PARSED, null);
+        assertThrows(IllegalArgumentException.class, () -> spaceScanner.getWikiPagesForRocketsUsedInMostExpensiveMissions(-1, MissionStatus.SUCCESS, RocketStatus.STATUS_RETIRED), "IllegalArgument expected");
+    }
+
+    @Test
+    void testGetWikiPagesForRocketsUsedInMostExpensiveMissionsNullMissionStatus() {
+        spaceScanner = new MJTSpaceScanner(MissionDatasets.DATASET5_PARSED, RocketDatasets.DATASET4_PARSED, null);
+        assertThrows(IllegalArgumentException.class, () -> spaceScanner.getWikiPagesForRocketsUsedInMostExpensiveMissions(3, null, RocketStatus.STATUS_RETIRED), "IllegalArgument expected");
+    }
+
+    @Test
+    void testGetWikiPagesForRocketsUsedInMostExpensiveMissionsNullRocketStatus() {
+        spaceScanner = new MJTSpaceScanner(MissionDatasets.DATASET5_PARSED, RocketDatasets.DATASET4_PARSED, null);
+        assertThrows(IllegalArgumentException.class, () -> spaceScanner.getWikiPagesForRocketsUsedInMostExpensiveMissions(3, MissionStatus.SUCCESS, null), "IllegalArgument expected");
+    }
+
+    @Test
     void testGetWikiPagesForRocketsUsedInMostExpensiveMissionsTop3Datasets_5_4() {
         spaceScanner = new MJTSpaceScanner(MissionDatasets.DATASET5_PARSED, RocketDatasets.DATASET4_PARSED, null);
         List<String> expected = List.of(
@@ -242,5 +294,28 @@ class MJTSpaceScannerTest {
     void testGetMostReliableRocketAllTimeDatasets8_4() {
         spaceScanner = new MJTSpaceScanner(MissionDatasets.DATASET8_PARSED, RocketDatasets.DATASET4_PARSED, null);
         assertEquals("A", spaceScanner.getMostReliableRocket(LocalDate.MIN, LocalDate.MAX), "Not what was expected");
+    }
+
+    @Test
+    void testSaveMostReliableRocketAllTimeDataset8_4() throws Exception{
+        SecretKey key = generateSecretKey();
+        SymmetricBlockCipher cipher = new Rijndael(key);
+        spaceScanner = new MJTSpaceScanner(MissionDatasets.DATASET8_PARSED, RocketDatasets.DATASET4_PARSED, cipher);
+        byte[] expected = "A".getBytes();
+
+        try(
+            ByteArrayOutputStream output = new ByteArrayOutputStream()
+        ){
+            spaceScanner.saveMostReliableRocket(output, LocalDate.MIN, LocalDate.MAX);
+            try(
+                ByteArrayInputStream encryptedInput = new ByteArrayInputStream(output.toByteArray());
+                ByteArrayOutputStream decrypted = new ByteArrayOutputStream()
+            ){
+                cipher.decrypt(encryptedInput, decrypted);
+                byte[] actual = decrypted.toByteArray();
+
+                assertArrayEquals(expected, actual, "Not what was expected!");
+            }
+        }
     }
 }

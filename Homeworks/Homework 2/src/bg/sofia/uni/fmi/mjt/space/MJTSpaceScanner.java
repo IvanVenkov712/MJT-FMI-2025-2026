@@ -49,15 +49,6 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         missions = MissionLoader.load(missionsReader);
         rockets = RocketLoader.load(rocketsReader);
         symmetricBlockCipher = new Rijndael(secretKey);
-
-    }
-
-    // For tests
-    MJTSpaceScanner(Reader missionsReader, Reader rocketsReader, SymmetricBlockCipher symmetricBlockCipher) {
-        missions = MissionLoader.load(missionsReader);
-        rockets = RocketLoader.load(rocketsReader);
-        this.symmetricBlockCipher = symmetricBlockCipher;
-
     }
 
     // For tests
@@ -191,9 +182,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
             throw new IllegalArgumentException("outputStream is null");
         }
         String rockedName = getMostReliableRocket(from, to);
-        try (InputStream rocketNameStream = new ByteArrayInputStream(rockedName.getBytes(StandardCharsets.UTF_8));
-             outputStream
-        ) {
+        try (InputStream rocketNameStream = new ByteArrayInputStream(rockedName.getBytes(StandardCharsets.UTF_8))) {
             symmetricBlockCipher.encrypt(rocketNameStream, outputStream);
         } catch (Exception e) {
             throw new CipherException("saveMostReliableRocket failed", e);

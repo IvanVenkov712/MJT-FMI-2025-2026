@@ -40,6 +40,7 @@ public class Rijndael implements SymmetricBlockCipher {
             while ((read = buffInStream.read(buffer)) != -1) {
                 cipherStream.write(buffer, 0, read);
             }
+            cipherStream.close();
         } catch (Exception e) {
             throw new CipherException("encrypt failed", e);
         }
@@ -59,6 +60,7 @@ public class Rijndael implements SymmetricBlockCipher {
             while ((read = encryptedInputStream.read(buffer)) != -1) {
                 decryptedOutputStream.write(buffer, 0, read);
             }
+            decryptedOutputStream.close();
         } catch (Exception e) {
             throw new CipherException("decrypt failed", e);
         }
