@@ -37,7 +37,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
 
     // TODO:
     // - Cache for all data
-    // - Rocket name -> rocket optimization
+    // - Rocket name -> rocket optimization (cache)
     // -...
     public MJTSpaceScanner(Reader missionsReader, Reader rocketsReader, SecretKey secretKey) {
         if (missionsReader == null) {
@@ -191,8 +191,9 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
             throw new IllegalArgumentException("outputStream is null");
         }
         String rockedName = getMostReliableRocket(from, to);
-        try (outputStream;
-             InputStream rocketNameStream = new ByteArrayInputStream(rockedName.getBytes(StandardCharsets.UTF_8))) {
+        try (InputStream rocketNameStream = new ByteArrayInputStream(rockedName.getBytes(StandardCharsets.UTF_8));
+             outputStream
+        ) {
             symmetricBlockCipher.encrypt(rocketNameStream, outputStream);
         } catch (Exception e) {
             throw new CipherException("saveMostReliableRocket failed", e);

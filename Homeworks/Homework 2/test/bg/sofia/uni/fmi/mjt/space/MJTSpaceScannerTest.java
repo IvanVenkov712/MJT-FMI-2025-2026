@@ -232,4 +232,15 @@ class MJTSpaceScannerTest {
         assertEquals(expected, spaceScanner.getWikiPagesForRocketsUsedInMostExpensiveMissions(3, MissionStatus.SUCCESS, RocketStatus.STATUS_RETIRED), "Not what was expected!");
     }
 
+    @Test
+    void testGetMostReliableRocketAllTimeDatasets7_4() {
+        spaceScanner = new MJTSpaceScanner(MissionDatasets.DATASET7_PARSED, RocketDatasets.DATASET4_PARSED, null);
+        assertEquals("A", spaceScanner.getMostReliableRocket(LocalDate.MIN, LocalDate.MAX), "Not what was expected");
+    }
+
+    @Test
+    void testGetMostReliableRocketAllTimeDatasets8_4() {
+        spaceScanner = new MJTSpaceScanner(MissionDatasets.DATASET8_PARSED, RocketDatasets.DATASET4_PARSED, null);
+        assertEquals("A", spaceScanner.getMostReliableRocket(LocalDate.MIN, LocalDate.MAX), "Not what was expected");
+    }
 }
