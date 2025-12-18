@@ -80,4 +80,30 @@ public class MissionDatasets {
         new Mission("2403", "General Dynamics", "SLC-36B, Cape Canaveral AFS, Florida, USA", LocalDate.parse("Sat May 23, 1981", DATE_FORMATTER), new Detail("Atlas-SLV3D Centaur-D1AR", "Intelsat V -501"), RocketStatus.STATUS_RETIRED,Optional.empty(), MissionStatus.SUCCESS),
         new Mission("2404", "RVSN USSR", "Site 43/3, Plesetsk Cosmodrome, Russia", LocalDate.parse("Tue May 19, 1981", DATE_FORMATTER), new Detail("Vostok-2M", "Cosmos 1271"), RocketStatus.STATUS_RETIRED,Optional.empty(), MissionStatus.SUCCESS)
     );
+
+    public static final List<Mission> DATASET5_PARSED = List.of(
+        new Mission("2395", "", "", LocalDate.parse("Fri Jul 10, 1981", DATE_FORMATTER), new Detail("A", ""), RocketStatus.STATUS_RETIRED, Optional.of(56.2), MissionStatus.SUCCESS),
+        new Mission("2396", "", "", LocalDate.parse("Wed Jun 24, 1981", DATE_FORMATTER), new Detail("B", ""), RocketStatus.STATUS_RETIRED,Optional.of(1267.2), MissionStatus.SUCCESS),
+        new Mission("2397", "", "", LocalDate.parse("Tue Jun 23, 1981", DATE_FORMATTER), new Detail("C", ""), RocketStatus.STATUS_RETIRED,Optional.of(74.2), MissionStatus.SUCCESS),
+        new Mission("2398", "", "", LocalDate.parse("Fri Jun 19, 1981", DATE_FORMATTER), new Detail("D", ""), RocketStatus.STATUS_RETIRED,Optional.of(758.7), MissionStatus.SUCCESS),
+        new Mission("2399", "", "", LocalDate.parse("Fri Jun 19, 1981", DATE_FORMATTER), new Detail("E", ""), RocketStatus.STATUS_RETIRED,Optional.of(712.9), MissionStatus.SUCCESS),
+        new Mission("2400", "", "", LocalDate.parse("Tue Jun 09, 1981", DATE_FORMATTER), new Detail("F", ""), RocketStatus.STATUS_RETIRED,Optional.of(546.1), MissionStatus.SUCCESS),
+        new Mission("2401", "", "", LocalDate.parse("Thu Jun 04, 1981", DATE_FORMATTER), new Detail("G", ""), RocketStatus.STATUS_RETIRED,Optional.of(12.67), MissionStatus.SUCCESS),
+        new Mission("2402", "", "", LocalDate.parse("Sun May 31, 1981", DATE_FORMATTER), new Detail("H", ""), RocketStatus.STATUS_RETIRED,Optional.of(465.3), MissionStatus.PARTIAL_FAILURE),
+        new Mission("2403", "", "", LocalDate.parse("Sat May 23, 1981", DATE_FORMATTER), new Detail("I", ""), RocketStatus.STATUS_RETIRED,Optional.of(1000.02), MissionStatus.SUCCESS),
+        new Mission("2404", "", "", LocalDate.parse("Tue May 19, 1981", DATE_FORMATTER), new Detail("J", ""), RocketStatus.STATUS_RETIRED,Optional.of(432.8), MissionStatus.SUCCESS)
+    );
+
+    public static final List<Mission> DATASET6_PARSED = List.of(
+        new Mission("2395", "", "", LocalDate.parse("Fri Jul 10, 1981", DATE_FORMATTER), new Detail("A", ""), RocketStatus.STATUS_RETIRED, Optional.of(56.2), MissionStatus.SUCCESS),
+        new Mission("2396", "", "", LocalDate.parse("Wed Jun 24, 1981", DATE_FORMATTER), new Detail("B", ""), RocketStatus.STATUS_RETIRED,Optional.of(1267.2), MissionStatus.SUCCESS),
+        new Mission("2397", "", "", LocalDate.parse("Tue Jun 23, 1981", DATE_FORMATTER), new Detail("C", ""), RocketStatus.STATUS_RETIRED,Optional.of(74.2), MissionStatus.SUCCESS),
+        new Mission("2398", "", "", LocalDate.parse("Fri Jun 19, 1981", DATE_FORMATTER), new Detail("B", ""), RocketStatus.STATUS_RETIRED,Optional.of(758.7), MissionStatus.SUCCESS),
+        new Mission("2399", "", "", LocalDate.parse("Fri Jun 19, 1981", DATE_FORMATTER), new Detail("E", ""), RocketStatus.STATUS_RETIRED,Optional.of(712.9), MissionStatus.SUCCESS),
+        new Mission("2400", "", "", LocalDate.parse("Tue Jun 09, 1981", DATE_FORMATTER), new Detail("F", ""), RocketStatus.STATUS_RETIRED,Optional.of(546.1), MissionStatus.SUCCESS),
+        new Mission("2401", "", "", LocalDate.parse("Thu Jun 04, 1981", DATE_FORMATTER), new Detail("G", ""), RocketStatus.STATUS_RETIRED,Optional.of(12.67), MissionStatus.SUCCESS),
+        new Mission("2402", "", "", LocalDate.parse("Sun May 31, 1981", DATE_FORMATTER), new Detail("H", ""), RocketStatus.STATUS_RETIRED,Optional.of(465.3), MissionStatus.PARTIAL_FAILURE),
+        new Mission("2403", "", "", LocalDate.parse("Sat May 23, 1981", DATE_FORMATTER), new Detail("I", ""), RocketStatus.STATUS_RETIRED,Optional.of(1000.02), MissionStatus.SUCCESS),
+        new Mission("2404", "", "", LocalDate.parse("Tue May 19, 1981", DATE_FORMATTER), new Detail("J", ""), RocketStatus.STATUS_RETIRED,Optional.of(432.8), MissionStatus.SUCCESS)
+    );
 }

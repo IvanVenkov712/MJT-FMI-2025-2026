@@ -48,4 +48,32 @@ public class RocketDatasets {
         new Rocket("97","Atlas V 421",Optional.of("https://en.wikipedia.org/wiki/Atlas_V"),Optional.of(13.9)),
         new Rocket("98","Atlas V 431",Optional.of("https://en.wikipedia.org/wiki/Atlas_V"),Optional.of(27.3))
     );
+
+    public static final List<Rocket> DATASET3_PARSED = List.of(
+        new Rocket("88","Atlas-SLV3 Agena-B", Optional.of("https://en.wikipedia.org/wiki/Atlas-Agena"), Optional.empty()),
+        new Rocket("89","Atlas-SLV3 Agena-D",Optional.empty(),Optional.empty()),
+        new Rocket("90","Atlas-SLV3B Agena-D",Optional.of("https://en.wikipedia.org/wiki/Atlas-Agena"),Optional.empty()),
+        new Rocket("91","Atlas-SLV3 Burner-2",Optional.of("https://en.wikipedia.org/wiki/Atlas_SLV-3"),Optional.empty()),
+        new Rocket("92","Atlas-SLV3C Centaur-D",Optional.of("https://en.wikipedia.org/wiki/Atlas-Centaur"),Optional.empty()),
+        new Rocket("93","Atlas-SLV3D Centaur-D1A",Optional.empty(),Optional.empty()),
+        new Rocket("94","Atlas-SLV3D Centaur-D1AR",Optional.of("https://en.wikipedia.org/wiki/Atlas-Centaur"),Optional.empty()),
+        new Rocket("95","Atlas V 401",Optional.of("https://en.wikipedia.org/wiki/Atlas_V"),Optional.of(58.3)),
+        new Rocket("96","Atlas V 411",Optional.empty(),Optional.of(58.3)),
+        new Rocket("97","Atlas V 421",Optional.of("https://en.wikipedia.org/wiki/Atlas_V"),Optional.of(58.3))
+    );
+
+    public static final List<Rocket> DATASET4_PARSED = List.of(
+        new Rocket("88","A", Optional.of("WA"), Optional.empty()),
+        new Rocket("89","B", Optional.of("WB"), Optional.empty()),
+        new Rocket("90","C", Optional.of("WC"), Optional.empty()),
+        new Rocket("91","D", Optional.of("WD"), Optional.empty()),
+        new Rocket("92","E", Optional.of("WE"), Optional.empty()),
+        new Rocket("93","F", Optional.of("WF"), Optional.empty()),
+        new Rocket("94","G", Optional.of("WG"), Optional.empty()),
+        new Rocket("95","H", Optional.of("WH"), Optional.of(58.3)),
+        new Rocket("96","I", Optional.of("WI"), Optional.of(58.3)),
+        new Rocket("97","J", Optional.of("WJ"), Optional.of(58.3))
+    );
+
+
 }

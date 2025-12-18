@@ -35,6 +35,10 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
     private static final double RELIABILITY_SUCCESSFUL_MULTIPLIER = 2.0;
     private static final double RELIABILITY_ALL_MULTIPLIER = 2.0;
 
+    // TODO:
+    // - Cache for all data
+    // - Rocket name -> rocket optimization
+    // -...
     public MJTSpaceScanner(Reader missionsReader, Reader rocketsReader, SecretKey secretKey) {
         if (missionsReader == null) {
             throw new IllegalArgumentException("missionReader is null");
@@ -127,7 +131,10 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
                 Collectors.groupingBy(Mission::company,
                     Collectors.collectingAndThen(Collectors.groupingBy(Mission::location, Collectors.counting()),
                         map -> map.entrySet().stream().max(Map.Entry.comparingByValue()).orElse(Map.entry("", 0L))
-                            .getKey())));
+                            .getKey()
+                    )
+                )
+            );
 
     }
 
@@ -167,14 +174,12 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         }
         return missions.stream()
             .filter(mission -> mission.missionStatus() == missionStatus && mission.rocketStatus() == rocketStatus)
-            .sorted(Comparator.comparing((Mission mission) -> mission.cost().orElse(Double.MAX_VALUE)).reversed())
+            .sorted(Comparator.comparing((Mission mission) -> mission.cost().orElse(Double.MIN_VALUE)).reversed())
             .limit(n)
             .map(mission -> mission.detail().rocketName())
+            .distinct()
             .map(
-                rocketName -> rockets.stream()
-                    .filter(rocket -> rocket.name().equals(rocketName))
-                    .findFirst().orElse(new Rocket("", "", Optional.of(""), Optional.of(0.0)))
-                    .wiki().orElse("")
+                rocketName -> getRocketWiki(rocketName).orElse("")
             ).toList();
 
     }
@@ -185,16 +190,22 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         if (outputStream == null) {
             throw new IllegalArgumentException("outputStream is null");
         }
-        String rockedName = rockets.stream().map(Rocket::name).max(
-            Comparator.comparingDouble(
-                (String rName) -> getRocketReliability(rName, from, to)
-            )
-        ).orElse("");
-        try (InputStream rocketNameStream = new ByteArrayInputStream(rockedName.getBytes(StandardCharsets.UTF_8))) {
+        String rockedName = getMostReliableRocket(from, to);
+        try (outputStream;
+             InputStream rocketNameStream = new ByteArrayInputStream(rockedName.getBytes(StandardCharsets.UTF_8))) {
             symmetricBlockCipher.encrypt(rocketNameStream, outputStream);
         } catch (Exception e) {
             throw new CipherException("saveMostReliableRocket failed", e);
         }
+    }
+
+    //For testing
+    String getMostReliableRocket(LocalDate from, LocalDate to) {
+        return rockets.stream().map(Rocket::name).max(
+            Comparator.comparingDouble(
+                (String rName) -> getRocketReliability(rName, from, to)
+            )
+        ).orElse("");
     }
 
     private static void validateFromTo(LocalDate from, LocalDate to) {
@@ -227,6 +238,17 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         }
         return (RELIABILITY_SUCCESSFUL_MULTIPLIER * countSuccessful + countUnsuccessful) /
             (RELIABILITY_ALL_MULTIPLIER * countAll);
+    }
+
+    private Optional<Rocket> getRocketByName(String rocketName) {
+        return rockets.stream()
+            .filter(rocket -> rocket.name().equals(rocketName))
+            .findFirst();
+    }
+
+    private Optional<String> getRocketWiki(String rocketName) {
+        return getRocketByName(rocketName).orElse(new Rocket("", "", Optional.of(""), Optional.of(0.0)))
+            .wiki();
     }
 
     private static boolean dateInInterval(LocalDate date, LocalDate from, LocalDate to) {

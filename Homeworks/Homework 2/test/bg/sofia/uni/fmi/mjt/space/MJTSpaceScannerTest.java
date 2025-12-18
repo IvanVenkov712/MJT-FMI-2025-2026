@@ -195,4 +195,41 @@ class MJTSpaceScannerTest {
         assertThrows(IllegalArgumentException.class, () -> spaceScanner.getTopNTallestRockets(-1), "IllegalArgument expected");
     }
 
+    @Test
+    void testGetWikiPageForRocketDataset3() {
+        spaceScanner = new MJTSpaceScanner(null, RocketDatasets.DATASET3_PARSED, null);
+        Map<String, Optional<String>> expected = Map.of(
+            "Atlas-SLV3 Agena-B", Optional.of("https://en.wikipedia.org/wiki/Atlas-Agena"),
+            "Atlas-SLV3 Agena-D", Optional.empty(),
+            "Atlas-SLV3B Agena-D", Optional.of("https://en.wikipedia.org/wiki/Atlas-Agena"),
+            "Atlas-SLV3 Burner-2", Optional.of("https://en.wikipedia.org/wiki/Atlas_SLV-3"),
+            "Atlas-SLV3C Centaur-D", Optional.of("https://en.wikipedia.org/wiki/Atlas-Centaur"),
+            "Atlas-SLV3D Centaur-D1A", Optional.empty(),
+            "Atlas-SLV3D Centaur-D1AR", Optional.of("https://en.wikipedia.org/wiki/Atlas-Centaur"),
+            "Atlas V 401", Optional.of("https://en.wikipedia.org/wiki/Atlas_V"),
+            "Atlas V 411", Optional.empty(),
+            "Atlas V 421", Optional.of("https://en.wikipedia.org/wiki/Atlas_V")
+        );
+
+        assertEquals(expected, spaceScanner.getWikiPageForRocket(), "Not what was expected");
+    }
+
+    @Test
+    void testGetWikiPagesForRocketsUsedInMostExpensiveMissionsTop3Datasets_5_4() {
+        spaceScanner = new MJTSpaceScanner(MissionDatasets.DATASET5_PARSED, RocketDatasets.DATASET4_PARSED, null);
+        List<String> expected = List.of(
+            "WB", "WI", "WD"
+        );
+        assertEquals(expected, spaceScanner.getWikiPagesForRocketsUsedInMostExpensiveMissions(3, MissionStatus.SUCCESS, RocketStatus.STATUS_RETIRED), "Not what was expected!");
+    }
+
+    @Test
+    void testGetWikiPagesForRocketsUsedInMostExpensiveMissionsTop3Datasets_6_4() {
+        spaceScanner = new MJTSpaceScanner(MissionDatasets.DATASET6_PARSED, RocketDatasets.DATASET4_PARSED, null);
+        List<String> expected = List.of(
+            "WB", "WI"
+        );
+        assertEquals(expected, spaceScanner.getWikiPagesForRocketsUsedInMostExpensiveMissions(3, MissionStatus.SUCCESS, RocketStatus.STATUS_RETIRED), "Not what was expected!");
+    }
+
 }
