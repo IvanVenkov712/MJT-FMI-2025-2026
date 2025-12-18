@@ -34,15 +34,13 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
     private final Collection<Rocket> rockets;
     private final SymmetricBlockCipher symmetricBlockCipher;
 
-    private Map<String, Collection<Mission>> cashedMissionsPreCountry;
-    private Map<String, String> cashedMostDesiredLocationForMissionsPerCompany;
-    private Map<String, List<Rocket>> cashedRocketByName;
-    private Map<String, Optional<String>> cashedWikiPageForRocket;
+    private Map<String, Collection<Mission>> cachedMissionsPreCountry;
+    private Map<String, String> cachedMostDesiredLocationForMissionsPerCompany;
+    private Map<String, List<Rocket>> cachedRocketByName;
+    private Map<String, Optional<String>> cachedWikiPageForRocket;
+    private Map<MissionStatus, List<Mission>> cachedMissionsByMissionStatus;
+    private List<Rocket> rocketsSortedByHeight;
 
-    // TODO:
-    // - Cache for all data
-    // - Rocket name -> rocket optimization (cache)
-    // -...
     public MJTSpaceScanner(Reader missionsReader, Reader rocketsReader, SecretKey secretKey) {
         if (missionsReader == null) {
             throw new IllegalArgumentException("missionReader is null");
@@ -73,15 +71,16 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         if (missionStatus == null) {
             throw new IllegalArgumentException("missionStatus is null");
         }
-        return missions.stream().filter(mission -> mission.missionStatus() == missionStatus)
-            .toList();
+        if (cachedMissionsByMissionStatus == null) {
+            cachedMissionsByMissionStatus = missions.stream().collect(Collectors.groupingBy(Mission::missionStatus));
+        }
+        return cachedMissionsByMissionStatus.getOrDefault(missionStatus, List.of());
     }
 
     @Override
     public String getCompanyWithMostSuccessfulMissions(LocalDate from, LocalDate to) {
         validateFromTo(from, to);
-        return missions.stream()
-            .filter(mission -> dateInInterval(mission.date(), from, to))
+        return missions.stream().filter(mission -> dateInInterval(mission.date(), from, to))
             .filter(mission -> mission.missionStatus() == MissionStatus.SUCCESS)
             .collect(Collectors.groupingBy(Mission::company, Collectors.counting())).entrySet().stream()
             .max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse("");
@@ -89,11 +88,11 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
 
     @Override
     public Map<String, Collection<Mission>> getMissionsPerCountry() {
-        if (cashedMissionsPreCountry == null) {
-            cashedMissionsPreCountry = missions.stream()
+        if (cachedMissionsPreCountry == null) {
+            cachedMissionsPreCountry = missions.stream()
                 .collect(Collectors.groupingBy(Mission::getCountry, Collectors.toCollection(ArrayList::new)));
         }
-        return cashedMissionsPreCountry;
+        return cachedMissionsPreCountry;
     }
 
     @Override
@@ -109,38 +108,31 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         }
         return missions.stream()
             .filter(mission -> mission.missionStatus() == missionStatus && mission.rocketStatus() == rocketStatus)
-            .sorted(Comparator.comparing(mission -> mission.cost().orElse(Double.MAX_VALUE)))
-            .limit(n).toList();
+            .sorted(Comparator.comparing(mission -> mission.cost().orElse(Double.MAX_VALUE))).limit(n).toList();
     }
 
     @Override
     public Map<String, String> getMostDesiredLocationForMissionsPerCompany() {
-        if (cashedMostDesiredLocationForMissionsPerCompany == null) {
-            cashedMostDesiredLocationForMissionsPerCompany =
-                missions.stream().collect(Collectors.groupingBy(Mission::company,
+        if (cachedMostDesiredLocationForMissionsPerCompany == null) {
+            cachedMostDesiredLocationForMissionsPerCompany = missions.stream().collect(
+                Collectors.groupingBy(Mission::company,
                     Collectors.collectingAndThen(Collectors.groupingBy(Mission::location, Collectors.counting()),
                         map -> map.entrySet().stream().max(Map.Entry.comparingByValue()).orElse(Map.entry("", 0L))
-                            .getKey()
-                    )
-                ));
+                            .getKey())));
 
         }
-        return cashedMostDesiredLocationForMissionsPerCompany;
+        return cachedMostDesiredLocationForMissionsPerCompany;
     }
 
     @Override
     public Map<String, String> getLocationWithMostSuccessfulMissionsPerCompany(LocalDate from, LocalDate to) {
         validateFromTo(from, to);
-        return missions.stream()
-            .filter(mission -> dateInInterval(mission.date(), from, to))
+        return missions.stream().filter(mission -> dateInInterval(mission.date(), from, to))
             .filter(mission -> mission.missionStatus() == MissionStatus.SUCCESS).collect(
                 Collectors.groupingBy(Mission::company,
                     Collectors.collectingAndThen(Collectors.groupingBy(Mission::location, Collectors.counting()),
                         map -> map.entrySet().stream().max(Map.Entry.comparingByValue()).orElse(Map.entry("", 0L))
-                            .getKey()
-                    )
-                )
-            );
+                            .getKey())));
 
     }
 
@@ -154,19 +146,25 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         if (n <= 0) {
             throw new IllegalArgumentException("n must be positive");
         }
-        return rockets.stream()
-            .sorted(Comparator.comparingDouble((Rocket rocket) -> rocket.height().orElse(Double.MIN_VALUE)).reversed())
-            .limit(n).toList();
-
+        if (rocketsSortedByHeight == null) {
+            rocketsSortedByHeight = rockets.stream().sorted(
+                    Comparator.comparingDouble((Rocket rocket) -> rocket.height().orElse(Double.MIN_VALUE)).reversed())
+                .toList();
+            // return rockets.stream()
+            //    .sorted(
+            //        Comparator.comparingDouble((Rocket rocket) -> rocket.height().orElse(Double.MIN_VALUE))
+            //        .reversed())
+            //    .limit(n).toList();
+        }
+        return rocketsSortedByHeight.subList(0, Math.min(n, rocketsSortedByHeight.size()));
     }
 
     @Override
     public Map<String, Optional<String>> getWikiPageForRocket() {
-        if (cashedWikiPageForRocket == null) {
-            cashedWikiPageForRocket = rockets.stream()
-                .collect(Collectors.toMap(Rocket::name, Rocket::wiki));
+        if (cachedWikiPageForRocket == null) {
+            cachedWikiPageForRocket = rockets.stream().collect(Collectors.toMap(Rocket::name, Rocket::wiki));
         }
-        return cashedWikiPageForRocket;
+        return cachedWikiPageForRocket;
     }
 
     @Override
@@ -184,12 +182,8 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         return missions.stream()
             .filter(mission -> mission.missionStatus() == missionStatus && mission.rocketStatus() == rocketStatus)
             .sorted(Comparator.comparing((Mission mission) -> mission.cost().orElse(Double.MIN_VALUE)).reversed())
-            .limit(n)
-            .map(mission -> mission.detail().rocketName())
-            .distinct()
-            .map(
-                rocketName -> getRocketWiki(rocketName).orElse("")
-            ).toList();
+            .limit(n).map(mission -> mission.detail().rocketName()).distinct()
+            .map(rocketName -> getRocketWiki(rocketName).orElse("")).toList();
 
     }
 
@@ -209,11 +203,8 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
 
     //For testing
     String getMostReliableRocket(LocalDate from, LocalDate to) {
-        return rockets.stream().map(Rocket::name).max(
-            Comparator.comparingDouble(
-                (String rName) -> getRocketReliability(rName, from, to)
-            )
-        ).orElse("");
+        return rockets.stream().map(Rocket::name)
+            .max(Comparator.comparingDouble((String rName) -> getRocketReliability(rName, from, to))).orElse("");
     }
 
     private static void validateFromTo(LocalDate from, LocalDate to) {
@@ -229,16 +220,12 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
     }
 
     private double getRocketReliability(String rocketName, LocalDate from, LocalDate to) {
-        long countSuccessful = missions.stream()
-            .filter(mission -> dateInInterval(mission.date(), from, to))
+        long countSuccessful = missions.stream().filter(mission -> dateInInterval(mission.date(), from, to))
             .filter(mission -> mission.detail().rocketName().equals(rocketName))
-            .filter(mission -> mission.missionStatus() == MissionStatus.SUCCESS)
-            .count();
-        long countUnsuccessful = missions.stream()
-            .filter(mission -> dateInInterval(mission.date(), from, to))
+            .filter(mission -> mission.missionStatus() == MissionStatus.SUCCESS).count();
+        long countUnsuccessful = missions.stream().filter(mission -> dateInInterval(mission.date(), from, to))
             .filter(mission -> mission.detail().rocketName().equals(rocketName))
-            .filter(mission -> mission.missionStatus() != MissionStatus.SUCCESS)
-            .count();
+            .filter(mission -> mission.missionStatus() != MissionStatus.SUCCESS).count();
 
         long countAll = countSuccessful + countUnsuccessful;
         if (countAll == 0) {
@@ -249,19 +236,17 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
     }
 
     private Optional<Rocket> getRocketByName(String rocketName) {
-        if (cashedRocketByName == null) {
-            cashedRocketByName = rockets.stream()
-                .collect(Collectors.groupingBy(Rocket::name));
+        if (cachedRocketByName == null) {
+            cachedRocketByName = rockets.stream().collect(Collectors.groupingBy(Rocket::name));
         }
-        if (cashedRocketByName.containsKey(rocketName)) {
-            return Optional.of(cashedRocketByName.get(rocketName).getFirst());
+        if (cachedRocketByName.containsKey(rocketName)) {
+            return Optional.of(cachedRocketByName.get(rocketName).getFirst());
         }
         return Optional.empty();
     }
 
     private Optional<String> getRocketWiki(String rocketName) {
-        return getRocketByName(rocketName).orElse(new Rocket("", "", Optional.of(""), Optional.of(0.0)))
-            .wiki();
+        return getRocketByName(rocketName).orElse(new Rocket("", "", Optional.of(""), Optional.of(0.0))).wiki();
     }
 
     private static boolean dateInInterval(LocalDate date, LocalDate from, LocalDate to) {
