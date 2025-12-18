@@ -75,14 +75,14 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
             throw new IllegalArgumentException("missionStatus is null");
         }
         return missions.stream().filter(mission -> mission.missionStatus() == missionStatus)
-            .collect(Collectors.toUnmodifiableList());
+            .toList();
     }
 
     @Override
     public String getCompanyWithMostSuccessfulMissions(LocalDate from, LocalDate to) {
         validateFromTo(from, to);
         return missions.stream()
-            .filter(mission -> mission.date().compareTo(to) <= 0 && mission.date().compareTo(from) >= 0)
+            .filter(mission -> dateInInterval(mission.date(), from, to))
             .filter(mission -> mission.missionStatus() == MissionStatus.SUCCESS)
             .collect(Collectors.groupingBy(Mission::company, Collectors.counting())).entrySet().stream()
             .max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse("");
@@ -108,8 +108,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         return missions.stream()
             .filter(mission -> mission.missionStatus() == missionStatus && mission.rocketStatus() == rocketStatus)
             .sorted(Comparator.comparing(mission -> mission.cost().orElse(Double.MAX_VALUE)))
-            .limit(n).collect(Collectors.toUnmodifiableList());
-
+            .limit(n).toList();
     }
 
     @Override
@@ -123,7 +122,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
     public Map<String, String> getLocationWithMostSuccessfulMissionsPerCompany(LocalDate from, LocalDate to) {
         validateFromTo(from, to);
         return missions.stream()
-            .filter(mission -> mission.date().compareTo(to) <= 0 && mission.date().compareTo(from) >= 0)
+            .filter(mission -> dateInInterval(mission.date(), from, to))
             .filter(mission -> mission.missionStatus() == MissionStatus.SUCCESS).collect(
                 Collectors.groupingBy(Mission::company,
                     Collectors.collectingAndThen(Collectors.groupingBy(Mission::location, Collectors.counting()),
@@ -144,7 +143,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         }
         return rockets.stream()
             .sorted(Comparator.comparingDouble((Rocket rocket) -> rocket.height().orElse(Double.MAX_VALUE)).reversed())
-            .limit(n).collect(Collectors.toUnmodifiableList());
+            .limit(n).toList();
 
     }
 
@@ -176,7 +175,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
                     .filter(rocket -> rocket.name().equals(rocketName))
                     .findFirst().orElse(new Rocket("", "", Optional.of(""), Optional.of(0.0)))
                     .wiki().orElse("")
-            ).collect(Collectors.toUnmodifiableList());
+            ).toList();
 
     }
 
@@ -212,12 +211,12 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
 
     private double getRocketReliability(String rocketName, LocalDate from, LocalDate to) {
         long countSuccessful = missions.stream()
-            .filter(mission -> mission.date().compareTo(to) <= 0 && mission.date().compareTo(from) >= 0)
+            .filter(mission -> dateInInterval(mission.date(), from, to))
             .filter(mission -> mission.detail().rocketName().equals(rocketName))
             .filter(mission -> mission.missionStatus() == MissionStatus.SUCCESS)
             .count();
         long countUnsuccessful = missions.stream()
-            .filter(mission -> mission.date().compareTo(to) <= 0 && mission.date().compareTo(from) >= 0)
+            .filter(mission -> dateInInterval(mission.date(), from, to))
             .filter(mission -> mission.detail().rocketName().equals(rocketName))
             .filter(mission -> mission.missionStatus() != MissionStatus.SUCCESS)
             .count();
@@ -228,5 +227,9 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
         }
         return (RELIABILITY_SUCCESSFUL_MULTIPLIER * countSuccessful + countUnsuccessful) /
             (RELIABILITY_ALL_MULTIPLIER * countAll);
+    }
+
+    private static boolean dateInInterval(LocalDate date, LocalDate from, LocalDate to) {
+        return date.compareTo(to) <= 0 && date.compareTo(from) >= 0;
     }
 }
