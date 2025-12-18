@@ -142,7 +142,7 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
             throw new IllegalArgumentException("n must be positive");
         }
         return rockets.stream()
-            .sorted(Comparator.comparingDouble((Rocket rocket) -> rocket.height().orElse(Double.MAX_VALUE)).reversed())
+            .sorted(Comparator.comparingDouble((Rocket rocket) -> rocket.height().orElse(Double.MIN_VALUE)).reversed())
             .limit(n).toList();
 
     }

@@ -2,10 +2,12 @@ package bg.sofia.uni.fmi.mjt.space;
 
 import bg.sofia.uni.fmi.mjt.space.algorithm.SymmetricBlockCipher;
 import bg.sofia.uni.fmi.mjt.space.dataset.MissionDatasets;
+import bg.sofia.uni.fmi.mjt.space.dataset.RocketDatasets;
 import bg.sofia.uni.fmi.mjt.space.exception.TimeFrameMismatchException;
 import bg.sofia.uni.fmi.mjt.space.mission.Detail;
 import bg.sofia.uni.fmi.mjt.space.mission.Mission;
 import bg.sofia.uni.fmi.mjt.space.mission.MissionStatus;
+import bg.sofia.uni.fmi.mjt.space.rocket.Rocket;
 import bg.sofia.uni.fmi.mjt.space.rocket.RocketStatus;
 import org.junit.jupiter.api.Test;
 
@@ -163,6 +165,34 @@ class MJTSpaceScannerTest {
             "ESA", "ELV-1 (SLV), Guiana Space Centre, French Guiana, France"
         );
         assertEquals(expected, spaceScanner.getLocationWithMostSuccessfulMissionsPerCompany(LocalDate.MIN, LocalDate.MAX), "Not what was expected");
+    }
+
+    @Test
+    void testGetLocationWithMostSuccessfulMissionsPerCompanyAllTimeDataset4() {
+        spaceScanner = new MJTSpaceScanner(MissionDatasets.DATASET4_PARSED, null, null);
+        Map<String, String> expected = Map.of(
+            "RVSN USSR", "Site 43/3, Plesetsk Cosmodrome, Russia",
+            "General Dynamics", "SLC-36B, Cape Canaveral AFS, Florida, USA",
+            "ESA", "ELV-1 (SLV), Guiana Space Centre, French Guiana, France"
+        );
+        assertEquals(expected, spaceScanner.getLocationWithMostSuccessfulMissionsPerCompany(LocalDate.MIN, LocalDate.MAX), "Not what was expected");
+    }
+
+    @Test
+    void testGetTopNTallestRocketsDataset2Top3() {
+        spaceScanner = new MJTSpaceScanner(null, RocketDatasets.DATASET2_PARSED, null);
+        List<Rocket> expected = List.of(
+            new Rocket("96","Atlas V 411",Optional.of("https://en.wikipedia.org/wiki/Atlas_V"),Optional.of(67.97)),
+            new Rocket("95","Atlas V 401",Optional.of("https://en.wikipedia.org/wiki/Atlas_V"),Optional.of(58.3)),
+            new Rocket("98","Atlas V 431",Optional.of("https://en.wikipedia.org/wiki/Atlas_V"),Optional.of(27.3))
+        );
+        assertEquals(expected, spaceScanner.getTopNTallestRockets(3), "Not what was expected");
+    }
+
+    @Test
+    void testGetTopNTallestRocketsNegativeN() {
+        spaceScanner = new MJTSpaceScanner((List<Mission>)null, null, null);
+        assertThrows(IllegalArgumentException.class, () -> spaceScanner.getTopNTallestRockets(-1), "IllegalArgument expected");
     }
 
 }
