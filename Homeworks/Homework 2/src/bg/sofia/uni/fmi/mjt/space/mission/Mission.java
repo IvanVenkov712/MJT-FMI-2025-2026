@@ -46,6 +46,7 @@ public record Mission(String id, String company, String location, LocalDate date
         return new Mission(id, company, location, date, detail, rocketStatus, cost, missionStatus);
     }
 
+    /*
     private static RocketStatus readRocketStatus(String str) {
         RocketStatus rocketStatus = null;
         if (!str.isBlank()) {
@@ -55,6 +56,7 @@ public record Mission(String id, String company, String location, LocalDate date
         }
         return rocketStatus;
     }
+     */
 
     private static Optional<Double> readCost(String str) {
         Optional<Double> cost = Optional.empty();
@@ -65,6 +67,7 @@ public record Mission(String id, String company, String location, LocalDate date
         return cost;
     }
 
+    /*
     private static MissionStatus readMissionStatus(String str) {
         MissionStatus missionStatus = null;
         if (!str.isBlank()) {
@@ -74,6 +77,7 @@ public record Mission(String id, String company, String location, LocalDate date
         }
         return missionStatus;
     }
+     */
 
     @Override
     public boolean equals(Object o) {

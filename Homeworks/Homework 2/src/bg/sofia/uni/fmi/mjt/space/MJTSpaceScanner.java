@@ -27,13 +27,17 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class MJTSpaceScanner implements SpaceScannerAPI {
+    private static final double RELIABILITY_SUCCESSFUL_MULTIPLIER = 2.0;
+    private static final double RELIABILITY_ALL_MULTIPLIER = 2.0;
 
     private final Collection<Mission> missions;
     private final Collection<Rocket> rockets;
     private final SymmetricBlockCipher symmetricBlockCipher;
 
-    private static final double RELIABILITY_SUCCESSFUL_MULTIPLIER = 2.0;
-    private static final double RELIABILITY_ALL_MULTIPLIER = 2.0;
+    private Map<String, Collection<Mission>> cashedMissionsPreCountry;
+    private Map<String, String> cashedMostDesiredLocationForMissionsPerCompany;
+    private Map<String, List<Rocket>> cashedRocketByName;
+    private Map<String, Optional<String>> cashedWikiPageForRocket;
 
     // TODO:
     // - Cache for all data
@@ -85,8 +89,11 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
 
     @Override
     public Map<String, Collection<Mission>> getMissionsPerCountry() {
-        return missions.stream()
-            .collect(Collectors.groupingBy(Mission::getCountry, Collectors.toCollection(ArrayList::new)));
+        if (cashedMissionsPreCountry == null) {
+            cashedMissionsPreCountry = missions.stream()
+                .collect(Collectors.groupingBy(Mission::getCountry, Collectors.toCollection(ArrayList::new)));
+        }
+        return cashedMissionsPreCountry;
     }
 
     @Override
@@ -108,9 +115,17 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
 
     @Override
     public Map<String, String> getMostDesiredLocationForMissionsPerCompany() {
-        return missions.stream().collect(Collectors.groupingBy(Mission::company,
-            Collectors.collectingAndThen(Collectors.groupingBy(Mission::location, Collectors.counting()),
-                map -> map.entrySet().stream().max(Map.Entry.comparingByValue()).orElse(Map.entry("", 0L)).getKey())));
+        if (cashedMostDesiredLocationForMissionsPerCompany == null) {
+            cashedMostDesiredLocationForMissionsPerCompany =
+                missions.stream().collect(Collectors.groupingBy(Mission::company,
+                    Collectors.collectingAndThen(Collectors.groupingBy(Mission::location, Collectors.counting()),
+                        map -> map.entrySet().stream().max(Map.Entry.comparingByValue()).orElse(Map.entry("", 0L))
+                            .getKey()
+                    )
+                ));
+
+        }
+        return cashedMostDesiredLocationForMissionsPerCompany;
     }
 
     @Override
@@ -147,8 +162,11 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
 
     @Override
     public Map<String, Optional<String>> getWikiPageForRocket() {
-        return rockets.stream()
-            .collect(Collectors.toMap(Rocket::name, Rocket::wiki));
+        if (cashedWikiPageForRocket == null) {
+            cashedWikiPageForRocket = rockets.stream()
+                .collect(Collectors.toMap(Rocket::name, Rocket::wiki));
+        }
+        return cashedWikiPageForRocket;
     }
 
     @Override
@@ -231,9 +249,14 @@ public class MJTSpaceScanner implements SpaceScannerAPI {
     }
 
     private Optional<Rocket> getRocketByName(String rocketName) {
-        return rockets.stream()
-            .filter(rocket -> rocket.name().equals(rocketName))
-            .findFirst();
+        if (cashedRocketByName == null) {
+            cashedRocketByName = rockets.stream()
+                .collect(Collectors.groupingBy(Rocket::name));
+        }
+        if (cashedRocketByName.containsKey(rocketName)) {
+            return Optional.of(cashedRocketByName.get(rocketName).getFirst());
+        }
+        return Optional.empty();
     }
 
     private Optional<String> getRocketWiki(String rocketName) {
