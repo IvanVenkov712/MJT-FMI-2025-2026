@@ -3,7 +3,6 @@ package bg.sofia.uni.fmi.mjt.space.rocket;
 import bg.sofia.uni.fmi.mjt.space.CSVHelper;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 public record Rocket(String id, String name, Optional<String> wiki, Optional<Double> height) {

@@ -18,14 +18,14 @@ public enum MissionStatus {
 
     public static MissionStatus of(String word) {
         if (word == null || word.isBlank()) {
-            return null;
+            throw new IllegalArgumentException("word is invalid!");
         }
         return switch (word) {
             case "Success" -> SUCCESS;
             case "Failure" -> FAILURE;
             case "Partial Failure" -> PARTIAL_FAILURE;
             case "Prelaunch Failure" -> PRELAUNCH_FAILURE;
-            default -> null;
+            default ->throw new IllegalArgumentException("word is invalid!");
         };
     }
 }
