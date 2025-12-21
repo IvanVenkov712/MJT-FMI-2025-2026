@@ -46,6 +46,7 @@ public record Rocket(String id, String name, Optional<String> wiki, Optional<Dou
         }
     }
 
+    /*
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -58,4 +59,5 @@ public record Rocket(String id, String name, Optional<String> wiki, Optional<Dou
     public int hashCode() {
         return Objects.hashCode(id);
     }
+     */
 }

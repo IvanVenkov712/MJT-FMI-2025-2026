@@ -29,7 +29,7 @@ public class SecretKeyHelper {
 
         return secretKey;
     }
-
+    /*
     public static void persistSecretKey(SecretKey secretKey, Path keyFilePath) throws IOException {
         byte[] keyBytes = secretKey.getEncoded();
 
@@ -44,4 +44,5 @@ public class SecretKeyHelper {
         byte[] keyBytes = Files.readAllBytes(keyFilePath);
         return new SecretKeySpec(keyBytes, ENCRYPTION_ALGORITHM);
     }
+     */
 }
