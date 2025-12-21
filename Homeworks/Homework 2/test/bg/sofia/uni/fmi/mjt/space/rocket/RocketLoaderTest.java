@@ -14,12 +14,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class RocketLoaderTest {
 
     @Test
-    void testLoadNullReader() {
+    void testLoadRocketLoaderNullReader() {
         assertThrows(IllegalArgumentException.class, () -> RocketLoader.load(null), "IllegalArgumentException expected");
     }
 
     @Test
-    void testLoadDataset1() {
+    void testLoadRocketLoaderDataset1() {
         List<Rocket> actual = RocketLoader.load(new StringReader(RocketDatasets.DATASET1_STRING));
         assertEquals(RocketDatasets.DATASET1_PARSED, actual, "Not what was expected");
     }

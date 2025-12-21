@@ -10,12 +10,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MissionLoaderTest {
     @Test
-    void testLoadNullReader() {
+    void testLoadMissionLoaderNullReader() {
         assertThrows(IllegalArgumentException.class, () -> MissionLoader.load(null), "IllegalArgumentException expected");
     }
 
     @Test
-    void testLoadDataset1() {
+    void testLoadMissionLoaderDataset1() {
         List<Mission> actual = MissionLoader.load(new StringReader(MissionDatasets.DATASET1_STRING));
         assertEquals(MissionDatasets.DATASET1_PARSED, actual, "Not what was expected");
     }

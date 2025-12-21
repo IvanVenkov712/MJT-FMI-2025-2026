@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MissionTest {
     @Test
-    void testOfAllFields() {
+    void testOfAllFieldsMission() {
         Mission res = Mission.of("11,ExPace,\"Site 95, Jiuquan Satellite Launch Center, China\",\"Fri Jul 10, 2020\",\"Kuaizhou 11 | Jilin-1 02E, CentiSpace-1 S2\",StatusActive,\"28.3 \",Failure");
         Mission expected = new Mission("11", "ExPace", "Site 95, Jiuquan Satellite Launch Center, China", LocalDate.parse("Fri Jul 10, 2020", DateTimeFormatter.ofPattern("EEE MMM dd, yyyy", Locale.ENGLISH)), new Detail("Kuaizhou 11", "Jilin-1 02E, CentiSpace-1 S2"), RocketStatus.STATUS_ACTIVE, Optional.of(28.3), MissionStatus.FAILURE);
         assertEquals(expected, res, "Not what was expected");
