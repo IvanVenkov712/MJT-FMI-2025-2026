@@ -32,7 +32,7 @@ class MissionTest {
         assertEquals(expected, res, "Not what was expected");
     }
     @Test
-    void testGetCountry() {
+    void testGetCountryValidDataCommaInLocation() {
         Mission mission = new Mission("11", "ExPace", "Site 95, Jiuquan Satellite Launch Center, China", LocalDate.parse("Fri Jul 10, 2020", DateTimeFormatter.ofPattern("EEE MMM dd, yyyy", Locale.ENGLISH)), new Detail("Kuaizhou 11", "Jilin-1 02E, CentiSpace-1 S2"), RocketStatus.STATUS_ACTIVE, Optional.of(28.3), MissionStatus.FAILURE);
         String country = mission.getCountry();
         assertEquals("China", country, "Not what was expected");

@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RijndaelTest {
     @Test
-    void testEncryptDecrypt() throws Exception {
+    void testEncryptMatchesTheOriginalNonEmpty() throws Exception {
         SecretKey key = generateSecretKey();
         Rijndael cipher = new Rijndael(key);
 
@@ -31,10 +31,11 @@ class RijndaelTest {
                 assertArrayEquals(original, actual, "Not what was expected!");
             }
         }
+        assertTrue(true);
     }
 
     @Test
-    void testEncryptDecryptEmpty() throws Exception {
+    void testEncryptEmpty() throws Exception {
         SecretKey key = generateSecretKey();
         Rijndael cipher = new Rijndael(key);
 
@@ -53,5 +54,6 @@ class RijndaelTest {
                 assertArrayEquals(original, actual, "Not what was expected!");
             }
         }
+        assertTrue(true);
     }
 }

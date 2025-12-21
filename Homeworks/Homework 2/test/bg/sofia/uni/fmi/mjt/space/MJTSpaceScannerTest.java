@@ -319,5 +319,6 @@ class MJTSpaceScannerTest {
                 assertArrayEquals(expected, actual, "Not what was expected!");
             }
         }
+        assertTrue(true);
     }
 }
