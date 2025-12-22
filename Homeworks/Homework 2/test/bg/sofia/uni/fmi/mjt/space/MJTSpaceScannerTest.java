@@ -10,6 +10,7 @@ import bg.sofia.uni.fmi.mjt.space.mission.Mission;
 import bg.sofia.uni.fmi.mjt.space.mission.MissionStatus;
 import bg.sofia.uni.fmi.mjt.space.rocket.Rocket;
 import bg.sofia.uni.fmi.mjt.space.rocket.RocketStatus;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.crypto.SecretKey;
@@ -31,7 +32,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MJTSpaceScannerTest {
     MJTSpaceScanner spaceScanner;
-    /*
+
+    @Disabled
     @Test
     void loadWholeDataset() throws Exception {
         try(Reader missions = new FileReader("dataset/all-missions-from-1957.csv");
@@ -39,7 +41,6 @@ class MJTSpaceScannerTest {
             spaceScanner = new MJTSpaceScanner(missions, rockets, generateSecretKey());
         }
     }
-     */
 
     @Test
     void testPublicConstructorNullMissionReader() {

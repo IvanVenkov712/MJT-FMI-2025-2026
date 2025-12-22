@@ -1,5 +1,6 @@
 package bg.sofia.uni.fmi.mjt.space.mission;
 
+import bg.sofia.uni.fmi.mjt.space.rocket.Rocket;
 import bg.sofia.uni.fmi.mjt.space.rocket.RocketStatus;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +12,16 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MissionTest {
+    @Test
+    void testOfMissionNullLine() {
+        assertThrows(IllegalArgumentException.class, () -> Mission.of(null), "IllegalArgument expected");
+    }
+
+    @Test
+    void testOfMissionShorterLine() {
+        assertThrows(IllegalArgumentException.class, () -> Mission.of("a,b,c"), "IllegalArgument expected");
+    }
+
     @Test
     void testOfAllFieldsMission() {
         Mission res = Mission.of("11,ExPace,\"Site 95, Jiuquan Satellite Launch Center, China\",\"Fri Jul 10, 2020\",\"Kuaizhou 11 | Jilin-1 02E, CentiSpace-1 S2\",StatusActive,\"28.3 \",Failure");

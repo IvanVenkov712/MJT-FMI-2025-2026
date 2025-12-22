@@ -25,13 +25,20 @@ public record Mission(String id, String company, String location, LocalDate date
     private static final int ROCKET_STATUS_INDEX = 5;
     private static final int COST_INDEX = 6;
     private static final int MISSION_STATUS_INDEX = 7;
+    private static final int LINE_LENGTH = 8;
 
     public String getCountry() {
         return List.of(location.split(",")).getLast().strip();
     }
 
     public static Mission of(String line) {
+        if (line == null) {
+            throw new IllegalArgumentException("line is null");
+        }
         List<String> fields = parseCsvLine(line);
+        if (fields.size() < LINE_LENGTH) {
+            throw new IllegalArgumentException("line shorter");
+        }
 
         String id = fields.get(ID_INDEX).strip();
         String company = fields.get(COMPANY_INDEX).strip();

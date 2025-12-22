@@ -16,12 +16,12 @@ public enum RocketStatus {
 
     public static RocketStatus of(String s) {
         if (s == null || s.isBlank()) {
-            throw new IllegalArgumentException("s is not valid!");
+            return null;
         }
         return switch (s) {
             case "StatusActive" -> STATUS_ACTIVE;
             case "StatusRetired" -> STATUS_RETIRED;
-            default ->throw new IllegalArgumentException("s is not valid!");
+            default -> null;
         };
     }
 }

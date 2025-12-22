@@ -8,6 +8,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RocketTest {
     @Test
+    void testOfRocketNullLine() {
+        assertThrows(IllegalArgumentException.class, () -> Rocket.of(null), "IllegalArgument expected");
+    }
+
+    @Test
+    void testOfRocketShorterLine() {
+        assertThrows(IllegalArgumentException.class, () -> Rocket.of("a,b,c"), "IllegalArgument expected");
+    }
+
+    @Test
     void testOfAllFieldsRocket() {
         Rocket expected = new Rocket("23", "Zéphyr", Optional.of("https://fr.wikipedia.org/wiki/Z%C3%A9phyr_(fus%C3%A9e)"), Optional.of(12.3));
         Rocket actual = Rocket.of("23,Zéphyr,https://fr.wikipedia.org/wiki/Z%C3%A9phyr_(fus%C3%A9e),12.3 m");
