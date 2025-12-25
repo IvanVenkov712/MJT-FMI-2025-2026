@@ -1,11 +1,12 @@
 package bg.sofia.uni.fmi.mjt.steganography;
 
 import bg.sofia.uni.fmi.mjt.steganography.embed.EmbedMultithreadProcessor;
-import bg.sofia.uni.fmi.mjt.steganography.extract.ExtractImageInfo;
+import bg.sofia.uni.fmi.mjt.steganography.extract.ExtractMultithreadProcessor;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class ImageCodecImpl implements ImageCodec {
 
@@ -21,16 +22,34 @@ public class ImageCodecImpl implements ImageCodec {
 
     @Override
     public void embedPNGImages(String coverSourceDirectory, String secretSourceDirectory, String outputDirectory) {
+        Path outputDir = Path.of(outputDirectory);
+        if (!Files.exists(outputDir)) {
+            try {
+                Files.createDirectories(outputDir);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
         new EmbedMultithreadProcessor(
             Path.of(coverSourceDirectory),
             Path.of(secretSourceDirectory),
-            Path.of(outputDirectory),
+            outputDir,
             countConsumers
         ).embedPNGImages();
     }
 
     @Override
     public void extractPNGImages(String sourceDirectory, String outputDirectory) {
-        BlockingQueue<ExtractImageInfo> workingQueue = new LinkedBlockingQueue<>();
+        Path outputDir = Path.of(outputDirectory);
+        if (!Files.exists(outputDir)) {
+            try {
+                Files.createDirectories(outputDir);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
+        new ExtractMultithreadProcessor(Path.of(sourceDirectory), outputDir, countConsumers).extractPNGImages();
     }
 }
