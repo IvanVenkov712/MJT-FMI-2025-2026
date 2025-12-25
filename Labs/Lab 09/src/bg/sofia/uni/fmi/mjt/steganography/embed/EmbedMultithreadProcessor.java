@@ -28,8 +28,9 @@ public class EmbedMultithreadProcessor {
     public void embedPNGImages() {
         List<Thread> producers = startProducers();
         List<Thread> consumers = startConsumers();
-        ThreadHelper.joinProducers(producers);
+        ThreadHelper.joinAll(producers);
         putPoisonPills();
+        ThreadHelper.joinAll(consumers);
     }
 
     private List<Thread> startProducers(List<Path> coverImgs, List<Path> secretImgs) {

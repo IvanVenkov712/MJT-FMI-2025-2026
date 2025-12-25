@@ -25,14 +25,15 @@ public class ExtractMultithreadProcessor {
     public void extractPNGImages() {
         List<Thread> producers = startProducers();
         List<Thread> consumers = startConsumers();
-        ThreadHelper.joinProducers(producers);
+        ThreadHelper.joinAll(producers);
         putPoisonPills();
+        ThreadHelper.joinAll(consumers);
     }
 
     private List<Thread> startProducers(List<Path> sourceImgs) {
         List<Thread> res = new ArrayList<>();
-        for (int i = 0; i < sourceImgs.size(); ++i) {
-            Thread curr = new Thread(new ExtractProducer(sourceImgs.get(i), workingQueue));
+        for (Path sourceImg : sourceImgs) {
+            Thread curr = new Thread(new ExtractProducer(sourceImg, workingQueue));
             curr.start();
             res.add(curr);
         }
