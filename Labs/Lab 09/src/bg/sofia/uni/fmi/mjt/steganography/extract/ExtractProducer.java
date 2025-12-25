@@ -11,7 +11,7 @@ public class ExtractProducer implements Runnable {
     private final Path imgPath;
     private final String imgName;
 
-    public ExtractProducer(BlockingQueue<ExtractImageInfo> workingQueue, Path imgPath) {
+    public ExtractProducer(Path imgPath, BlockingQueue<ExtractImageInfo> workingQueue) {
         this.workingQueue = workingQueue;
         this.imgPath = imgPath;
         this.imgName = imgPath.getFileName().toString();

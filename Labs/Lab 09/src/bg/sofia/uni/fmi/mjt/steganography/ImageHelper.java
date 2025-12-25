@@ -5,7 +5,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class ImageHelper {
     public static BufferedImage loadImage(Path imagePath) {
@@ -27,5 +31,16 @@ public class ImageHelper {
 
     public static int getPixelCount(BufferedImage img) {
         return img.getWidth() * img.getHeight();
+    }
+
+    public static List<Path> getPNGs(Path sourceDir) {
+        try (Stream<Path> files = Files.list(sourceDir)) {
+            return files.filter(path -> path.toString().endsWith(".png"))
+                .sorted(Comparator.comparing(Path::getFileName))
+                .toList();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
     }
 }

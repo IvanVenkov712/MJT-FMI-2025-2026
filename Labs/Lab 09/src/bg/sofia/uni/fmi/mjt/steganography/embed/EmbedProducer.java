@@ -4,6 +4,8 @@ import bg.sofia.uni.fmi.mjt.steganography.ImageHelper;
 
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 public class EmbedProducer implements Runnable {
