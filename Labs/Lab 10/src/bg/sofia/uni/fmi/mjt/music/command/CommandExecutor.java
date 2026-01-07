@@ -105,7 +105,7 @@ public class CommandExecutor {
         try {
             repository.unlikeSong(playlistName, songTitle, artistName);
             int numberOfLikes = repository.getPlaylist(playlistName).songs().get(songTitle);
-            return JSONResult.formatAsJSON(Status.OK, "Song %s by %s liked. Likes: %d",
+            return JSONResult.formatAsJSON(Status.OK, "Song %s by %s unliked. Likes: %d",
                 songTitle, artistName, numberOfLikes);
         } catch (PlaylistNotFoundException e) {
             return JSONResult.formatAsJSON(Status.ERROR, "Playlist %s does not exist.", playlistName);
