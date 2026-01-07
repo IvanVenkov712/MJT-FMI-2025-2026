@@ -6,10 +6,7 @@ import bg.sofia.uni.fmi.mjt.music.server.repository.exception.PlaylistNotFoundEx
 import bg.sofia.uni.fmi.mjt.music.server.repository.exception.SongAlreadyExistsException;
 import bg.sofia.uni.fmi.mjt.music.server.repository.exception.SongNotFoundException;
 
-@SuppressWarnings("CheckStyle")
 public class ServerCommandExecutor {
-    private static final String INVALID_ARGS_COUNT_MESSAGE_FORMAT =
-        "Invalid count of arguments: \"%s\" expects %d arguments. Example: \"%s\"";
 
     private static final String CREATE_PLAYLIST = "create-playlist";
     private static final String ADD_SONG = "add-song";
@@ -57,7 +54,7 @@ public class ServerCommandExecutor {
         String songTitle = args[1];
         String artistName = args[2];
         int duration = Integer.parseInt(args[3]);
-        if(duration <= 0) {
+        if (duration <= 0) {
             return JSONResult.formatAsJSON(Status.ERROR, "Duration must be a positive integer");
         }
         try {
@@ -67,14 +64,15 @@ public class ServerCommandExecutor {
         } catch (PlaylistNotFoundException e) {
             return JSONResult.formatAsJSON(Status.ERROR, "Playlist %s does not exist.", playlistName);
         } catch (SongAlreadyExistsException e) {
-            return JSONResult.formatAsJSON(Status.ERROR, "Song Imagine by John-Lennon already exists in playlist MyFavorites.");
+            return JSONResult.formatAsJSON(Status.ERROR,
+                "Song Imagine by John-Lennon already exists in playlist MyFavorites.");
         } catch (Exception e) {
             return JSONResult.formatAsJSON(Status.ERROR, "Unknown error!");
         }
     }
 
     private String likeSong(String[] args) {
-        if(args.length != 3) {
+        if (args.length != 3) {
             return JSONResult.formatAsJSON(Status.ERROR, "Invalid arguments count");
         }
         String playlistName = args[0];
@@ -87,13 +85,13 @@ public class ServerCommandExecutor {
         } catch (PlaylistNotFoundException e) {
             return JSONResult.formatAsJSON(Status.ERROR, "Playlist %s does not exist.", playlistName);
         } catch (SongNotFoundException e) {
-            return JSONResult.formatAsJSON(Status.ERROR,"Song %s by %s does not exist in playlist %s.",
+            return JSONResult.formatAsJSON(Status.ERROR, "Song %s by %s does not exist in playlist %s.",
                 songTitle, artistName, playlistName);
         }
     }
 
     private String unlikeSong(String[] args) {
-        if(args.length != 3) {
+        if (args.length != 3) {
             return JSONResult.formatAsJSON(Status.ERROR, "Invalid arguments count");
         }
         String playlistName = args[0];
@@ -106,13 +104,13 @@ public class ServerCommandExecutor {
         } catch (PlaylistNotFoundException e) {
             return JSONResult.formatAsJSON(Status.ERROR, "Playlist %s does not exist.", playlistName);
         } catch (SongNotFoundException e) {
-            return JSONResult.formatAsJSON(Status.ERROR,"Song %s by %s does not exist in playlist %s.",
+            return JSONResult.formatAsJSON(Status.ERROR, "Song %s by %s does not exist in playlist %s.",
                 songTitle, artistName, playlistName);
         }
     }
 
     private String listPlaylists(String[] args) {
-        if(args.length != 0) {
+        if (args.length != 0) {
             return JSONResult.formatAsJSON(Status.ERROR, "Unnecessary arguments");
         }
         return JSONResult.formatAsJSON(Status.OK, "playlists",
@@ -120,7 +118,7 @@ public class ServerCommandExecutor {
     }
 
     private String getPlaylist(String[] args) {
-        if(args.length != 1) {
+        if (args.length != 1) {
             return JSONResult.formatAsJSON(Status.ERROR, "Invalid arguments count");
         }
         String playlistName = args[0];

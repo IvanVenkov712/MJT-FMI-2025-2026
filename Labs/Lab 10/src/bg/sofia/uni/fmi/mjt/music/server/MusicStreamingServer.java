@@ -17,9 +17,9 @@ import bg.sofia.uni.fmi.mjt.music.server.repository.PlaylistRepository;
 
 public class MusicStreamingServer {
     private static final int BUFFER_SIZE = 1024;
-    private static final String HOST = "localhost";
 
     private final ServerCommandExecutor commandExecutor;
+    private final String hostName;
 
     private final int port;
     private boolean isServerWorking;
@@ -27,9 +27,14 @@ public class MusicStreamingServer {
     private ByteBuffer buffer;
     private Selector selector;
 
-    public MusicStreamingServer(int port, PlaylistRepository playlistRepository) {
+    public MusicStreamingServer(String hostName, int port, ServerCommandExecutor commandExecutor) {
+        this.commandExecutor = commandExecutor;
+        this.hostName = hostName;
         this.port = port;
-        this.commandExecutor = new ServerCommandExecutor(playlistRepository);
+    }
+
+    public MusicStreamingServer(int port, PlaylistRepository playlistRepository) {
+        this("localhost", port, new ServerCommandExecutor(playlistRepository));
     }
 
     public void start() {
@@ -82,7 +87,7 @@ public class MusicStreamingServer {
     }
 
     private void configureServerSocketChannel(ServerSocketChannel channel, Selector selector) throws IOException {
-        channel.bind(new InetSocketAddress(HOST, this.port));
+        channel.bind(new InetSocketAddress(hostName, this.port));
         channel.configureBlocking(false);
         channel.register(selector, SelectionKey.OP_ACCEPT);
     }
