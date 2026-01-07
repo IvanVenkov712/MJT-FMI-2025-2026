@@ -30,16 +30,16 @@ public class MusicStreamingClient {
 
             while (true) {
                 System.out.print("Enter command: ");
-                String message = scanner.nextLine(); // read a line from the console
+                String command = scanner.nextLine(); // read a line from the console
 
-                if ("disconnect".equals(message)) {
+                if ("disconnect".equals(command)) {
                     break;
                 }
 
-                System.out.println("Sending command <" + message + "> to the server...");
-
-                String reply = reader.readLine(); // read the response from the server
-                System.out.println(reply);
+                System.out.println("Sending command <" + command + "> to the server...");
+                writer.println(command);
+                String response = reader.readLine(); // read the response from the server
+                System.out.println(response);
             }
         } catch (IOException e) {
             throw new RuntimeException("There is a problem with the network communication", e);
