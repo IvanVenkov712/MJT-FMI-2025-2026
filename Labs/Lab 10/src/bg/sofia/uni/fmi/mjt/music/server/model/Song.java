@@ -17,4 +17,5 @@ public record Song(String title, String artist, int duration) {
         result = 31 * result + Objects.hashCode(artist);
         return result;
     }
+
 }

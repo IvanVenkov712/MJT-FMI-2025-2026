@@ -7,7 +7,7 @@ import bg.sofia.uni.fmi.mjt.music.server.repository.exception.SongAlreadyExistsE
 import bg.sofia.uni.fmi.mjt.music.server.repository.exception.SongNotFoundException;
 
 @SuppressWarnings("CheckStyle")
-public class CommandExecutor {
+public class ServerCommandExecutor {
     private static final String INVALID_ARGS_COUNT_MESSAGE_FORMAT =
         "Invalid count of arguments: \"%s\" expects %d arguments. Example: \"%s\"";
 
@@ -17,11 +17,10 @@ public class CommandExecutor {
     private static final String UNLIKE_SONG = "unlike-song";
     private static final String LIST_PLAYLISTS = "list-playlists";
     private static final String GET_PLAYLIST = "get-playlist";
-    private static final String DISCONNECT = "disconnect";
 
     private PlaylistRepository repository;
 
-    public CommandExecutor(PlaylistRepository repository) {
+    public ServerCommandExecutor(PlaylistRepository repository) {
         this.repository = repository;
     }
 
@@ -32,8 +31,7 @@ public class CommandExecutor {
             case LIKE_SONG -> likeSong(cmd.arguments());
             case UNLIKE_SONG -> unlikeSong(cmd.arguments());
             case LIST_PLAYLISTS -> listPlaylists(cmd.arguments());
-            case GET_PLAYLIST -> getPlaylists(cmd.arguments());
-            case DISCONNECT -> disconnect(cmd.arguments());
+            case GET_PLAYLIST -> getPlaylist(cmd.arguments());
             default -> "Unknown command";
         };
     }
@@ -83,8 +81,7 @@ public class CommandExecutor {
         String songTitle = args[1];
         String artistName = args[2];
         try {
-            repository.likeSong(playlistName, songTitle, artistName);
-            int numberOfLikes = repository.getPlaylist(playlistName).songs().get(songTitle);
+            int numberOfLikes = repository.likeSong(playlistName, songTitle, artistName);
             return JSONResult.formatAsJSON(Status.OK, "Song %s by %s liked. Likes: %d",
                 songTitle, artistName, numberOfLikes);
         } catch (PlaylistNotFoundException e) {
@@ -103,8 +100,7 @@ public class CommandExecutor {
         String songTitle = args[1];
         String artistName = args[2];
         try {
-            repository.unlikeSong(playlistName, songTitle, artistName);
-            int numberOfLikes = repository.getPlaylist(playlistName).songs().get(songTitle);
+            int numberOfLikes = repository.unlikeSong(playlistName, songTitle, artistName);
             return JSONResult.formatAsJSON(Status.OK, "Song %s by %s unliked. Likes: %d",
                 songTitle, artistName, numberOfLikes);
         } catch (PlaylistNotFoundException e) {
@@ -115,37 +111,25 @@ public class CommandExecutor {
         }
     }
 
-    private String complete(String[] args) {
-        if (args.length != 2) {
-            return String.format(INVALID_ARGS_COUNT_MESSAGE_FORMAT, COMPLETE, 2,
-                COMPLETE + " <username> <todo_item_id>");
+    private String listPlaylists(String[] args) {
+        if(args.length != 0) {
+            return JSONResult.formatAsJSON(Status.ERROR, "Unnecessary arguments");
         }
-
-        String user = args[0];
-        int todoID;
-        try {
-            todoID = Integer.parseInt(args[1]);
-        } catch (NumberFormatException e) {
-            return "Invalid ID provided for command \"complete-todo\": only integer values are allowed";
-        }
-
-        repository.remove(user, todoID);
-        return String.format("Completed To Do with ID %s for user %s", todoID, user);
+        return JSONResult.formatAsJSON(Status.OK, "playlists",
+            JSONResult.asJSONArray(repository.getAllPlaylists()));
     }
 
-    private String list(String[] args) {
-        if (args.length != 1) {
-            return String.format(INVALID_ARGS_COUNT_MESSAGE_FORMAT, LIST, 1, LIST + " <username>");
+    private String getPlaylist(String[] args) {
+        if(args.length != 1) {
+            return JSONResult.formatAsJSON(Status.ERROR, "Invalid arguments count");
         }
-        String user = args[0];
-        var todos = repository.list(user);
-        if (todos.isEmpty()) {
-            return "No To-Do items found for user with name " + user;
+        String playlistName = args[0];
+        try {
+            return JSONResult.formatAsJSON(
+                Status.OK, "playlist", repository.getPlaylist(playlistName).toString()
+            );
+        } catch (PlaylistNotFoundException e) {
+            return JSONResult.formatAsJSON(Status.ERROR, "Playlist %s does not exist.", playlistName);
         }
-
-        StringBuilder response = new StringBuilder(String.format("To-Do list of user %s:%n", user));
-        todos.forEach((k, v) -> response.append(String.format("[%d] %s%n", k, v)));
-
-        return response.toString();
     }
 }

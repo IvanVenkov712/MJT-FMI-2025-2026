@@ -12,15 +12,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 import bg.sofia.uni.fmi.mjt.music.command.CommandCreator;
-import bg.sofia.uni.fmi.mjt.music.command.CommandExecutor;
+import bg.sofia.uni.fmi.mjt.music.command.ServerCommandExecutor;
 import bg.sofia.uni.fmi.mjt.music.server.repository.PlaylistRepository;
 
 public class MusicStreamingServer {
     private static final int BUFFER_SIZE = 1024;
     private static final String HOST = "localhost";
 
-    private final CommandExecutor commandExecutor;
-    private final PlaylistRepository playlistRepository;
+    private final ServerCommandExecutor commandExecutor;
 
     private final int port;
     private boolean isServerWorking;
@@ -28,16 +27,9 @@ public class MusicStreamingServer {
     private ByteBuffer buffer;
     private Selector selector;
 
-    public MusicStreamingServer(int port, CommandExecutor commandExecutor) {
-        this.port = port;
-        this.commandExecutor = commandExecutor;
-        this.playlistRepository = null;
-    }
-
     public MusicStreamingServer(int port, PlaylistRepository playlistRepository) {
         this.port = port;
-        this.commandExecutor = null;
-        this.playlistRepository = playlistRepository;
+        this.commandExecutor = new ServerCommandExecutor(playlistRepository);
     }
 
     public void start() {
