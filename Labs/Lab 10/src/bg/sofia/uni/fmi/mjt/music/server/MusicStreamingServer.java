@@ -16,7 +16,7 @@ import bg.sofia.uni.fmi.mjt.music.command.ServerCommandExecutor;
 import bg.sofia.uni.fmi.mjt.music.server.repository.PlaylistRepository;
 
 public class MusicStreamingServer {
-    private static final int BUFFER_SIZE = 1024;
+    private static final int BUFFER_SIZE = 4096;
 
     private final ServerCommandExecutor commandExecutor;
     private final String hostName;

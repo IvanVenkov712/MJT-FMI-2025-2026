@@ -40,9 +40,9 @@ public class ServerCommandExecutor {
         String playlistName = args[0];
         try {
             repository.createPlaylist(playlistName);
-            return JSONResult.formatAsJSON(Status.OK, "Playlist %s created successfully.", args[0]);
+            return JSONResult.formatAsJSON(Status.OK, "Playlist %s created successfully.", (Object) args[0]);
         } catch (PlaylistAlreadyExistsException e) {
-            return JSONResult.formatAsJSON(Status.ERROR, "Playlist %s already exists.", args[0]);
+            return JSONResult.formatAsJSON(Status.ERROR, "Playlist %s already exists.", (Object) args[0]);
         }
     }
 
@@ -65,7 +65,7 @@ public class ServerCommandExecutor {
             return JSONResult.formatAsJSON(Status.ERROR, "Playlist %s does not exist.", playlistName);
         } catch (SongAlreadyExistsException e) {
             return JSONResult.formatAsJSON(Status.ERROR,
-                "Song Imagine by John-Lennon already exists in playlist MyFavorites.");
+                "Song %s by %s already exists in playlist %s.", songTitle, artistName, playlistName);
         } catch (Exception e) {
             return JSONResult.formatAsJSON(Status.ERROR, "Unknown error!");
         }
