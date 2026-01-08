@@ -17,6 +17,7 @@ import bg.sofia.uni.fmi.mjt.music.server.repository.PlaylistRepository;
 
 public class MusicStreamingServer {
     private static final int BUFFER_SIZE = 4096;
+    private static final String DISCONNECT = "disconnect";
 
     private final ServerCommandExecutor commandExecutor;
     private final String hostName;
@@ -45,31 +46,7 @@ public class MusicStreamingServer {
             isServerWorking = true;
             while (isServerWorking) {
                 try {
-                    int readyChannels = selector.select();
-                    if (readyChannels == 0) {
-                        continue;
-                    }
-
-                    Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
-                    while (keyIterator.hasNext()) {
-                        SelectionKey key = keyIterator.next();
-                        if (key.isReadable()) {
-                            SocketChannel clientChannel = (SocketChannel) key.channel();
-                            String clientInput = getClientInput(clientChannel);
-                            System.out.println(clientInput);
-                            if (clientInput == null) {
-                                continue;
-                            }
-
-                            String output = commandExecutor.execute(CommandCreator.newCommand(clientInput));
-                            writeClientOutput(clientChannel, output);
-
-                        } else if (key.isAcceptable()) {
-                            accept(selector, key);
-                        }
-
-                        keyIterator.remove();
-                    }
+                    handleReadyChannels();
                 } catch (IOException e) {
                     System.out.println("Error occurred while processing client request: " + e.getMessage());
                 }
@@ -84,6 +61,38 @@ public class MusicStreamingServer {
         if (selector.isOpen()) {
             selector.wakeup();
         }
+    }
+
+    void handleReadyChannels() throws IOException {
+        int readyChannels = selector.select();
+        if (readyChannels == 0) {
+            return;
+        }
+        Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
+        while (keyIterator.hasNext()) {
+            SelectionKey key = keyIterator.next();
+            handleKey(key);
+            keyIterator.remove();
+        }
+    }
+
+    private void handleKey(SelectionKey key) throws IOException {
+        if (key.isReadable()) {
+            SocketChannel clientChannel = (SocketChannel) key.channel();
+            handleClientChannel(clientChannel);
+        } else if (key.isAcceptable()) {
+            accept(selector, key);
+        }
+    }
+
+    void handleClientChannel(SocketChannel clientChannel) throws IOException {
+        String clientInput = getClientInput(clientChannel);
+        System.out.println(clientInput);
+        if (clientInput == null) {
+            return;
+        }
+        String output = commandExecutor.execute(CommandCreator.newCommand(clientInput));
+        writeClientOutput(clientChannel, output);
     }
 
     private void configureServerSocketChannel(ServerSocketChannel channel, Selector selector) throws IOException {
@@ -105,8 +114,12 @@ public class MusicStreamingServer {
 
         byte[] clientInputBytes = new byte[buffer.remaining()];
         buffer.get(clientInputBytes);
-
-        return new String(clientInputBytes, StandardCharsets.UTF_8);
+        String input =  new String(clientInputBytes, StandardCharsets.UTF_8);
+        if (DISCONNECT.equals(input)) {
+            clientChannel.close();
+            return null;
+        }
+        return input;
     }
 
     private void writeClientOutput(SocketChannel clientChannel, String output) throws IOException {

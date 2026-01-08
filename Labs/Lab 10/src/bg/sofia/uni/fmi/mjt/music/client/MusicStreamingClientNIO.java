@@ -16,45 +16,23 @@ public class MusicStreamingClientNIO {
 
     private final String serverHost;
     private final int serverPort;
-    private static final int BUFFER_SIZE = 512;
+    private static final int BUFFER_SIZE = 4096;
+    private ByteBuffer buffer;
 
     public void start() {
-        ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
+        buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 
-        try (SocketChannel socketChannel = SocketChannel.open();
-             Scanner scanner = new Scanner(System.in)) {
-
+        try (SocketChannel socketChannel = SocketChannel.open()) {
             socketChannel.connect(new InetSocketAddress(serverHost, serverPort));
-
             System.out.println("Connected to the server.");
-
             while (true) {
-                System.out.print("Enter command: ");
-                String message = scanner.nextLine(); // read a line from the console
-
-                if ("disconnect".equals(message)) {
+                String command = getCommandFromInput();
+                sendCommand(socketChannel, command);
+                String response = getServerResponse(socketChannel);
+                handleResponse(response);
+                if ("disconnect".equals(command)) {
                     break;
                 }
-
-                System.out.println("Sending command <" + message + "> to the server...");
-
-                buffer.clear(); // switch to writing mode
-                buffer.put(message.getBytes(StandardCharsets.UTF_8)); // buffer fill
-                buffer.flip(); // switch to reading mode
-                socketChannel.write(buffer); // buffer drain
-
-                buffer.clear(); // switch to writing mode
-                socketChannel.read(buffer); // buffer fill
-                buffer.flip(); // switch to reading mode
-
-                byte[] byteArray = new byte[buffer.remaining()];
-                buffer.get(byteArray);
-                String reply = new String(byteArray, "UTF-8"); // buffer drain
-
-                // if the buffer is a non-direct one, it has a wrapped array and we can get it
-                //String reply = new String(buffer.array(), 0, buffer.position(), "UTF-8"); // buffer drain
-
-                System.out.println("Server responded: " + reply);
             }
 
         } catch (IOException e) {
@@ -62,4 +40,39 @@ public class MusicStreamingClientNIO {
         }
     }
 
+    private String getCommandFromInput() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter command: ");
+        // read a line from the console
+        return scanner.nextLine();
+    }
+
+    private String getServerResponse(SocketChannel serverChannel) throws IOException {
+        buffer.clear();
+        int readBytes = serverChannel.read(buffer);
+        if (readBytes < 0) {
+            //serverChannel.close();
+            return null;
+        }
+        buffer.flip();
+
+        byte[] serverInputBytes = new byte[buffer.remaining()];
+        buffer.get(serverInputBytes);
+
+        return new String(serverInputBytes, StandardCharsets.UTF_8);
+    }
+
+    private void sendCommand(SocketChannel serverChannel, String command) throws IOException {
+        System.out.println("Sending command <" + command + "> to the server...");
+        buffer.clear();
+        buffer.put(command.getBytes(StandardCharsets.UTF_8));
+        buffer.flip();
+        serverChannel.write(buffer);
+    }
+
+    private void handleResponse(String response) {
+        if (response != null) {
+            System.out.println(response);
+        }
+    }
 }

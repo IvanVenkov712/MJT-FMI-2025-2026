@@ -42,7 +42,7 @@ public class JSONResult {
             Object o = iter.next();
             builder.append(String.format("\"%s\",", o));
         }
-        builder.append(String.format("\"%s\"", iter.next()));
+        builder.append(String.format("%s]", iter.next()));
         return builder.toString();
     }
 
