@@ -1,5 +1,6 @@
 package newsfeed;
 
+import com.google.gson.Gson;
 import newsfeed.apikey.ApiKeyProvider;
 import newsfeed.apikey.ApiKeyProviderFromFile;
 import newsfeed.exception.NewsFeedException;
@@ -12,9 +13,12 @@ import java.nio.file.Path;
 
 public class Main {
     static void main() throws NewsFeedException {
+        /*
         ApiKeyProvider provider = new ApiKeyProviderFromFile(Path.of("apikey"));
         NewsFeedSearcher searcher = new NewsFeedSearcher(provider);
         NewsFeedResponse response = searcher.searchArticles("trump", Category.GENERAL, Country.US);
-        System.out.println(response.toJSON());
+        Gson gson = new Gson();
+        System.out.println(gson.toJson(response));
+         */
     }
 }

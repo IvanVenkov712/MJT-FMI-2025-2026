@@ -1,15 +1,5 @@
 package newsfeed.response;
 
-import com.google.gson.Gson;
+import java.util.List;
 
-public record NewsFeedResponse(Status status, String code, String message, int totalResults, Article[] articles) {
-    public static NewsFeedResponse getFromJSON(String json) {
-        Gson gson = new Gson();
-        return gson.fromJson(json, NewsFeedResponse.class);
-    }
-
-    public String toJSON() {
-        Gson gson = new Gson();
-        return gson.toJson(this);
-    }
-}
+public record NewsFeedResponse(Status status, String code, String message, int totalResults, List<Article> articles) { }
