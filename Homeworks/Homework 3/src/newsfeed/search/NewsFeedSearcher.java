@@ -6,7 +6,7 @@ import newsfeed.request.Category;
 import newsfeed.request.Country;
 import newsfeed.request.RequestBuilder;
 import newsfeed.response.NewsFeedResponse;
-import newsfeed.response.STATUS;
+import newsfeed.response.Status;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
@@ -33,7 +33,7 @@ public class NewsFeedSearcher {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        if (responseObj.status() == STATUS.ERROR) {
+        if (responseObj.status() == Status.ERROR) {
             throw new NewsFeedException(responseObj.code());
         }
         return responseObj;

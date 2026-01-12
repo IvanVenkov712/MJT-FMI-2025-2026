@@ -26,7 +26,7 @@ public class RequestBuilder {
         return String.format("%s=%s", name, obj);
     }
 
-    private String getQueryString(Object... pairs) {
+    public String getQueryString(Object... pairs) {
         if (pairs.length == 0) {
             return "";
         }
