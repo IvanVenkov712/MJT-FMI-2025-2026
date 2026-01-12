@@ -7,4 +7,9 @@ public record NewsFeedResponse(STATUS status, String code, String message,  int 
         Gson gson = new Gson();
         return gson.fromJson(json, NewsFeedResponse.class);
     }
+
+    public String toJSON() {
+        Gson gson = new Gson();
+        return gson.toJson(this);
+    }
 }

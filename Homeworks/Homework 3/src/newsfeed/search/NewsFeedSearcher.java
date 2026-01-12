@@ -33,7 +33,7 @@ public class NewsFeedSearcher {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        if (responseObj.status() != STATUS.OK) {
+        if (responseObj.status() == STATUS.ERROR) {
             throw new NewsFeedException(responseObj.code());
         }
         return responseObj;
