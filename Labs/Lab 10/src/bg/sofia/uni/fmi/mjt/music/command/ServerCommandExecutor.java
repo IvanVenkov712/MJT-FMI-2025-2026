@@ -1,10 +1,12 @@
 package bg.sofia.uni.fmi.mjt.music.command;
 
+import bg.sofia.uni.fmi.mjt.music.server.model.SimpleResponse;
 import bg.sofia.uni.fmi.mjt.music.server.repository.PlaylistRepository;
 import bg.sofia.uni.fmi.mjt.music.server.repository.exception.PlaylistAlreadyExistsException;
 import bg.sofia.uni.fmi.mjt.music.server.repository.exception.PlaylistNotFoundException;
 import bg.sofia.uni.fmi.mjt.music.server.repository.exception.SongAlreadyExistsException;
 import bg.sofia.uni.fmi.mjt.music.server.repository.exception.SongNotFoundException;
+import com.google.gson.Gson;
 
 public class ServerCommandExecutor {
 
@@ -14,11 +16,13 @@ public class ServerCommandExecutor {
     private static final String UNLIKE_SONG = "unlike-song";
     private static final String LIST_PLAYLISTS = "list-playlists";
     private static final String GET_PLAYLIST = "get-playlist";
+    private final Gson gson;
 
     private PlaylistRepository repository;
 
     public ServerCommandExecutor(PlaylistRepository repository) {
         this.repository = repository;
+        gson = new Gson();
     }
 
     public String execute(Command cmd) {
@@ -35,14 +39,16 @@ public class ServerCommandExecutor {
 
     private String createPlaylist(String[] args) {
         if (args.length != 1) {
-            return JSONResult.formatAsJSON(Status.ERROR, "Invalid args count!");
+            return gson.toJson(new SimpleResponse(Status.ERROR, "Invalid args count!"));
         }
         String playlistName = args[0];
         try {
             repository.createPlaylist(playlistName);
-            return JSONResult.formatAsJSON(Status.OK, "Playlist %s created successfully.", (Object) args[0]);
+            return gson.toJson(
+                new SimpleResponse(Status.OK, String.format("Playlist %s created successfully.", args[0])));
         } catch (PlaylistAlreadyExistsException e) {
-            return JSONResult.formatAsJSON(Status.ERROR, "Playlist %s already exists.", (Object) args[0]);
+            return gson.toJson(
+                new SimpleResponse(Status.ERROR, String.format("Playlist %s already exists.", (Object) args[0])));
         }
     }
 
