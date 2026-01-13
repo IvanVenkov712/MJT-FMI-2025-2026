@@ -24,21 +24,28 @@ class URIBuilderTest {
     @Test
     void testCreateUriAllParams() {
         builder = new URIBuilder("trump", Category.BUSINESS, Country.US, provider);
-        URI res = builder.createUri();
-        assertEquals(URI.create(ENDPOINT + "?q=trump&country=us&apiKey=myOwnKey&category=business"), res, "Not what was expected");
+        URI res = builder.createUri(20, 1);
+        assertEquals(URI.create(ENDPOINT + "?apiKey=myOwnKey&q=trump&country=us&category=business&pageSize=20&page=1"), res, "Not what was expected");
     }
 
     @Test
     void testCreateUriNoCountry() {
         builder = new URIBuilder("trump", Category.BUSINESS, null, provider);
-        URI res = builder.createUri();
-        assertEquals(URI.create(ENDPOINT + "?q=trump&apiKey=myOwnKey&category=business"), res, "Not what was expected");
+        URI res = builder.createUri(20, 1);
+        assertEquals(URI.create(ENDPOINT + "?apiKey=myOwnKey&q=trump&category=business&pageSize=20&page=1"), res, "Not what was expected");
     }
 
     @Test
     void testCreateUriNoCountryNoCategory() {
         builder = new URIBuilder("trump", null, null, provider);
-        URI res = builder.createUri();
-        assertEquals(URI.create(ENDPOINT + "?q=trump&apiKey=myOwnKey"), res, "Not what was expected");
+        URI res = builder.createUri(20, 1);
+        assertEquals(URI.create(ENDPOINT + "?apiKey=myOwnKey&q=trump&pageSize=20&page=1"), res, "Not what was expected");
+    }
+
+    @Test
+    void testCreateUriAllParamsSpaces() {
+        builder = new URIBuilder("trump putin", Category.BUSINESS, Country.US, provider);
+        URI res = builder.createUri(20, 1);
+        assertEquals(URI.create(ENDPOINT + "?apiKey=myOwnKey&q=trump+putin&country=us&category=business&pageSize=20&page=1"), res, "Not what was expected");
     }
 }
