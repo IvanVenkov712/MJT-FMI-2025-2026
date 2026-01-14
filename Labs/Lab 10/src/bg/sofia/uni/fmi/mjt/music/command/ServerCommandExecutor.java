@@ -54,19 +54,19 @@ public class ServerCommandExecutor {
 
     private String addSong(String[] args) {
         if (args.length != 4) {
-            return JSONResult.formatAsJSON(Status.ERROR, "Incorrect number of args!");
+            return gson.toJson(new SimpleResponse(Status.ERROR, "Invalid args count!"));
         }
         String playlistName = args[0];
         String songTitle = args[1];
         String artistName = args[2];
         int duration = Integer.parseInt(args[3]);
         if (duration <= 0) {
-            return JSONResult.formatAsJSON(Status.ERROR, "Duration must be a positive integer");
+            return gson.toJson(new SimpleResponse(Status.ERROR, "Duration must be a positive integer"));
         }
         try {
             repository.addSong(playlistName, songTitle, artistName, duration);
-            return JSONResult.formatAsJSON(Status.OK, "Song %s by %s added successfully.",
-                songTitle, artistName);
+            return gson.toJson(new SimpleResponse(Status.OK, String.format("Song %s by %s added successfully.",
+                songTitle, artistName)));
         } catch (PlaylistNotFoundException e) {
             return JSONResult.formatAsJSON(Status.ERROR, "Playlist %s does not exist.", playlistName);
         } catch (SongAlreadyExistsException e) {
