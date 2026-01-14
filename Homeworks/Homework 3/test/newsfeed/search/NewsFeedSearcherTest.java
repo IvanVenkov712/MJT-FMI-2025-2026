@@ -119,6 +119,5 @@ class NewsFeedSearcherTest {
         );
 
         assertEquals(expected, responseObjActual, "Not what was expected");
-
     }
 }

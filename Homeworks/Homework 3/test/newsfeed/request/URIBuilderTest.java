@@ -48,4 +48,18 @@ class URIBuilderTest {
         URI res = builder.createUri(20, 1);
         assertEquals(URI.create(ENDPOINT + "?apiKey=myOwnKey&q=trump+putin&country=us&category=business&pageSize=20&page=1"), res, "Not what was expected");
     }
+
+    @Test
+    void testCreateUriEmptyKeywords() {
+        builder = new URIBuilder("   ", Category.BUSINESS, Country.US, provider);
+        assertThrows(IllegalArgumentException.class, () ->  builder.createUri(20, 1), "IllegalArgumentException expected for empty or null keywords");
+    }
+
+    @Test
+    void testCreateUriEmptyApiKey() {
+        ApiKeyProvider newProvider = mock();
+        when(newProvider.getApiKey()).thenReturn("    ");
+        builder = new URIBuilder("trump putin", Category.BUSINESS, Country.US, newProvider);
+        assertThrows(IllegalArgumentException.class, () ->  builder.createUri(20, 1), "IllegalArgumentException expected for empty or null apiKey");
+    }
 }

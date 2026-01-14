@@ -42,7 +42,14 @@ public class URIBuilder {
 
     public URI createUri(int pageSize, int page) {
         Map<String, String> params = new LinkedHashMap<>();
-        params.put(KEY_API_KEY, keyProvider.getApiKey());
+        String key = keyProvider.getApiKey();
+        if (key == null || key.isBlank()) {
+            throw new IllegalArgumentException("non null and non-empty api key is expected");
+        }
+        params.put(KEY_API_KEY, key);
+        if (keywords == null || keywords.isBlank()) {
+            throw new IllegalArgumentException("non null and non-empty keywords is expected");
+        }
         params.put(KEY_KEYWORDS, keywords);
         if (country != null) {
             params.put(KEY_COUNTRY, country.toString());
