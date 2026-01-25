@@ -1,6 +1,12 @@
 package server;
 
 import command.CommandExecutor;
+import command.factory.CommandFactoryImpl;
+import server.authentication.FileUserAuthenticator;
+import server.repository.FileUserRepository;
+import server.repository.UserRepository;
+import server.session.InMemorySessionManager;
+import server.session.SessionManager;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -14,7 +20,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Set;
 
-public class Server {
+public class PasswordVaultServer {
+
+    public static final int DEFAULT_SERVER_PORT = 7777;
 
     private static final int BUFFER_SIZE = 4096;
     private static final String HOST = "localhost";
@@ -25,7 +33,7 @@ public class Server {
     private boolean isServerWorking;
     private Selector selector;
 
-    public Server(int port, CommandExecutor commandExecutor) {
+    public PasswordVaultServer(int port, CommandExecutor commandExecutor) {
         this.port = port;
         this.commandExecutor = commandExecutor;
     }
@@ -47,25 +55,29 @@ public class Server {
                 }
 
                 Set<SelectionKey> selectedKeys = selector.selectedKeys();
-                Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
-
-                while (keyIterator.hasNext()) {
-                    SelectionKey key = keyIterator.next();
-                    keyIterator.remove(); // avoid double-processing
-
-                    if (!key.isValid()) {
-                        continue;
-                    }
-
-                    if (key.isAcceptable()) {
-                        accept(selector, key);
-                    } else if (key.isReadable()) {
-                        handleRead(key);
-                    }
-                }
+                handleSelectedKeys(selectedKeys);
             }
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to start server", e);
+        }
+    }
+
+    void handleSelectedKeys(Set<SelectionKey> selectedKeys) throws IOException {
+        Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
+
+        while (keyIterator.hasNext()) {
+            SelectionKey key = keyIterator.next();
+            keyIterator.remove(); // avoid double-processing
+
+            if (!key.isValid()) {
+                continue;
+            }
+
+            if (key.isAcceptable()) {
+                accept(selector, key);
+            } else if (key.isReadable()) {
+                handleRead(key);
+            }
         }
     }
 
@@ -126,7 +138,7 @@ public class Server {
         String clientInput = new String(clientInputBytes, StandardCharsets.UTF_8);
         System.out.println(clientInput);
 
-        String output = commandExecutor.execute(CommandCreator.newCommand(clientInput));
+        String output = commandExecutor.execute(key, clientInput).message();
         writeClientOutput(clientChannel, output, buffer);
     }
 
@@ -139,4 +151,11 @@ public class Server {
         clientChannel.write(buffer);
     }
 
+    static void main() {
+        UserRepository repository = new FileUserRepository();
+        SessionManager sessionManager = new InMemorySessionManager(new FileUserAuthenticator());
+        CommandExecutor executor = new CommandExecutor(new CommandFactoryImpl(repository, sessionManager));
+        PasswordVaultServer server = new PasswordVaultServer(DEFAULT_SERVER_PORT, executor);
+        server.start();
+    }
 }
