@@ -2,7 +2,10 @@ package command.commands;
 
 import command.Command;
 import command.CommandResult;
-import command.context.CommandContext;
+import command.Status;
+import exception.PasswordVaultException;
+import server.repository.UserRepository;
+import server.session.Session;
 
 public class AddPasswordCommand extends AbstractCommand {
     public static final String COMMAND_STRING = "add-password";
@@ -16,8 +19,8 @@ public class AddPasswordCommand extends AbstractCommand {
     private final String user;
     private final String password;
 
-    public AddPasswordCommand(CommandContext context, String[] args) {
-        super(context);
+    public AddPasswordCommand(UserRepository repository, Session session, String[] args) {
+        super(repository, session);
 
         Command.validateArgs(args, ARGS_COUNT);
         website = args[WEBSITE_INDEX];
@@ -27,6 +30,11 @@ public class AddPasswordCommand extends AbstractCommand {
 
     @Override
     public CommandResult execute() {
-
+        try {
+            getRepository().addPassword(getSession(), website, user, password);
+        } catch (PasswordVaultException e) {
+            return new CommandResult(Status.ERROR, e.getMessage());
+        }
+        return new CommandResult(Status.OK, "Password added successfully");
     }
 }

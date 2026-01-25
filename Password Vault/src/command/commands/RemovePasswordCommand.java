@@ -2,7 +2,10 @@ package command.commands;
 
 import command.Command;
 import command.CommandResult;
-import command.context.CommandContext;
+import command.Status;
+import exception.PasswordVaultException;
+import server.repository.UserRepository;
+import server.session.Session;
 
 public class RemovePasswordCommand extends AbstractCommand {
     public static final String COMMAND_STRING = "remove-password";
@@ -14,8 +17,8 @@ public class RemovePasswordCommand extends AbstractCommand {
     private final String userName;
     private final String website;
 
-    public RemovePasswordCommand(CommandContext context, String[] args) {
-        super(context);
+    public RemovePasswordCommand(UserRepository repository, Session context, String[] args) {
+        super(repository, context);
 
         Command.validateArgs(args, ARGS_COUNT);
         this.userName = args[USER_INDEX];
@@ -24,5 +27,11 @@ public class RemovePasswordCommand extends AbstractCommand {
 
     @Override
     public CommandResult execute() {
+        try {
+            getRepository().removePassword(getSession(), website, userName);
+        } catch (PasswordVaultException e) {
+            return new CommandResult(Status.ERROR, e.getMessage());
+        }
+        return new CommandResult(Status.OK, "Password successfully removed");
     }
 }

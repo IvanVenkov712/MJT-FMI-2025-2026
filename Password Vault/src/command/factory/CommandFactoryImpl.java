@@ -1,0 +1,81 @@
+package command.factory;
+
+import command.Command;
+import command.commands.AddPasswordCommand;
+import command.commands.GeneratePasswordCommand;
+import command.commands.LoginCommand;
+import command.commands.LogoutCommand;
+import command.commands.RegisterCommand;
+import command.commands.RemovePasswordCommand;
+import command.commands.RetrieveCredentialsCommand;
+import server.repository.UserRepository;
+import server.session.Session;
+import server.session.SessionManager;
+
+import java.nio.channels.SelectionKey;
+import java.util.ArrayList;
+import java.util.List;
+
+public class CommandFactoryImpl implements CommandFactory {
+    private final UserRepository repository;
+    private final SessionManager sessionManager;
+
+    public CommandFactoryImpl(UserRepository repository, SessionManager sessionManager) {
+        this.repository = repository;
+        this.sessionManager = sessionManager;
+    }
+
+    public Command newCommand(SelectionKey key, String clientInput) {
+        List<String> tokens = getCommandArguments(clientInput);
+        String[] args = tokens.subList(1, tokens.size()).toArray(new String[0]);
+
+        return newCommand(key, tokens.get(0), args);
+    }
+
+    // straight out of https://stackoverflow.com/a/14656159 with small enhancement
+    private static List<String> getCommandArguments(String input) {
+        List<String> tokens = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+
+        boolean insideQuote = false;
+
+        for (char c : input.toCharArray()) {
+            if (c == '"') {
+                insideQuote = !insideQuote;
+            }
+            if (c == ' ' && !insideQuote) { // when space is not inside quote split
+                tokens.add(sb.toString().replace("\"", "")); // token is ready, let's add it to list
+                sb.delete(0, sb.length()); // and reset StringBuilder`s content
+            } else {
+                sb.append(c); //else add character to token
+            }
+        }
+        // let's not forget about last token that doesn't have space after it
+        tokens.add(sb.toString().replace("\"", ""));
+
+        return tokens;
+    }
+
+    private Command newCommand(SelectionKey selectionKey, String commandName, String[] commandArgs) {
+        Session currSession;
+        if (!sessionManager.sessionExists(selectionKey)) {
+            currSession = new Session(selectionKey, null, false);
+        } else {
+            currSession = sessionManager.getSession(selectionKey);
+        }
+        return switch (commandName) {
+            case LoginCommand.COMMAND_STRING -> new LoginCommand(repository, currSession, commandArgs);
+            case RegisterCommand.COMMAND_STRING -> new RegisterCommand(repository, currSession, commandArgs);
+            case LogoutCommand.COMMAND_STRING -> new LogoutCommand(repository, currSession, commandArgs);
+            case AddPasswordCommand.COMMAND_STRING -> new AddPasswordCommand(repository, currSession, commandArgs);
+            case GeneratePasswordCommand.COMMAND_STRING ->
+                new GeneratePasswordCommand(repository, currSession, commandArgs);
+            case RetrieveCredentialsCommand.COMMAND_STRING ->
+                new RetrieveCredentialsCommand(repository, currSession, commandArgs);
+            case RemovePasswordCommand.COMMAND_STRING ->
+                new RemovePasswordCommand(repository, currSession, commandArgs);
+            case null -> throw new IllegalArgumentException("null command name");
+            default -> throw new IllegalArgumentException("not recognised command name");
+        };
+    }
+}

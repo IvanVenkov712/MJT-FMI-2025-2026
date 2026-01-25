@@ -1,4 +1,4 @@
 package model;
 
-public class User {
+public record User(String userName) {
 }

@@ -2,7 +2,10 @@ package command.commands;
 
 import command.Command;
 import command.CommandResult;
-import command.context.CommandContext;
+import command.Status;
+import exception.PasswordVaultException;
+import server.repository.UserRepository;
+import server.session.Session;
 
 public class RetrieveCredentialsCommand extends AbstractCommand {
     public static final String COMMAND_STRING = "retrieve-credentials";
@@ -14,8 +17,8 @@ public class RetrieveCredentialsCommand extends AbstractCommand {
     private final String userName;
     private final String website;
 
-    public RetrieveCredentialsCommand(CommandContext context, String[] args) {
-        super(context);
+    public RetrieveCredentialsCommand(UserRepository repository, Session context, String[] args) {
+        super(repository, context);
 
         Command.validateArgs(args, ARGS_COUNT);
         this.userName = args[USER_INDEX];
@@ -24,6 +27,12 @@ public class RetrieveCredentialsCommand extends AbstractCommand {
 
     @Override
     public CommandResult execute() {
-
+        String password;
+        try {
+            password = getRepository().retrieveCredentials(getSession(), website, userName);
+        } catch (PasswordVaultException e) {
+            return new CommandResult(Status.ERROR, e.getMessage());
+        }
+        return new CommandResult(Status.OK, password);
     }
 }

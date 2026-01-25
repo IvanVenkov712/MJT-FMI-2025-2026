@@ -1,16 +1,23 @@
 package command.commands;
 
 import command.Command;
-import command.context.CommandContext;
+import server.repository.UserRepository;
+import server.session.Session;
 
 public abstract class AbstractCommand implements Command {
-    private final CommandContext context;
+    private final Session session;
+    private final UserRepository repository;
 
-    public AbstractCommand(CommandContext context) {
-        this.context = context;
+    public AbstractCommand(UserRepository repository, Session session) {
+        this.session = session;
+        this.repository = repository;
     }
 
-    protected CommandContext getContext() {
-        return context;
+    protected Session getSession() {
+        return session;
+    }
+
+    protected UserRepository getRepository() {
+        return repository;
     }
 }

@@ -2,7 +2,10 @@ package command.commands;
 
 import command.Command;
 import command.CommandResult;
-import command.context.CommandContext;
+import command.Status;
+import exception.PasswordVaultException;
+import server.repository.UserRepository;
+import server.session.Session;
 
 public class LoginCommand extends AbstractCommand {
     public static final String COMMAND_STRING = "login";
@@ -14,8 +17,8 @@ public class LoginCommand extends AbstractCommand {
     private final String user;
     private final String password;
 
-    public LoginCommand(CommandContext context, String[] args) {
-        super(context);
+    public LoginCommand(UserRepository repository, Session context, String[] args) {
+        super(repository, context);
 
         Command.validateArgs(args, ARGS_COUNT);
         user = args[USER_INDEX];
@@ -24,6 +27,11 @@ public class LoginCommand extends AbstractCommand {
 
     @Override
     public CommandResult execute() {
-
+        try {
+            getRepository().loginUser(getSession(), user, password);
+        } catch (PasswordVaultException e) {
+            return new CommandResult(Status.ERROR, e.getMessage());
+        }
+        return new CommandResult(Status.OK, "Login successful");
     }
 }
