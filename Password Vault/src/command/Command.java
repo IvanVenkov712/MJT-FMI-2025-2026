@@ -1,20 +1,40 @@
 package command;
 
+import command.commands.AddPasswordCommand;
+import command.commands.GeneratePasswordCommand;
+import command.commands.LoginCommand;
+import command.commands.LogoutCommand;
+import command.commands.RegisterCommand;
+import command.commands.RemovePasswordCommand;
+import command.commands.RetrieveCredentialsCommand;
+import command.context.CommandContext;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public interface Command {
+
     CommandResult execute();
 
-    static Command of(String commandName, String[] commandArgs) {
-
+    static Command of(CommandContext context, String commandName, String[] commandArgs) {
+        return switch(commandName) {
+            case LoginCommand.COMMAND_STRING -> new LoginCommand(context, commandArgs);
+            case RegisterCommand.COMMAND_STRING -> new RegisterCommand(context, commandArgs);
+            case LogoutCommand.COMMAND_STRING -> new LogoutCommand(context, commandArgs);
+            case AddPasswordCommand.COMMAND_STRING -> new AddPasswordCommand(context, commandArgs);
+            case GeneratePasswordCommand.COMMAND_STRING -> new GeneratePasswordCommand(context, commandArgs);
+            case RetrieveCredentialsCommand.COMMAND_STRING -> new RetrieveCredentialsCommand(context, commandArgs);
+            case RemovePasswordCommand.COMMAND_STRING -> new RemovePasswordCommand(context, commandArgs);
+            case null -> throw new IllegalArgumentException("null command name");
+            default -> throw new IllegalArgumentException("not recognised command name");
+        };
     }
 
-    static Command of(String clientInput) {
+    static Command of(CommandContext context, String clientInput) {
         List<String> tokens = getCommandArguments(clientInput);
         String[] args = tokens.subList(1, tokens.size()).toArray(new String[0]);
 
-        return Command.of(tokens.get(0), args);
+        return Command.of(context, tokens.get(0), args);
     }
 
     // straight out of https://stackoverflow.com/a/14656159 with small enhancement
@@ -41,7 +61,7 @@ public interface Command {
         return tokens;
     }
 
-    public static void validateArgs(String[] commandArgs, int argsCount) {
+    static void validateArgs(String[] commandArgs, int argsCount) {
         if (commandArgs == null) {
             throw new IllegalArgumentException("args is null");
         }

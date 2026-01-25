@@ -24,6 +24,5 @@ public class RemovePasswordCommand extends AbstractCommand {
 
     @Override
     public CommandResult execute() {
-        return null;
     }
 }
