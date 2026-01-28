@@ -1,4 +1,6 @@
 package model;
 
-public record User(String userName) {
+import java.util.Map;
+
+public record User(String userName, String hashedPassword, Map<String, WebsitePair> passwords) {
 }
