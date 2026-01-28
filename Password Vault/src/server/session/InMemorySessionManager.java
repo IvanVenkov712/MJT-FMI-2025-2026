@@ -5,42 +5,52 @@ import exception.UserNotExistsException;
 import exception.UserNotLoggedInException;
 import exception.WrongPasswordException;
 import model.User;
-import server.authentication.UserAuthenticator;
+import password.hash.PasswordHasher;
 
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemorySessionManager implements SessionManager {
     private final Map<SelectionKey, Session> sessions;
-    private final UserAuthenticator authenticator;
+    private final Map<String, User> users;
+    private final PasswordHasher hasher;
 
-    InMemorySessionManager(Map<SelectionKey, Session> sessions, UserAuthenticator authenticator) {
+    InMemorySessionManager(Map<SelectionKey, Session> sessions, Map<String, User> users, PasswordHasher hasher) {
         this.sessions = sessions;
-        this.authenticator = authenticator;
+        this.users = users;
+        this.hasher = hasher;
     }
 
-    public InMemorySessionManager(UserAuthenticator authenticator) {
-        this(new ConcurrentHashMap<>(), authenticator);
+    public InMemorySessionManager(Map<String, User> users, PasswordHasher hasher) {
+        this(new ConcurrentHashMap<>(), users, hasher);
     }
 
     @Override
-    public void loginUser(Session session, String user, String password)
+    public void loginUser(Session session, String userName, String password)
         throws UserNotExistsException, WrongPasswordException, UserAlreadyLoggedException {
-        if (sessions.containsKey(session.channel())) {
+        if (session == null || userName == null || password == null) {
+            throw new IllegalArgumentException("null args are not allowed");
+        }
+        if (sessions.containsKey(session.selectionKey())) {
             throw new UserAlreadyLoggedException("This user has already been logged in!");
         }
-        authenticator.authenticate(user, password);
-        sessions.put(session.channel(), new Session(session.channel(), new User(user), true));
+        if (!users.containsKey(userName)) {
+            throw new UserNotExistsException("This user is not registered!");
+        }
+        User user = users.get(userName);
+        if (!hasher.getHash(password).equals(user.hashedPassword())) {
+            throw new WrongPasswordException("The password you typed was wrong");
+        }
+        sessions.put(session.selectionKey(), new Session(session.selectionKey(), user, true));
     }
 
     @Override
     public void logoutUser(Session session) throws UserNotLoggedInException {
-        if (!sessions.containsKey(session.channel()) || !session.loggedIn()) {
+        if (!sessions.containsKey(session.selectionKey()) || !session.loggedIn()) {
             throw new UserNotLoggedInException("The user is not logged in!");
         }
-        sessions.remove(session.channel());
+        sessions.remove(session.selectionKey());
     }
 
     @Override

@@ -18,7 +18,7 @@ public class LogoutCommand extends AbstractCommand {
     @Override
     public CommandResult execute() {
         try {
-            getRepository().logoutUser(getSession());
+            getRepository().logoutUser(getSelectionKey());
         } catch (PasswordVaultException e) {
             return new CommandResult(Status.ERROR, e.getMessage());
         }

@@ -68,5 +68,6 @@ public class Rijndael implements SymmetricBlockCipher {
 
     private static final int KILOBYTE = 1024;
     private static final int BUFF_SIZE = 8 * KILOBYTE;
-    private static final String ENCRYPTION_ALGORITHM = "AES"; // //  Advanced Encryption Standard
+    public static final String ENCRYPTION_ALGORITHM = "AES"; // //  Advanced Encryption Standard
+
 }

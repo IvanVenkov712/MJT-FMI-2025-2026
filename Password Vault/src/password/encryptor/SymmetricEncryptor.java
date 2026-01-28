@@ -1,7 +1,7 @@
 package password.encryptor;
 
 public interface SymmetricEncryptor {
-    byte[] encrypt(String password);
+    String encrypt(String password);
 
-    String decrypt(byte[] encryptedPassword);
+    String decrypt(String encryptedPassword);
 }

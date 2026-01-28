@@ -28,7 +28,7 @@ public class RemovePasswordCommand extends AbstractCommand {
     @Override
     public CommandResult execute() {
         try {
-            getRepository().removePassword(getSession(), website, userName);
+            getRepository().removePassword(getSelectionKey(), website, userName);
         } catch (PasswordVaultException e) {
             return new CommandResult(Status.ERROR, e.getMessage());
         }

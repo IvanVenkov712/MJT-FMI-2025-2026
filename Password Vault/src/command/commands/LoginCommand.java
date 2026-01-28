@@ -28,7 +28,7 @@ public class LoginCommand extends AbstractCommand {
     @Override
     public CommandResult execute() {
         try {
-            getRepository().loginUser(getSession(), user, password);
+            getRepository().loginUser(getSelectionKey(), user, password);
         } catch (PasswordVaultException e) {
             return new CommandResult(Status.ERROR, e.getMessage());
         }

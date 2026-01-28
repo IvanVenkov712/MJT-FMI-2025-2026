@@ -18,11 +18,9 @@ import java.util.List;
 
 public class CommandFactoryImpl implements CommandFactory {
     private final UserRepository repository;
-    private final SessionManager sessionManager;
 
-    public CommandFactoryImpl(UserRepository repository, SessionManager sessionManager) {
+    public CommandFactoryImpl(UserRepository repository) {
         this.repository = repository;
-        this.sessionManager = sessionManager;
     }
 
     public Command newCommand(SelectionKey key, String clientInput) {
@@ -57,23 +55,18 @@ public class CommandFactoryImpl implements CommandFactory {
     }
 
     private Command newCommand(SelectionKey selectionKey, String commandName, String[] commandArgs) {
-        Session currSession;
-        if (!sessionManager.sessionExists(selectionKey)) {
-            currSession = new Session(selectionKey, null, false);
-        } else {
-            currSession = sessionManager.getSession(selectionKey);
-        }
+
         return switch (commandName) {
-            case LoginCommand.COMMAND_STRING -> new LoginCommand(repository, currSession, commandArgs);
-            case RegisterCommand.COMMAND_STRING -> new RegisterCommand(repository, currSession, commandArgs);
-            case LogoutCommand.COMMAND_STRING -> new LogoutCommand(repository, currSession, commandArgs);
-            case AddPasswordCommand.COMMAND_STRING -> new AddPasswordCommand(repository, currSession, commandArgs);
+            case LoginCommand.COMMAND_STRING -> new LoginCommand(repository, selectionKey, commandArgs);
+            case RegisterCommand.COMMAND_STRING -> new RegisterCommand(repository, selectionKey, commandArgs);
+            case LogoutCommand.COMMAND_STRING -> new LogoutCommand(repository, selectionKey, commandArgs);
+            case AddPasswordCommand.COMMAND_STRING -> new AddPasswordCommand(repository, selectionKey, commandArgs);
             case GeneratePasswordCommand.COMMAND_STRING ->
-                new GeneratePasswordCommand(repository, currSession, commandArgs);
+                new GeneratePasswordCommand(repository, selectionKey, commandArgs);
             case RetrieveCredentialsCommand.COMMAND_STRING ->
-                new RetrieveCredentialsCommand(repository, currSession, commandArgs);
+                new RetrieveCredentialsCommand(repository, selectionKey, commandArgs);
             case RemovePasswordCommand.COMMAND_STRING ->
-                new RemovePasswordCommand(repository, currSession, commandArgs);
+                new RemovePasswordCommand(repository, selectionKey, commandArgs);
             case null -> throw new IllegalArgumentException("null command name");
             default -> throw new IllegalArgumentException("not recognised command name");
         };

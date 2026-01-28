@@ -29,7 +29,7 @@ public class RetrieveCredentialsCommand extends AbstractCommand {
     public CommandResult execute() {
         String password;
         try {
-            password = getRepository().retrieveCredentials(getSession(), website, userName);
+            password = getRepository().retrieveCredentials(getSelectionKey(), website, userName);
         } catch (PasswordVaultException e) {
             return new CommandResult(Status.ERROR, e.getMessage());
         }

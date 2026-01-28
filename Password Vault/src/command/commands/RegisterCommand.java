@@ -31,7 +31,7 @@ public class RegisterCommand extends AbstractCommand {
     @Override
     public CommandResult execute() {
         try {
-            getRepository().registerUser(getSession(), user, password, repeatPassword);
+            getRepository().registerUser(getSelectionKey(), user, password, repeatPassword);
         } catch (PasswordVaultException e) {
             return new CommandResult(Status.ERROR, e.getMessage());
         }

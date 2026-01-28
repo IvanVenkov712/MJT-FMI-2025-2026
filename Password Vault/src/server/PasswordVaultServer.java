@@ -1,12 +1,6 @@
 package server;
 
 import command.CommandExecutor;
-import command.factory.CommandFactoryImpl;
-import server.authentication.FileUserAuthenticator;
-import server.repository.FileUserRepository;
-import server.repository.UserRepository;
-import server.session.InMemorySessionManager;
-import server.session.SessionManager;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -152,10 +146,10 @@ public class PasswordVaultServer {
     }
 
     static void main() {
-        UserRepository repository = new FileUserRepository();
-        SessionManager sessionManager = new InMemorySessionManager(new FileUserAuthenticator());
-        CommandExecutor executor = new CommandExecutor(new CommandFactoryImpl(repository, sessionManager));
-        PasswordVaultServer server = new PasswordVaultServer(DEFAULT_SERVER_PORT, executor);
-        server.start();
+        // UserRepository repository = new FileUserRepository();
+        // SessionManager sessionManager = new InMemorySessionManager(new FileUserAuthenticator());
+        // CommandExecutor executor = new CommandExecutor(new CommandFactoryImpl(repository, sessionManager));
+        // PasswordVaultServer server = new PasswordVaultServer(DEFAULT_SERVER_PORT, executor);
+        // server.start();
     }
 }
