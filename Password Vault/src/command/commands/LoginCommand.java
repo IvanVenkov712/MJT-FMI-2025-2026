@@ -5,7 +5,8 @@ import command.CommandResult;
 import command.Status;
 import exception.PasswordVaultException;
 import server.repository.UserRepository;
-import server.session.Session;
+
+import java.nio.channels.SelectionKey;
 
 public class LoginCommand extends AbstractCommand {
     public static final String COMMAND_STRING = "login";
@@ -17,8 +18,8 @@ public class LoginCommand extends AbstractCommand {
     private final String user;
     private final String password;
 
-    public LoginCommand(UserRepository repository, Session context, String[] args) {
-        super(repository, context);
+    public LoginCommand(UserRepository repository, SelectionKey key, String[] args) {
+        super(repository, key);
 
         Command.validateArgs(args, ARGS_COUNT);
         user = args[USER_INDEX];

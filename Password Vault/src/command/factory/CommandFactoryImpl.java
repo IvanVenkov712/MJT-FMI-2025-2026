@@ -9,8 +9,6 @@ import command.commands.RegisterCommand;
 import command.commands.RemovePasswordCommand;
 import command.commands.RetrieveCredentialsCommand;
 import server.repository.UserRepository;
-import server.session.Session;
-import server.session.SessionManager;
 
 import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
@@ -23,11 +21,17 @@ public class CommandFactoryImpl implements CommandFactory {
         this.repository = repository;
     }
 
+    @Override
     public Command newCommand(SelectionKey key, String clientInput) {
         List<String> tokens = getCommandArguments(clientInput);
         String[] args = tokens.subList(1, tokens.size()).toArray(new String[0]);
 
         return newCommand(key, tokens.get(0), args);
+    }
+
+    @Override
+    public UserRepository getRepository() {
+        return repository;
     }
 
     // straight out of https://stackoverflow.com/a/14656159 with small enhancement

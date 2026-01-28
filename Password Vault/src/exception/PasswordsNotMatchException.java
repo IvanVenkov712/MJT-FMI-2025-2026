@@ -1,6 +1,6 @@
 package exception;
 
-public class PasswordsNotMatchException extends Exception {
+public class PasswordsNotMatchException extends PasswordVaultException {
     public PasswordsNotMatchException(String message) {
         super(message);
     }

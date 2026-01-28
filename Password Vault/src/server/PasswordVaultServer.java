@@ -1,6 +1,9 @@
 package server;
 
 import command.CommandExecutor;
+import command.factory.CommandFactoryImpl;
+import server.repository.FileUserRepository;
+import server.repository.UserRepository;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -80,6 +83,7 @@ public class PasswordVaultServer {
         if (selector != null && selector.isOpen()) {
             selector.wakeup();
         }
+        commandExecutor.getRepository().saveChanges();
     }
 
     private void configureServerSocketChannel(ServerSocketChannel channel, Selector selector) throws IOException {
@@ -146,10 +150,9 @@ public class PasswordVaultServer {
     }
 
     static void main() {
-        // UserRepository repository = new FileUserRepository();
-        // SessionManager sessionManager = new InMemorySessionManager(new FileUserAuthenticator());
-        // CommandExecutor executor = new CommandExecutor(new CommandFactoryImpl(repository, sessionManager));
-        // PasswordVaultServer server = new PasswordVaultServer(DEFAULT_SERVER_PORT, executor);
-        // server.start();
+        UserRepository repository = new FileUserRepository();
+        CommandExecutor executor = new CommandExecutor(new CommandFactoryImpl(repository));
+        PasswordVaultServer server = new PasswordVaultServer(DEFAULT_SERVER_PORT, executor);
+        server.start();
     }
 }

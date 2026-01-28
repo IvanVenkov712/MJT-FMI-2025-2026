@@ -5,7 +5,8 @@ import command.CommandResult;
 import command.Status;
 import exception.PasswordVaultException;
 import server.repository.UserRepository;
-import server.session.Session;
+
+import java.nio.channels.SelectionKey;
 
 public class RegisterCommand extends AbstractCommand {
     public static final String COMMAND_STRING = "register";
@@ -19,8 +20,8 @@ public class RegisterCommand extends AbstractCommand {
     private final String password;
     private final String repeatPassword;
 
-    public RegisterCommand(UserRepository repository, Session context, String[] args) {
-        super(repository, context);
+    public RegisterCommand(UserRepository repository, SelectionKey key, String[] args) {
+        super(repository, key);
 
         Command.validateArgs(args, ARGS_NUM);
         user = args[USER_INDEX];

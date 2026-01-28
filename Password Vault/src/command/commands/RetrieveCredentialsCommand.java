@@ -5,7 +5,8 @@ import command.CommandResult;
 import command.Status;
 import exception.PasswordVaultException;
 import server.repository.UserRepository;
-import server.session.Session;
+
+import java.nio.channels.SelectionKey;
 
 public class RetrieveCredentialsCommand extends AbstractCommand {
     public static final String COMMAND_STRING = "retrieve-credentials";
@@ -17,8 +18,8 @@ public class RetrieveCredentialsCommand extends AbstractCommand {
     private final String userName;
     private final String website;
 
-    public RetrieveCredentialsCommand(UserRepository repository, Session context, String[] args) {
-        super(repository, context);
+    public RetrieveCredentialsCommand(UserRepository repository, SelectionKey key, String[] args) {
+        super(repository, key);
 
         Command.validateArgs(args, ARGS_COUNT);
         this.userName = args[USER_INDEX];

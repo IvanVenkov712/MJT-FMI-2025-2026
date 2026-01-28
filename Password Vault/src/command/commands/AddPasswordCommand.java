@@ -5,7 +5,6 @@ import command.CommandResult;
 import command.Status;
 import exception.PasswordVaultException;
 import server.repository.UserRepository;
-import server.session.Session;
 
 import java.nio.channels.SelectionKey;
 
