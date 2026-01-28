@@ -1,21 +1,33 @@
 package password.checker.api;
 
+import com.google.gson.Gson;
 import password.checker.PasswordChecker;
+import password.checker.api.model.response.PasswordApiResponseBody;
+import password.hash.SHA256PasswordHasher;
 
 import java.io.IOException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class APIPasswordChecker implements PasswordChecker {
     private static final String API_KEY_PATH = "ApiKey";
     private static final String API_SECRET_PATH = "ApiSecret";
+    private static final int STATUS_NOT_FOUND = 404;
 
     private final String apiKey;
     private final String apiSecret;
+    private final PasswordsApiRequestBuilder requestBuilder;
+    private final HttpClient client;
 
-    public APIPasswordChecker(String apiKey, String apiSecret) {
+    public APIPasswordChecker(String apiKey, String apiSecret, PasswordsApiRequestBuilder requestBuilder,
+                              HttpClient client) {
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
+        this.requestBuilder = requestBuilder;
+        this.client = client;
     }
 
     public APIPasswordChecker(Path apiKeyPath, Path apiSecretPath) {
@@ -27,7 +39,7 @@ public class APIPasswordChecker implements PasswordChecker {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        this(apiKey, apiSecret);
+        this(apiKey, apiSecret, new PasswordsApiRequestBuilder(apiKey, apiSecret), HttpClient.newHttpClient());
     }
 
     public APIPasswordChecker() {
@@ -36,7 +48,19 @@ public class APIPasswordChecker implements PasswordChecker {
 
     @Override
     public boolean isPasswordSecure(String password) {
-        // TODO: Implement this method
-        return true;
+        HttpRequest request = requestBuilder.getRequest(password);
+        HttpResponse<String> response;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (Exception e) {
+            throw new RuntimeException("Something went wrong with the api", e);
+        }
+        if (response.statusCode() == STATUS_NOT_FOUND) {
+            return true;
+        }
+        String passwordHash = new SHA256PasswordHasher().getHash(password);
+        PasswordApiResponseBody body = new Gson().fromJson(response.body(), PasswordApiResponseBody.class);
+        return body.candidates().stream()
+            .anyMatch(c -> c.sha256().equals(passwordHash) && c.revealedInExposure());
     }
 }
