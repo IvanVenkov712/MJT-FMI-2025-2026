@@ -33,8 +33,12 @@ public class SymmetricEncryptorImpl implements SymmetricEncryptor {
     public SymmetricEncryptorImpl() {
         SecretKey key;
         try {
-            key = generateSecretKey();
-            persistSecretKey(key);
+            if (Files.exists(Path.of(KEY_FILE_PATH))) {
+                key = loadSecretKey();
+            } else {
+                key = generateSecretKey();
+                persistSecretKey(key);
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
