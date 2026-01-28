@@ -47,12 +47,12 @@ public class SymmetricEncryptorImpl implements SymmetricEncryptor {
     }
 
     @Override
-    public String encrypt(String password) {
+    public byte[] encrypt(String password) {
         try (var input = new ByteArrayInputStream(password.getBytes(ENCODING));
              var output = new ByteArrayOutputStream()) {
 
             cipher.encrypt(input, output);
-            return output.toString(ENCODING);
+            return output.toByteArray();
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -60,11 +60,11 @@ public class SymmetricEncryptorImpl implements SymmetricEncryptor {
     }
 
     @Override
-    public String decrypt(String encryptedPassword) {
+    public String decrypt(byte[] encryptedPassword) {
         if (encryptedPassword == null) {
             throw new IllegalArgumentException("encryptedPassword is null");
         }
-        try (var input = new ByteArrayInputStream(encryptedPassword.getBytes());
+        try (var input = new ByteArrayInputStream(encryptedPassword);
              var output = new ByteArrayOutputStream()) {
 
             cipher.decrypt(input, output);

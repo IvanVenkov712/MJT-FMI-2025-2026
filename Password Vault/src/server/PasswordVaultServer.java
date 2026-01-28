@@ -135,7 +135,6 @@ public class PasswordVaultServer {
 
         String clientInput = new String(clientInputBytes, StandardCharsets.UTF_8);
         System.out.println(clientInput);
-
         String output = commandExecutor.execute(key, clientInput).message();
         writeClientOutput(clientChannel, output, buffer);
     }

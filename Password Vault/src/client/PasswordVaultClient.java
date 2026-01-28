@@ -12,7 +12,7 @@ public class PasswordVaultClient {
 
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_HOST = "localhost";
-    private static final int BUFFER_SIZE = 512;
+    private static final int BUFFER_SIZE = 4096;
 
     static ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 
@@ -41,8 +41,6 @@ public class PasswordVaultClient {
     }
 
     private static void proceedCommand(SocketChannel socketChannel, String message) throws IOException {
-        System.out.println("Sending message <" + message + "> to the server...");
-
         buffer.clear(); // switch to writing mode
         buffer.put(message.getBytes(StandardCharsets.UTF_8)); // buffer fill
         buffer.flip(); // switch to reading mode
@@ -59,6 +57,6 @@ public class PasswordVaultClient {
         // if the buffer is a non-direct one, it has a wrapped array and we can get it
         //String reply = new String(buffer.array(), 0, buffer.position(), "UTF-8"); // buffer drain
 
-        System.out.println("The server replied <" + reply + ">");
+        System.out.println("Response: " + reply);
     }
 }

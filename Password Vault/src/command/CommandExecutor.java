@@ -13,7 +13,11 @@ public class CommandExecutor {
     }
 
     public CommandResult execute(SelectionKey key, String clientInput) {
-        return factory.newCommand(key, clientInput).execute();
+        try {
+            return factory.newCommand(key, clientInput).execute();
+        } catch (Exception e) {
+            return new CommandResult(Status.ERROR, e.getMessage());
+        }
     }
 
     public UserRepository getRepository() {

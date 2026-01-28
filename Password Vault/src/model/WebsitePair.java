@@ -1,4 +1,7 @@
 package model;
 
-public record WebsitePair(String userName, String encryptedPassword) {
+import java.io.Serial;
+import java.io.Serializable;
+
+public record WebsitePair(@Serial String userName, @Serial byte[] encryptedPassword) implements Serializable {
 }

@@ -55,6 +55,9 @@ public abstract class AbstractUserRepository implements UserRepository {
         }
         String hashedPassword = hasher.getHash(password);
         users.put(user, new User(user, hashedPassword, new ConcurrentHashMap<>()));
+
+        // May be removed
+        saveChanges();
     }
 
     @Override
@@ -106,6 +109,8 @@ public abstract class AbstractUserRepository implements UserRepository {
             throw new WebsiteAlreadyExists("You already have a password for this website.");
         }
         user.passwords().put(website, new WebsitePair(userName, encryptor.encrypt(password)));
+        //May be removed
+        saveChanges();
     }
 
     @Override
@@ -113,6 +118,8 @@ public abstract class AbstractUserRepository implements UserRepository {
         throws UserNotLoggedInException, WebsiteAlreadyExists, PasswordNotSecureException {
         String generatedPassword = PasswordGenerator.generatePassword();
         addPassword(selectionKey, website, userName, "aa");
+        // May be removed
+        saveChanges();
         return generatedPassword;
     }
 
@@ -154,6 +161,9 @@ public abstract class AbstractUserRepository implements UserRepository {
             throw new CredentialsNotExistException("The username you provided does not match actual user name");
         }
         user.passwords().remove(website);
+
+        // May be removed
+        saveChanges();
     }
 
     private boolean isUserLoggedIn(SelectionKey selectionKey) {

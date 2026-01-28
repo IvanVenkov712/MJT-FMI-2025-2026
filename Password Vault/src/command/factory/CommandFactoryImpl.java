@@ -1,6 +1,8 @@
 package command.factory;
 
 import command.Command;
+import command.CommandResult;
+import command.Status;
 import command.commands.AddPasswordCommand;
 import command.commands.GeneratePasswordCommand;
 import command.commands.LoginCommand;
@@ -71,8 +73,8 @@ public class CommandFactoryImpl implements CommandFactory {
                 new RetrieveCredentialsCommand(repository, selectionKey, commandArgs);
             case RemovePasswordCommand.COMMAND_STRING ->
                 new RemovePasswordCommand(repository, selectionKey, commandArgs);
-            case null -> throw new IllegalArgumentException("null command name");
-            default -> throw new IllegalArgumentException("not recognised command name");
+            case null -> () -> new CommandResult(Status.ERROR, "null command name");
+            default -> () -> new CommandResult(Status.ERROR, "Not recognised command");
         };
     }
 }

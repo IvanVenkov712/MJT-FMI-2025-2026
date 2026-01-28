@@ -36,6 +36,7 @@ public class APIPasswordChecker implements PasswordChecker {
 
     @Override
     public boolean isPasswordSecure(String password) {
-
+        // TODO: Implement this method
+        return true;
     }
 }
