@@ -3,6 +3,7 @@ package command.commands;
 import command.Command;
 import command.CommandResult;
 import command.Status;
+import exception.ArgumentCountMismatchException;
 import exception.PasswordVaultException;
 import server.repository.UserRepository;
 
@@ -18,7 +19,8 @@ public class RemovePasswordCommand extends AbstractCommand {
     private final String userName;
     private final String website;
 
-    public RemovePasswordCommand(UserRepository repository, SelectionKey key, String[] args) {
+    public RemovePasswordCommand(UserRepository repository, SelectionKey key, String[] args)
+        throws ArgumentCountMismatchException {
         super(repository, key);
 
         Command.validateArgs(args, ARGS_COUNT);
@@ -27,12 +29,8 @@ public class RemovePasswordCommand extends AbstractCommand {
     }
 
     @Override
-    public CommandResult execute() {
-        try {
-            getRepository().removePassword(getSelectionKey(), website, userName);
-        } catch (PasswordVaultException e) {
-            return new CommandResult(Status.ERROR, e.getMessage());
-        }
+    public CommandResult execute() throws PasswordVaultException {
+        getRepository().removePassword(getSelectionKey(), website, userName);
         return new CommandResult(Status.OK, "Password successfully removed");
     }
 }

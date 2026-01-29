@@ -52,10 +52,13 @@ public class PasswordsApiRequestBuilder {
     public HttpRequest getRequest(String password) {
         String passwordHash = new SHA256PasswordHasher().getHash(password).substring(0, HASH_SYMBOLS_COUNT);
         PasswordApiRequestBody requestBody = new PasswordApiRequestBody(passwordHash);
+        String toJson = gson.toJson(requestBody);
 
         return HttpRequest.newBuilder(URI.create(ENDPOINT))
             .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(requestBody)))
             .header(AUTHORIZATION_HEADER, authorizationHeaderString)
+            .header(CONTENT_TYPE_HEADER_NAME, CONTENT_TYPE_HEADER_VALUE)
+            .header(ACCEPT_HEADER_NAME, ACCEPT_HEADER_VALUE)
             .build();
     }
 }

@@ -117,7 +117,7 @@ public abstract class AbstractUserRepository implements UserRepository {
     public String generatePassword(SelectionKey selectionKey, String website, String userName)
         throws UserNotLoggedInException, WebsiteAlreadyExists, PasswordNotSecureException {
         String generatedPassword = PasswordGenerator.generatePassword();
-        addPassword(selectionKey, website, userName, "aa");
+        addPassword(selectionKey, website, userName, generatedPassword);
         // May be removed
         saveChanges();
         return generatedPassword;

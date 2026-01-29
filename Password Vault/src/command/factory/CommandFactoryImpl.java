@@ -10,6 +10,7 @@ import command.commands.LogoutCommand;
 import command.commands.RegisterCommand;
 import command.commands.RemovePasswordCommand;
 import command.commands.RetrieveCredentialsCommand;
+import exception.ArgumentCountMismatchException;
 import server.repository.UserRepository;
 
 import java.nio.channels.SelectionKey;
@@ -24,7 +25,7 @@ public class CommandFactoryImpl implements CommandFactory {
     }
 
     @Override
-    public Command newCommand(SelectionKey key, String clientInput) {
+    public Command newCommand(SelectionKey key, String clientInput) throws ArgumentCountMismatchException {
         List<String> tokens = getCommandArguments(clientInput);
         String[] args = tokens.subList(1, tokens.size()).toArray(new String[0]);
 
@@ -60,7 +61,8 @@ public class CommandFactoryImpl implements CommandFactory {
         return tokens;
     }
 
-    private Command newCommand(SelectionKey selectionKey, String commandName, String[] commandArgs) {
+    private Command newCommand(SelectionKey selectionKey, String commandName, String[] commandArgs)
+        throws ArgumentCountMismatchException {
 
         return switch (commandName) {
             case LoginCommand.COMMAND_STRING -> new LoginCommand(repository, selectionKey, commandArgs);

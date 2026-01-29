@@ -3,6 +3,7 @@ package command.commands;
 import command.Command;
 import command.CommandResult;
 import command.Status;
+import exception.ArgumentCountMismatchException;
 import exception.PasswordVaultException;
 import server.repository.UserRepository;
 
@@ -18,7 +19,8 @@ public class RetrieveCredentialsCommand extends AbstractCommand {
     private final String userName;
     private final String website;
 
-    public RetrieveCredentialsCommand(UserRepository repository, SelectionKey key, String[] args) {
+    public RetrieveCredentialsCommand(UserRepository repository, SelectionKey key, String[] args)
+        throws ArgumentCountMismatchException {
         super(repository, key);
 
         Command.validateArgs(args, ARGS_COUNT);
@@ -27,13 +29,9 @@ public class RetrieveCredentialsCommand extends AbstractCommand {
     }
 
     @Override
-    public CommandResult execute() {
+    public CommandResult execute() throws PasswordVaultException {
         String password;
-        try {
-            password = getRepository().retrieveCredentials(getSelectionKey(), website, userName);
-        } catch (PasswordVaultException e) {
-            return new CommandResult(Status.ERROR, e.getMessage());
-        }
+        password = getRepository().retrieveCredentials(getSelectionKey(), website, userName);
         return new CommandResult(Status.OK, password);
     }
 }

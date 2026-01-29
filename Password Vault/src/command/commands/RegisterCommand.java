@@ -3,6 +3,7 @@ package command.commands;
 import command.Command;
 import command.CommandResult;
 import command.Status;
+import exception.ArgumentCountMismatchException;
 import exception.PasswordVaultException;
 import server.repository.UserRepository;
 
@@ -20,7 +21,8 @@ public class RegisterCommand extends AbstractCommand {
     private final String password;
     private final String repeatPassword;
 
-    public RegisterCommand(UserRepository repository, SelectionKey key, String[] args) {
+    public RegisterCommand(UserRepository repository, SelectionKey key, String[] args)
+        throws ArgumentCountMismatchException {
         super(repository, key);
 
         Command.validateArgs(args, ARGS_NUM);
@@ -30,12 +32,8 @@ public class RegisterCommand extends AbstractCommand {
     }
 
     @Override
-    public CommandResult execute() {
-        try {
-            getRepository().registerUser(getSelectionKey(), user, password, repeatPassword);
-        } catch (PasswordVaultException e) {
-            return new CommandResult(Status.ERROR, e.getMessage());
-        }
+    public CommandResult execute() throws PasswordVaultException {
+        getRepository().registerUser(getSelectionKey(), user, password, repeatPassword);
         return new CommandResult(Status.OK, "Registration successful!");
     }
 }

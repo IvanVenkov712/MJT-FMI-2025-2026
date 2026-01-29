@@ -1,7 +1,9 @@
 package command.commands;
 
+import command.Command;
 import command.CommandResult;
 import command.Status;
+import exception.ArgumentCountMismatchException;
 import exception.PasswordVaultException;
 import server.repository.UserRepository;
 
@@ -12,17 +14,15 @@ public class LogoutCommand extends AbstractCommand {
 
     private static final int ARGS_COUNT = 0;
 
-    public LogoutCommand(UserRepository repository, SelectionKey key, String[] args) {
+    public LogoutCommand(UserRepository repository, SelectionKey key, String[] args)
+        throws ArgumentCountMismatchException {
         super(repository, key);
+        Command.validateArgs(args, ARGS_COUNT);
     }
 
     @Override
-    public CommandResult execute() {
-        try {
-            getRepository().logoutUser(getSelectionKey());
-        } catch (PasswordVaultException e) {
-            return new CommandResult(Status.ERROR, e.getMessage());
-        }
+    public CommandResult execute() throws PasswordVaultException {
+        getRepository().logoutUser(getSelectionKey());
         return new CommandResult(Status.OK, "Logout successful");
     }
 }

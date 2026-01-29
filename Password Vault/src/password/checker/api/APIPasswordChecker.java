@@ -17,15 +17,11 @@ public class APIPasswordChecker implements PasswordChecker {
     private static final String API_SECRET_PATH = "ApiSecret";
     private static final int STATUS_NOT_FOUND = 404;
 
-    private final String apiKey;
-    private final String apiSecret;
     private final PasswordsApiRequestBuilder requestBuilder;
     private final HttpClient client;
 
-    public APIPasswordChecker(String apiKey, String apiSecret, PasswordsApiRequestBuilder requestBuilder,
+    public APIPasswordChecker(PasswordsApiRequestBuilder requestBuilder,
                               HttpClient client) {
-        this.apiKey = apiKey;
-        this.apiSecret = apiSecret;
         this.requestBuilder = requestBuilder;
         this.client = client;
     }
@@ -39,7 +35,7 @@ public class APIPasswordChecker implements PasswordChecker {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        this(apiKey, apiSecret, new PasswordsApiRequestBuilder(apiKey, apiSecret), HttpClient.newHttpClient());
+        this(new PasswordsApiRequestBuilder(apiKey, apiSecret), HttpClient.newHttpClient());
     }
 
     public APIPasswordChecker() {
@@ -61,6 +57,6 @@ public class APIPasswordChecker implements PasswordChecker {
         String passwordHash = new SHA256PasswordHasher().getHash(password);
         PasswordApiResponseBody body = new Gson().fromJson(response.body(), PasswordApiResponseBody.class);
         return body.candidates().stream()
-            .anyMatch(c -> c.sha256().equals(passwordHash) && c.revealedInExposure());
+            .noneMatch(c -> c.sha256().equals(passwordHash) && c.revealedInExposure());
     }
 }
