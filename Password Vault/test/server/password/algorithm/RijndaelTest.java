@@ -1,6 +1,7 @@
 package server.password.algorithm;
 
 import org.junit.jupiter.api.Test;
+import server.password.encryptor.algorithm.Rijndael;
 
 import javax.crypto.SecretKey;
 import java.io.ByteArrayInputStream;

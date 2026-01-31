@@ -11,7 +11,7 @@ import server.password.generator.PasswordGenerator;
 import server.password.generator.PasswordGeneratorImpl;
 import server.password.hash.PasswordHasher;
 import server.password.hash.SHA256PasswordHasher;
-import server.session.Session;
+import server.model.Session;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;

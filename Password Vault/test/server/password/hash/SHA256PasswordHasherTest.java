@@ -32,30 +32,17 @@ class SHA256PasswordHasherTest {
         String hash = hasher.getHash(emptyPassword);
 
         assertNotNull(hash, "Hash should not be null");
-        assertEquals("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", hash);
-    }
-
-
-    @Test
-    void testGetHashCaseSensitive() {
-        String password1 = "Password";
-        String password2 = "password";
-
-        String hash1 = hasher.getHash(password1);
-        String hash2 = hasher.getHash(password2);
-
-        assertNotEquals(hash1, hash2, "Hashing should be case sensitive");
+        assertEquals("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", hash, "Not correct hash for empty");
     }
 
     @Test
-    void testGetHashSimilarPasswordsDifferentHashes() {
-        String password1 = "Pass";
-        String password2 = "Pass ";
+    void testGetHashNonEmptyPasswordReturnsValidHash() {
+        String emptyPassword = "MyPass";
 
-        String hash1 = hasher.getHash(password1);
-        String hash2 = hasher.getHash(password2);
+        String hash = hasher.getHash(emptyPassword);
 
-        assertNotEquals(hash1, hash2, "Similar passwords with different lengths should have different hashes");
+        assertNotNull(hash, "Hash should not be null");
+        assertEquals("7c0b46b25fb11caa0ae435e8c14fa400a062bc37443ba996dbb84479e6ce40cd", hash, "Not correct hash for non-empty");
     }
 
     @Test

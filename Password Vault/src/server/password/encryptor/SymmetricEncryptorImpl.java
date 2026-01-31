@@ -1,7 +1,7 @@
 package server.password.encryptor;
 
-import server.password.algorithm.Rijndael;
-import server.password.algorithm.SymmetricBlockCipher;
+import server.password.encryptor.algorithm.Rijndael;
+import server.password.encryptor.algorithm.SymmetricBlockCipher;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -16,7 +16,7 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
-import static server.password.algorithm.Rijndael.ENCRYPTION_ALGORITHM;
+import static server.password.encryptor.algorithm.Rijndael.ENCRYPTION_ALGORITHM;
 
 public class SymmetricEncryptorImpl implements SymmetricEncryptor {
 

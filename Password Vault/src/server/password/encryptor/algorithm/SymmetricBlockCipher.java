@@ -1,4 +1,4 @@
-package server.password.algorithm;
+package server.password.encryptor.algorithm;
 
 import exception.CipherException;
 

@@ -16,7 +16,7 @@ import server.password.checker.PasswordChecker;
 import server.password.encryptor.SymmetricEncryptor;
 import server.password.generator.PasswordGenerator;
 import server.password.hash.PasswordHasher;
-import server.session.Session;
+import server.model.Session;
 
 import java.nio.channels.SelectionKey;
 import java.util.Map;

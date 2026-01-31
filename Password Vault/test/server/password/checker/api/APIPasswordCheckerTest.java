@@ -39,7 +39,7 @@ class APIPasswordCheckerTest {
     }
 
     @Test
-    void testIsPasswordSecureReturns404ShouldReturnTrue() throws IOException, InterruptedException {
+    void testIsPasswordSecureReturns404() throws IOException, InterruptedException {
         String password = "TestPassword123!";
 
         setupMockResponse(404, null);
@@ -51,7 +51,7 @@ class APIPasswordCheckerTest {
     }
 
     @Test
-    void testIsPasswordSecurePasswordNotInExposureShouldReturnTrue() throws IOException, InterruptedException {
+    void testIsPasswordSecurePasswordNotInExposure() throws IOException, InterruptedException {
         String password = "SecurePassword456!";
 
         List<Candidate> candidates = List.of(
@@ -70,7 +70,7 @@ class APIPasswordCheckerTest {
     }
 
     @Test
-    void testIsPasswordSecurePasswordExposedAndRevealedShouldReturnFalse() throws IOException, InterruptedException {
+    void testIsPasswordSecurePasswordExposedAndRevealed() throws IOException, InterruptedException {
         String password = "ExposedPassword789!";
         String passwordHash = new SHA256PasswordHasher().getHash(password);
 
@@ -90,7 +90,7 @@ class APIPasswordCheckerTest {
     }
 
     @Test
-    void testIsPasswordSecurePasswordExposedButNotRevealedShouldReturnTrue() throws IOException, InterruptedException {
+    void testIsPasswordSecurePasswordExposedButNotRevealed() throws IOException, InterruptedException {
         String password = "HiddenExposedPassword!";
         String passwordHash = new SHA256PasswordHasher().getHash(password);
 
@@ -110,7 +110,7 @@ class APIPasswordCheckerTest {
     }
 
     @Test
-    void testIsPasswordSecureMultipleExposedCandidatesShouldReturnFalseOnMatch() throws IOException, InterruptedException {
+    void testIsPasswordSecureMultipleExposedCandidates() throws IOException, InterruptedException {
         String password = "CommonPassword123!";
         String passwordHash = new SHA256PasswordHasher().getHash(password);
 
@@ -131,7 +131,7 @@ class APIPasswordCheckerTest {
     }
 
     @Test
-    void testIsPasswordSecureEmptyCandidateListShouldReturnTrue() throws IOException, InterruptedException {
+    void testIsPasswordSecureEmptyCandidateList() throws IOException, InterruptedException {
         String password = "UniquePassword999!";
 
         PasswordApiResponseBody responseBody = new PasswordApiResponseBody(List.of());
@@ -145,7 +145,7 @@ class APIPasswordCheckerTest {
     }
 
     @Test
-    void testIsPasswordSecureHttpClientThrowsIOExceptionShouldThrowRuntimeException() throws IOException, InterruptedException {
+    void testIsPasswordSecureHttpClientThrowsIOException() throws IOException, InterruptedException {
         String password = "AnyPassword!";
 
         when(mockHttpClient.send(any(HttpRequest.class), any())).thenThrow(new IOException("Network error"));
@@ -155,7 +155,7 @@ class APIPasswordCheckerTest {
     }
 
     @Test
-    void testIsPasswordSecureHttpClientThrowsInterruptedExceptionShouldThrowRuntimeException() throws IOException, InterruptedException {
+    void testIsPasswordSecureHttpClientThrowsInterruptedException() throws IOException, InterruptedException {
         String password = "AnyPassword!";
 
         when(mockHttpClient.send(any(HttpRequest.class), any())).thenThrow(new InterruptedException("Thread interrupted"));
@@ -165,14 +165,14 @@ class APIPasswordCheckerTest {
     }
 
     @Test
-    void testCloseShouldCloseHttpClient() throws IOException {
+    void testClose() throws IOException {
         apiPasswordChecker.close();
 
         verify(mockHttpClient).close();
     }
 
     @Test
-    void testCloseHttpClientThrowsExceptionShouldRethrowIOException() {
+    void testCloseHttpClientThrowsException() {
         doThrow(new IOException("Close failed")).when(mockHttpClient).close();
 
         assertThrows(IOException.class, () -> apiPasswordChecker.close());
