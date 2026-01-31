@@ -1,8 +1,8 @@
 package server;
 
-import command.CommandExecutor;
-import command.factory.CommandFactoryImpl;
-import server.repository.FileUserRepository;
+import server.command.CommandExecutor;
+import server.command.factory.CommandFactoryImpl;
+import server.repository.AdapterUserRepository;
 import server.repository.UserRepository;
 
 import java.io.IOException;
@@ -149,7 +149,7 @@ public class PasswordVaultServer {
     }
 
     static void main() {
-        UserRepository repository = new FileUserRepository();
+        UserRepository repository = new AdapterUserRepository();
         CommandExecutor executor = new CommandExecutor(new CommandFactoryImpl(repository));
         PasswordVaultServer server = new PasswordVaultServer(DEFAULT_SERVER_PORT, executor);
         server.start();

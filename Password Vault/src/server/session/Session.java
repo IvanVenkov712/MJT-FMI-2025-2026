@@ -1,6 +1,6 @@
 package server.session;
 
-import model.User;
+import server.model.User;
 
 import java.nio.channels.SelectionKey;
 

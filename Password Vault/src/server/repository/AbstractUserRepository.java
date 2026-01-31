@@ -10,11 +10,11 @@ import exception.UserNotLoggedInException;
 import exception.WebsiteAlreadyExists;
 import exception.WebsiteNotExistsException;
 import exception.WrongPasswordException;
-import model.User;
-import model.WebsitePair;
-import password.checker.PasswordChecker;
-import password.encryptor.SymmetricEncryptor;
-import password.hash.PasswordHasher;
+import server.model.User;
+import server.model.WebsitePair;
+import server.password.checker.PasswordChecker;
+import server.password.encryptor.SymmetricEncryptor;
+import server.password.hash.PasswordHasher;
 import server.session.Session;
 import utils.PasswordGenerator;
 
