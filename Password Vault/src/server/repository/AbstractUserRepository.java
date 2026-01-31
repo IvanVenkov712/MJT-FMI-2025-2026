@@ -178,4 +178,8 @@ public abstract class AbstractUserRepository implements UserRepository {
     protected Map<String, User> getUsers() {
         return users;
     }
+
+    protected PasswordChecker getChecker() {
+        return checker;
+    }
 }

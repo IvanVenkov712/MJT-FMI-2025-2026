@@ -59,4 +59,9 @@ public class APIPasswordChecker implements PasswordChecker {
         return body.candidates().stream()
             .noneMatch(c -> c.sha256().equals(passwordHash) && c.revealedInExposure());
     }
+
+    @Override
+    public void close() throws IOException {
+        client.close();
+    }
 }

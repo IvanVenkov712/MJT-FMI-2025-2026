@@ -13,6 +13,7 @@ import server.password.hash.PasswordHasher;
 import server.password.hash.SHA256PasswordHasher;
 import server.session.Session;
 
+import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,5 +43,11 @@ public class AdapterUserRepository extends AbstractUserRepository {
     @Override
     public void saveChanges() {
         adapter.saveUsers(getUsers());
+    }
+
+    @Override
+    public void close() throws IOException {
+        saveChanges();
+        getChecker().close();
     }
 }

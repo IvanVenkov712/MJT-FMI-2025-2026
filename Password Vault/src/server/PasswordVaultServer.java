@@ -83,7 +83,11 @@ public class PasswordVaultServer {
         if (selector != null && selector.isOpen()) {
             selector.wakeup();
         }
-        commandExecutor.getRepository().saveChanges();
+        try {
+            commandExecutor.getRepository().close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void configureServerSocketChannel(ServerSocketChannel channel, Selector selector) throws IOException {

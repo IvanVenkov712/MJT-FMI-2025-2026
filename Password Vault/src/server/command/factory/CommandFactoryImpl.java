@@ -26,6 +26,9 @@ public class CommandFactoryImpl implements CommandFactory {
 
     @Override
     public Command newCommand(SelectionKey key, String clientInput) throws ArgumentCountMismatchException {
+        if (clientInput == null) {
+            return () -> new CommandResult(Status.ERROR, "Not recognised command");
+        }
         List<String> tokens = getCommandArguments(clientInput);
         String[] args = tokens.subList(1, tokens.size()).toArray(new String[0]);
 

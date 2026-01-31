@@ -2,20 +2,16 @@ package server.password.checker.api;
 
 import com.google.gson.Gson;
 import server.password.checker.api.model.request.PasswordApiRequestBody;
+import server.password.hash.PasswordHasher;
 import server.password.hash.SHA256PasswordHasher;
 
 import java.net.URI;
-import java.net.URLEncoder;
 import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class PasswordsApiRequestBuilder {
     private static final String ENDPOINT = "https://api.enzoic.com/v1/passwords";
-    private static final String EQUAL_SIGN = "=";
-    private static final String QUERY_SEPARATOR = "&";
     private static final int HASH_SYMBOLS_COUNT = 10;
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String CONTENT_TYPE_HEADER_NAME = "Content-Type";
@@ -25,34 +21,26 @@ public class PasswordsApiRequestBuilder {
     private static final String COLON = ":";
     private static final String BASIC = "basic";
 
-    private final String apiKey;
-    private final String apiSecret;
     private final Gson gson;
-
-    private final String authorizationEncoded;
     private final String authorizationHeaderString;
+    private final PasswordHasher hasher;
 
-    public PasswordsApiRequestBuilder(String apiKey, String apiSecret) {
-        this.apiKey = apiKey;
-        this.apiSecret = apiSecret;
+    PasswordsApiRequestBuilder(String apiKey, String apiSecret, PasswordHasher hasher) {
         gson = new Gson();
-        authorizationEncoded =
+        String authorizationEncoded =
             Base64.getEncoder().encodeToString((apiKey + COLON + apiSecret).getBytes(StandardCharsets.UTF_8));
 
         authorizationHeaderString = BASIC + " " + authorizationEncoded;
+        this.hasher = hasher;
     }
 
-    private String getQueryString(Map<String, String> params) {
-        return params.entrySet().stream()
-            .filter(e -> e.getKey() != null && e.getValue() != null && !e.getKey().isEmpty() && !e.getValue().isEmpty())
-            .map(e -> e.getKey() + EQUAL_SIGN + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
-            .collect(Collectors.joining(QUERY_SEPARATOR));
+    public PasswordsApiRequestBuilder(String apiKey, String apiSecret) {
+        this(apiKey, apiSecret, new SHA256PasswordHasher());
     }
 
     public HttpRequest getRequest(String password) {
-        String passwordHash = new SHA256PasswordHasher().getHash(password).substring(0, HASH_SYMBOLS_COUNT);
+        String passwordHash = hasher.getHash(password).substring(0, HASH_SYMBOLS_COUNT);
         PasswordApiRequestBody requestBody = new PasswordApiRequestBody(passwordHash);
-        String toJson = gson.toJson(requestBody);
 
         return HttpRequest.newBuilder(URI.create(ENDPOINT))
             .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(requestBody)))

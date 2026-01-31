@@ -11,9 +11,10 @@ import exception.WebsiteExistingException;
 import exception.WebsiteNotExistsException;
 import exception.IncorrectPasswordException;
 
+import java.io.Closeable;
 import java.nio.channels.SelectionKey;
 
-public interface UserRepository {
+public interface UserRepository extends Closeable {
     void registerUser(SelectionKey selectionKey, String user, String password, String passwordRepeat)
         throws UserAlreadyExistsException, UserLoggedInException, PasswordsNotMatchException;
 
@@ -36,5 +37,4 @@ public interface UserRepository {
         throws WebsiteUsernameNotExistsException, UserNotLoggedInException, WebsiteNotExistsException;
 
     void saveChanges();
-
 }

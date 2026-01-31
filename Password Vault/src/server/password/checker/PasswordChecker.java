@@ -1,5 +1,7 @@
 package server.password.checker;
 
-public interface PasswordChecker {
+import java.io.Closeable;
+
+public interface PasswordChecker extends Closeable {
     boolean isPasswordSecure(String password);
 }
