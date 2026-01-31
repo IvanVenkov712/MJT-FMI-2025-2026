@@ -7,6 +7,8 @@ import server.password.checker.PasswordChecker;
 import server.password.checker.api.APIPasswordChecker;
 import server.password.encryptor.SymmetricEncryptor;
 import server.password.encryptor.SymmetricEncryptorImpl;
+import server.password.generator.PasswordGenerator;
+import server.password.generator.PasswordGeneratorImpl;
 import server.password.hash.PasswordHasher;
 import server.password.hash.SHA256PasswordHasher;
 import server.session.Session;
@@ -21,15 +23,15 @@ public class AdapterUserRepository extends AbstractUserRepository {
     AdapterUserRepository(Map<String, User> users,
                           Map<SelectionKey, Session> sessions,
                           PasswordHasher hasher, SymmetricEncryptor encryptor,
-                          PasswordChecker checker, UserAdapter adapter) {
+                          PasswordChecker checker, PasswordGenerator generator, UserAdapter adapter) {
 
-        super(users, sessions, hasher, encryptor, checker);
+        super(users, sessions, hasher, encryptor, checker, generator);
         this.adapter = adapter;
     }
 
     AdapterUserRepository(UserAdapter adapter) {
         super(adapter.loadUsers(), new ConcurrentHashMap<>(), new SHA256PasswordHasher(), new SymmetricEncryptorImpl(),
-            new APIPasswordChecker());
+            new APIPasswordChecker(), new PasswordGeneratorImpl());
         this.adapter = adapter;
     }
 

@@ -19,8 +19,9 @@ import java.util.Base64;
 import static server.password.algorithm.Rijndael.ENCRYPTION_ALGORITHM;
 
 public class SymmetricEncryptorImpl implements SymmetricEncryptor {
+
     private static final String ENCODING = "UTF-8";
-    private static final String KEY_FILE_PATH = "SecretKey";
+    private static final String DEFAULT_KEY_FILE_PATH = "SecretKey";
     private static final int KEY_SIZE_IN_BITS = 128; // Key sizes like 192 or 256 might not be available on all systems
 
 
@@ -33,7 +34,7 @@ public class SymmetricEncryptorImpl implements SymmetricEncryptor {
     public SymmetricEncryptorImpl() {
         SecretKey key;
         try {
-            if (Files.exists(Path.of(KEY_FILE_PATH))) {
+            if (Files.exists(Path.of(DEFAULT_KEY_FILE_PATH))) {
                 key = loadSecretKey();
             } else {
                 key = generateSecretKey();
@@ -75,7 +76,7 @@ public class SymmetricEncryptorImpl implements SymmetricEncryptor {
         }
     }
 
-    private static SecretKey generateSecretKey() throws NoSuchAlgorithmException {
+    public static SecretKey generateSecretKey() throws NoSuchAlgorithmException {
         KeyGenerator keyGenerator = KeyGenerator.getInstance(ENCRYPTION_ALGORITHM);
         keyGenerator.init(KEY_SIZE_IN_BITS);
         SecretKey secretKey = keyGenerator.generateKey();
@@ -90,7 +91,7 @@ public class SymmetricEncryptorImpl implements SymmetricEncryptor {
 
     private static void persistSecretKey(SecretKey secretKey) throws IOException {
         byte[] keyBytes = secretKey.getEncoded();
-        Path keyFilePath = Path.of(KEY_FILE_PATH);
+        Path keyFilePath = Path.of(DEFAULT_KEY_FILE_PATH);
 
         // Write key bytes to file
         Files.write(keyFilePath, keyBytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -100,7 +101,7 @@ public class SymmetricEncryptorImpl implements SymmetricEncryptor {
     }
 
     private static SecretKey loadSecretKey() throws IOException {
-        byte[] keyBytes = Files.readAllBytes(Path.of(KEY_FILE_PATH));
+        byte[] keyBytes = Files.readAllBytes(Path.of(DEFAULT_KEY_FILE_PATH));
         return new SecretKeySpec(keyBytes, ENCRYPTION_ALGORITHM);
     }
 }
