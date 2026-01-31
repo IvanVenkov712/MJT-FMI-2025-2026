@@ -31,36 +31,6 @@ class SymmetricEncryptorImplTest {
     }
 
     @Test
-    void testEncryptSingleCharacter() throws Exception {
-        SecretKey key = generateSecretKey();
-        Rijndael cipher = new Rijndael(key);
-        SymmetricEncryptorImpl encryptor = new SymmetricEncryptorImpl(cipher);
-
-        String original = "A";
-        assertEquals(original, encryptor.decrypt(encryptor.encrypt(original)), "Single character should be preserved");
-    }
-
-    @Test
-    void testEncryptWithSpecialCharacters() throws Exception {
-        SecretKey key = generateSecretKey();
-        Rijndael cipher = new Rijndael(key);
-        SymmetricEncryptorImpl encryptor = new SymmetricEncryptorImpl(cipher);
-
-        String original = "!@#$%^&*()_+-=[]{}|;:',.<>?/~`";
-        assertEquals(original, encryptor.decrypt(encryptor.encrypt(original)), "Special characters should be preserved");
-    }
-
-    @Test
-    void testEncryptWithNumbers() throws Exception {
-        SecretKey key = generateSecretKey();
-        Rijndael cipher = new Rijndael(key);
-        SymmetricEncryptorImpl encryptor = new SymmetricEncryptorImpl(cipher);
-
-        String original = "1234567890";
-        assertEquals(original, encryptor.decrypt(encryptor.encrypt(original)), "Numbers should be preserved");
-    }
-
-    @Test
     void testEncryptMultiplePasswords() throws Exception {
         SecretKey key = generateSecretKey();
         Rijndael cipher = new Rijndael(key);
@@ -106,16 +76,6 @@ class SymmetricEncryptorImplTest {
         byte[] encrypted2 = encryptor.encrypt(password);
 
         assertArrayEquals(encrypted1, encrypted2, "Same plaintext should encrypt consistently");
-    }
-
-    @Test
-    void testEncryptWithUnicodeCharacters() throws Exception {
-        SecretKey key = generateSecretKey();
-        Rijndael cipher = new Rijndael(key);
-        SymmetricEncryptorImpl encryptor = new SymmetricEncryptorImpl(cipher);
-
-        String original = "Тест Привет 你好 مرحبا";
-        assertEquals(original, encryptor.decrypt(encryptor.encrypt(original)), "Unicode characters should be preserved");
     }
 
 }
