@@ -1,7 +1,6 @@
 package server.command;
 
 import server.command.factory.CommandFactory;
-import exception.ErrorHandler;
 import exception.PasswordVaultException;
 import server.logger.FileLogger;
 import server.logger.Logger;

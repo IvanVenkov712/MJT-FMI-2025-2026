@@ -12,6 +12,7 @@ public class PasswordVaultClient {
 
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_HOST = "localhost";
+    private static final String DISCONNECT_COMMAND = "disconnect";
     private static final int BUFFER_SIZE = 4096;
 
     static ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
@@ -29,7 +30,7 @@ public class PasswordVaultClient {
                 System.out.print("Enter command: ");
                 String command = scanner.nextLine(); // read a line from the console
 
-                if ("disconnect".equals(command)) {
+                if (DISCONNECT_COMMAND.equals(command)) {
                     break;
                 }
                 proceedCommand(socketChannel, command);
@@ -52,10 +53,10 @@ public class PasswordVaultClient {
 
         byte[] byteArray = new byte[buffer.remaining()];
         buffer.get(byteArray);
-        String reply = new String(byteArray, "UTF-8"); // buffer drain
+        String reply = new String(byteArray, StandardCharsets.UTF_8); // buffer drain
 
-        // if the buffer is a non-direct one, it has a wrapped array and we can get it
-        //String reply = new String(buffer.array(), 0, buffer.position(), "UTF-8"); // buffer drain
+        // if the buffer is a non-direct one, it has a wrapped array, and we can get it
+        // String reply = new String(buffer.array(), 0, buffer.position(), "UTF-8"); // buffer drain
 
         System.out.println("Response: " + reply);
     }
