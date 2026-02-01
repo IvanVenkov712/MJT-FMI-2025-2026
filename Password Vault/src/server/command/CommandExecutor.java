@@ -1,5 +1,6 @@
 package server.command;
 
+import server.Messages;
 import server.command.factory.CommandFactory;
 import exception.PasswordVaultException;
 import server.logger.FileLogger;
@@ -29,7 +30,7 @@ public class CommandExecutor {
             return new CommandResult(Status.ERROR, e.getMessage());
         } catch (Exception e) {
             logger.log(e);
-            return new CommandResult(Status.ERROR, "Internal server error");
+            return new CommandResult(Status.ERROR, Messages.INTERNAL_SERVER_ERROR);
         }
     }
 
