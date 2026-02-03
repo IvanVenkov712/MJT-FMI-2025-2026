@@ -12,7 +12,6 @@ import exception.WebsiteExistingException;
 import exception.WebsiteNotExistsException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
 import server.adapter.UserAdapter;
 import server.model.User;
 import server.model.WebsitePair;
@@ -26,11 +25,16 @@ import java.nio.channels.SelectionKey;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class AdapterUserRepositoryTest {
+    private static final String DEFAULT_USER = "Pesho";
+    private static final String DEFAULT_PASS = "PeshoP";
+
     private AdapterUserRepository userRepository;
 
     private PasswordHasher hasher;
@@ -53,32 +57,49 @@ class AdapterUserRepositoryTest {
         sessions = new HashMap<>();
         userRepository = new AdapterUserRepository(users, sessions, hasher, encryptor, checker, generator, adapter);
         sessionKey = mock();
+        when(hasher.getHash(DEFAULT_PASS)).thenReturn(DEFAULT_PASS);
+        when(encryptor.encrypt(DEFAULT_PASS)).thenReturn(DEFAULT_PASS.getBytes());
+        when(encryptor.decrypt(DEFAULT_PASS.getBytes())).thenReturn(DEFAULT_PASS);
     }
 
-    @AfterEach
-    void tearDown() {
-        userRepository = null;
+    private User addUser(String username, String password, boolean loggedIn) {
+        User user = new User(username, password, new HashMap<>());
+        users.put(username, user);
+        if (loggedIn) {
+            sessions.put(sessionKey, new Session(sessionKey, user, true));
+        }
+        return user;
+    }
+
+    private User addDefaultUserWithPassword(boolean loggedIn) {
+        User u = addUser(DEFAULT_USER, DEFAULT_PASS, loggedIn);
+        when(encryptor.encrypt(DEFAULT_PASS)).thenReturn(DEFAULT_PASS.getBytes());
+        when(checker.isPasswordSecure(DEFAULT_PASS)).thenReturn(true);
+        return u;
     }
 
     @Test
     void testRegisterUserValidInput()
         throws UserLoggedInException, PasswordsNotMatchException, UserAlreadyExistsException {
-        userRepository.registerUser(mock(), "Pesho", "PeshoPass", "PeshoPass");
+
+        userRepository.registerUser(mock(SelectionKey.class), "Pesho", "PeshoPass", "PeshoPass");
     }
 
     @Test
     void testRegisterUserNotMatchingPasswords() {
         assertThrows(
-            PasswordsNotMatchException.class, () -> userRepository.registerUser(mock(), "Pesho", "PeshoPass", "PeshoPass1"),
-            "Expected to throw PasswordsNotMatchException when password and passwordRepeat not match"
+            PasswordsNotMatchException.class,
+            () -> userRepository.registerUser(sessionKey, "Pesho", "PeshoPass", "PeshoPass1"),
+            "Expected PasswordsNotMatchException when password != passwordRepeat!"
         );
     }
 
     @Test
     void testRegisterUserExistingUser() {
-        users.put("Gosho", new User("Gosho", "", Map.of()));
+        addUser("Gosho", "", false);
         assertThrows(
-            UserAlreadyExistsException.class, () -> userRepository.registerUser(mock(), "Gosho", "GoshoPass", "GoshoPass"),
+            UserAlreadyExistsException.class,
+            () -> userRepository.registerUser(sessionKey, "Gosho", "GoshoPass", "GoshoPass"),
             "Expected to throw UserAlreadyExistsException when registering with existing username."
         );
 
@@ -86,12 +107,11 @@ class AdapterUserRepositoryTest {
 
     @Test
     void testRegisterUserLoggedUser() {
-        User user = new User("Gosho", "", Map.of());
-        users.put("Gosho", user);
-        sessions.put(sessionKey, new Session(sessionKey, user, true));
+        addUser("Gosho", "", true);
 
         assertThrows(
-            UserLoggedInException.class, () -> userRepository.registerUser(sessionKey, "Pesho", "PeshoPass", "PeshoPass"),
+            UserLoggedInException.class,
+            () -> userRepository.registerUser(sessionKey, "Pesho", "PeshoPass", "PeshoPass"),
             "Expected to throw UserAlreadyLoggedException when registering with existing username."
         );
 
@@ -101,20 +121,14 @@ class AdapterUserRepositoryTest {
     void testLoginUserValidInput()
         throws UserLoggedInException, UserNotExistsException, IncorrectPasswordException {
 
-        users.put("Pesho", new User("Pesho", "PeshoP", Map.of()));
+        addUser("Pesho", "PeshoP", false);
 
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
-
-        userRepository.loginUser(mock(), "Pesho", "PeshoP");
+        userRepository.loginUser(mock(SelectionKey.class), "Pesho", "PeshoP");
     }
 
     @Test
     void testLoginUserUserAlreadyLogged() {
-        User user = new User("Pesho", "PeshoP", Map.of());
-        users.put("Pesho", user);
-        sessions.put(sessionKey, new Session(sessionKey, user, true));
-
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
+        addUser("Pesho", "PeshoP", true);
 
         assertThrows(
             UserLoggedInException.class,
@@ -125,8 +139,6 @@ class AdapterUserRepositoryTest {
 
     @Test
     void testLoginUserUserNotExisting() {
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
-
         assertThrows(
             UserNotExistsException.class,
             () -> userRepository.loginUser(sessionKey, "Pesho", "PeshoP"),
@@ -136,8 +148,7 @@ class AdapterUserRepositoryTest {
 
     @Test
     void testLoginUserUserIncorrectPassword() {
-        User user = new User("Pesho", "PeshoP", Map.of());
-        users.put("Pesho", user);
+        addUser("Pesho", "PeshoP", false);
 
         when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
         when(hasher.getHash("PeshoP1")).thenReturn("PeshoP1");
@@ -151,21 +162,14 @@ class AdapterUserRepositoryTest {
 
     @Test
     void testLogoutUserLoggedInUser() throws UserNotLoggedInException {
-        User user = new User("Pesho", "PeshoP", Map.of());
-        users.put("Pesho", user);
-        sessions.put(sessionKey, new Session(sessionKey, user, true));
-
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
+        addUser("Pesho", "PeshoP", true);
 
         userRepository.logoutUser(sessionKey);
     }
 
     @Test
     void testLogoutUserNotLoggedInUser() {
-        User user = new User("Pesho", "PeshoP", Map.of());
-        users.put("Pesho", user);
-
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
+        addUser("Pesho", "PeshoP", false);
 
         assertThrows(UserNotLoggedInException.class, () -> userRepository.logoutUser(sessionKey),
             "UserNotLoggedInException expected when logging out without been logged in"
@@ -173,26 +177,18 @@ class AdapterUserRepositoryTest {
     }
 
     @Test
-    void testAddPasswordValidInput() throws WebsiteExistingException, PasswordNotSecureException, UserNotLoggedInException {
-        User user = new User("Pesho", "PeshoP", new HashMap<>());
-        users.put("Pesho", user);
-        sessions.put(sessionKey, new Session(sessionKey, user, true));
+    void testAddPasswordValidInput()
+        throws WebsiteExistingException, PasswordNotSecureException, UserNotLoggedInException {
 
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
-        when(encryptor.encrypt("PeshoP")).thenReturn("PeshoP".getBytes());
-        when(checker.isPasswordSecure("PeshoP")).thenReturn(true);
+        addDefaultUserWithPassword(true);
 
         userRepository.addPassword(sessionKey, "facebook", "Pesho@gmail", "PeshoP");
     }
 
     @Test
     void testAddPasswordNotSecurePassword() {
-        User user = new User("Pesho", "PeshoP", new HashMap<>());
-        users.put("Pesho", user);
-        sessions.put(sessionKey, new Session(sessionKey, user, true));
+        addDefaultUserWithPassword(true);
 
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
-        when(encryptor.encrypt("PeshoP")).thenReturn("PeshoP".getBytes());
         when(checker.isPasswordSecure("PeshoP")).thenReturn(false);
 
         assertThrows(PasswordNotSecureException.class,
@@ -203,14 +199,8 @@ class AdapterUserRepositoryTest {
 
     @Test
     void testAddPasswordExistingSite() {
-        User user = new User("Pesho", "PeshoP", new HashMap<>());
+        User user = addDefaultUserWithPassword(true);
         user.passwords().put("facebook", new WebsitePair("Pesho@gmail", "PeshoP".getBytes()));
-        users.put("Pesho", user);
-        sessions.put(sessionKey, new Session(sessionKey, user, true));
-
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
-        when(encryptor.encrypt("PeshoP")).thenReturn("PeshoP".getBytes());
-        when(checker.isPasswordSecure("PeshoP")).thenReturn(true);
 
         assertThrows(WebsiteExistingException.class,
             () -> userRepository.addPassword(sessionKey, "facebook", "Pesho@gmail", "PeshoP"),
@@ -220,12 +210,7 @@ class AdapterUserRepositoryTest {
 
     @Test
     void testAddPasswordUserNotLoggedIn() {
-        User user = new User("Pesho", "PeshoP", new HashMap<>());
-        users.put("Pesho", user);
-
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
-        when(encryptor.encrypt("PeshoP")).thenReturn("PeshoP".getBytes());
-        when(checker.isPasswordSecure("PeshoP")).thenReturn(true);
+        addDefaultUserWithPassword(false);
 
         assertThrows(UserNotLoggedInException.class,
             () -> userRepository.addPassword(sessionKey, "facebook", "Pesho@gmail", "PeshoP"),
@@ -235,13 +220,8 @@ class AdapterUserRepositoryTest {
 
     @Test
     void testGeneratePassword() throws PasswordNotSecureException, UserNotLoggedInException, WebsiteExistingException {
-        User user = new User("Pesho", "PeshoP", new HashMap<>());
-        users.put("Pesho", user);
-        sessions.put(sessionKey, new Session(sessionKey, user, true));
 
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
-        when(encryptor.encrypt("PeshoP")).thenReturn("PeshoP".getBytes());
-        when(checker.isPasswordSecure("PeshoP")).thenReturn(true);
+        addDefaultUserWithPassword(true);
         when(generator.generatePassword()).thenReturn("PeshoP");
 
         assertEquals("PeshoP", userRepository.generatePassword(sessionKey, "facebook", "Pesho@gmail"),
@@ -253,14 +233,8 @@ class AdapterUserRepositoryTest {
     void testRemovePasswordValidInput()
         throws WebsiteNotExistsException, WebsiteUsernameNotExistsException, UserNotLoggedInException {
 
-        User user = new User("Pesho", "PeshoP", new HashMap<>());
+        User user = addDefaultUserWithPassword(true);
         user.passwords().put("facebook", new WebsitePair("Pesho@gmail", "PeshoP".getBytes()));
-        users.put("Pesho", user);
-        sessions.put(sessionKey, new Session(sessionKey, user, true));
-
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
-        when(encryptor.encrypt("PeshoP")).thenReturn("PeshoP".getBytes());
-        when(checker.isPasswordSecure("PeshoP")).thenReturn(true);
 
         userRepository.removePassword(sessionKey, "facebook", "Pesho@gmail");
         assertEquals(0, user.passwords().size(), "Expected empty passwords list");
@@ -268,13 +242,7 @@ class AdapterUserRepositoryTest {
 
     @Test
     void testRemovePasswordNotExistingSite() {
-        User user = new User("Pesho", "PeshoP", new HashMap<>());
-        users.put("Pesho", user);
-        sessions.put(sessionKey, new Session(sessionKey, user, true));
-
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
-        when(encryptor.encrypt("PeshoP")).thenReturn("PeshoP".getBytes());
-        when(checker.isPasswordSecure("PeshoP")).thenReturn(true);
+        addDefaultUserWithPassword(true);
 
         assertThrows(
             WebsiteNotExistsException.class, () -> userRepository.removePassword(sessionKey, "facebook", "Pesho@gmail"),
@@ -284,31 +252,22 @@ class AdapterUserRepositoryTest {
 
     @Test
     void testRemovePasswordNotExistingCredentials() {
-        User user = new User("Pesho", "PeshoP", new HashMap<>());
+        User user = addDefaultUserWithPassword(true);
         user.passwords().put("facebook", new WebsitePair("Pesho@gmail", "PeshoP".getBytes()));
-        users.put("Pesho", user);
-        sessions.put(sessionKey, new Session(sessionKey, user, true));
 
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
-        when(encryptor.encrypt("PeshoP")).thenReturn("PeshoP".getBytes());
-        when(checker.isPasswordSecure("PeshoP")).thenReturn(true);
-
-        assertThrows(WebsiteUsernameNotExistsException.class, () -> userRepository.removePassword(sessionKey, "facebook", "Pesho1@gmail"),
-           "Expected CredentialsNotExistException when existing site and non-existing uname"
+        assertThrows(WebsiteUsernameNotExistsException.class,
+            () -> userRepository.removePassword(sessionKey, "facebook", "Pesho1@gmail"),
+            "Expected CredentialsNotExistException when existing site and non-existing uname"
         );
     }
 
     @Test
     void testRemovePasswordUserNotLoggedIn() {
-        User user = new User("Pesho", "PeshoP", new HashMap<>());
+        User user = addDefaultUserWithPassword(false);
         user.passwords().put("facebook", new WebsitePair("Pesho@gmail", "PeshoP".getBytes()));
-        users.put("Pesho", user);
 
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
-        when(encryptor.encrypt("PeshoP")).thenReturn("PeshoP".getBytes());
-        when(checker.isPasswordSecure("PeshoP")).thenReturn(true);
-
-        assertThrows(UserNotLoggedInException.class, () -> userRepository.removePassword(sessionKey, "facebook", "Pesho1@gmail"),
+        assertThrows(UserNotLoggedInException.class,
+            () -> userRepository.removePassword(sessionKey, "facebook", "Pesho1@gmail"),
             "Expected UserNotLoggedInException when removing password as not logged-in user"
         );
     }
@@ -316,15 +275,9 @@ class AdapterUserRepositoryTest {
     @Test
     void testRetrieveCredentialsValidInput()
         throws WebsiteNotExistsException, WebsiteUsernameNotExistsException, UserNotLoggedInException {
-        User user = new User("Pesho", "PeshoP", new HashMap<>());
-        user.passwords().put("facebook", new WebsitePair("Pesho@gmail", "PeshoP".getBytes()));
-        users.put("Pesho", user);
-        sessions.put(sessionKey, new Session(sessionKey, user, true));
 
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
-        when(encryptor.encrypt("PeshoP")).thenReturn("PeshoP".getBytes());
-        when(encryptor.decrypt("PeshoP".getBytes())).thenReturn("PeshoP");
-        when(checker.isPasswordSecure("PeshoP")).thenReturn(true);
+        User user = addDefaultUserWithPassword(true);
+        user.passwords().put("facebook", new WebsitePair("Pesho@gmail", "PeshoP".getBytes()));
 
         String credentials = userRepository.retrieveCredentials(sessionKey, "facebook", "Pesho@gmail");
         assertEquals("Pesho@gmail PeshoP", credentials, "Not the expected credentials");
@@ -332,50 +285,32 @@ class AdapterUserRepositoryTest {
 
     @Test
     void testRetrieveCredentialsNotExistingWebsite() {
-        User user = new User("Pesho", "PeshoP", new HashMap<>());
-        users.put("Pesho", user);
-        sessions.put(sessionKey, new Session(sessionKey, user, true));
+        addDefaultUserWithPassword(true);
 
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
-        when(encryptor.encrypt("PeshoP")).thenReturn("PeshoP".getBytes());
-        when(encryptor.decrypt("PeshoP".getBytes())).thenReturn("PeshoP");
-        when(checker.isPasswordSecure("PeshoP")).thenReturn(true);
-
-        assertThrows(WebsiteNotExistsException.class, () -> userRepository.retrieveCredentials(sessionKey, "facebook", "Pesho@gmail"),
+        assertThrows(WebsiteNotExistsException.class,
+            () -> userRepository.retrieveCredentials(sessionKey, "facebook", "Pesho@gmail"),
             "Expected WebsiteNotExistsException when retrieving password of non-existing site"
         );
     }
 
     @Test
     void testRetrieveCredentialsNotExistingUsername() {
-        User user = new User("Pesho", "PeshoP", new HashMap<>());
+        User user = addDefaultUserWithPassword(true);
         user.passwords().put("facebook", new WebsitePair("Pesho@gmail", "PeshoP".getBytes()));
-        users.put("Pesho", user);
 
-        sessions.put(sessionKey, new Session(sessionKey, user, true));
-
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
-        when(encryptor.encrypt("PeshoP")).thenReturn("PeshoP".getBytes());
-        when(encryptor.decrypt("PeshoP".getBytes())).thenReturn("PeshoP");
-        when(checker.isPasswordSecure("PeshoP")).thenReturn(true);
-
-        assertThrows(WebsiteUsernameNotExistsException.class, () -> userRepository.retrieveCredentials(sessionKey, "facebook", "Pesho1@gmail"),
+        assertThrows(WebsiteUsernameNotExistsException.class,
+            () -> userRepository.retrieveCredentials(sessionKey, "facebook", "Pesho1@gmail"),
             "Expected WebsiteUsernameNotExistsException when retrieving password of non-existing username and existing site"
         );
     }
 
     @Test
     void testRetrieveCredentialsNotLoggedInUser() {
-        User user = new User("Pesho", "PeshoP", new HashMap<>());
+        User user = addDefaultUserWithPassword(false);
         user.passwords().put("facebook", new WebsitePair("Pesho@gmail", "PeshoP".getBytes()));
-        users.put("Pesho", user);
 
-        when(hasher.getHash("PeshoP")).thenReturn("PeshoP");
-        when(encryptor.encrypt("PeshoP")).thenReturn("PeshoP".getBytes());
-        when(encryptor.decrypt("PeshoP".getBytes())).thenReturn("PeshoP");
-        when(checker.isPasswordSecure("PeshoP")).thenReturn(true);
-
-        assertThrows(UserNotLoggedInException.class, () -> userRepository.retrieveCredentials(sessionKey, "facebook", "Pesho@gmail"),
+        assertThrows(UserNotLoggedInException.class,
+            () -> userRepository.retrieveCredentials(sessionKey, "facebook", "Pesho@gmail"),
             "Expected UserNotLoggedInException when retrieving password as not logged in user"
         );
     }
